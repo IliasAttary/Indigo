@@ -1,8 +1,8 @@
 package entity
 
 /**
- * Entity that inherits from Tile to represent  a TreasureTile
- * @property gemPsitions map that has the positions of the Gems on the TreasureTile
- * @property gems the gems on the TreasureTile
+ * Entity that inherits from Tile to represent a Treasure Tile
+ * @property gemPositions map that has the positions of the gems, or null if it is the center treasure tile
+ * @property gems the gems on the center treasure tile, or null if it is a border treasure tile
  */
-data class TreasureTile(val gemPsitions: Map<Int, Gem>, val gems: MutableList<Gem>) : Tile()
+data class TreasureTile(val gemPositions: MutableMap<Int, Gem>?, val gems: MutableList<Gem>?) : Tile()

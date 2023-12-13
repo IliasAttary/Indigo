@@ -2,9 +2,9 @@ package entity
 
 /**
  * This is an enum class that has the types and the paths of the tiles in map
- * @property path is a map that has the paths of a tile
+ * @property paths is a map that has the paths of a tile
  */
-enum class TileType(val path: Map<Int, Int>) {
+enum class TileType(val paths: Map<Int, Int>) {
     TILE0(
         mapOf(
             0 to 2,

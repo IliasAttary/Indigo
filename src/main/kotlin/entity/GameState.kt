@@ -5,11 +5,11 @@ package entity
  * @property board is a map which will represent the board of the game
  * @property drawStack the stack that will be used to draw a tile
  * @property players a list contains the players of the game
- * @property gems a list contains the available  gems on the board
+ * @property gems a list contains the available gems on the board
  */
 data class GameState(
     val board: Map<AxialPos, Tile>,
-    val drawStack: MutableList<Tile>,
-    val players: MutableList<Player>,
-    val gems: MutableList<Gem>
+    val drawStack: List<Tile>,
+    val players: List<Player>,
+    val gems: List<Gem>
 )
