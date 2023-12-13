@@ -18,6 +18,4 @@ data class Game(val aiMoveMilliSeconds:Int,
                 var playerAtTurn:Player,
                 val currentGems:MutableList<Gem>,
                 val undoStack:MutableList<GameState>,
-                val redoStack:MutableList<GameState>){
-
-}
+                val redoStack:MutableList<GameState>)
