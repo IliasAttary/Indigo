@@ -3,7 +3,7 @@ package entity
 /**
  * Entity to represent the tile
  */
-open class Tile{
+open class Tile {
     var rotation = 0
 }
 

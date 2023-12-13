@@ -5,4 +5,4 @@ package entity
  * @param q
  * @param r
  */
-data class AxialPos(val q:Int ,val r:Int)
+data class AxialPos(val q: Int, val r: Int)

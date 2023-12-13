@@ -10,8 +10,8 @@ package entity
  * @property color to represent the color that the player choosed
  * @property gems  to represent the gems of the player
  */
-data class Player(val name:String,var heldTile:Tile , val color:Color,val gems:MutableList<Gem>){
+data class Player(val name: String, var heldTile: Tile, val color: Color, val gems: MutableList<Gem>) {
     var points = 0
     var isLocalAI = false
-    var smartAI  = false
+    var smartAI = false
 }

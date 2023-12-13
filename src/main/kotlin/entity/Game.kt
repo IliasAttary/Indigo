@@ -11,11 +11,13 @@ package entity
  * @property undoStack if the player wants to go to the next step
  * @property redoStack if the player wants to go to the last step
  */
-data class Game(val aiMoveMilliSeconds:Int,
-                val currentBoard:Map<AxialPos,Tile>,
-                var sharedGates:Boolean,
-                val currentPlayers:MutableList<Player>,
-                var playerAtTurn:Player,
-                val currentGems:MutableList<Gem>,
-                val undoStack:MutableList<GameState>,
-                val redoStack:MutableList<GameState>)
+data class Game(
+    val aiMoveMilliSeconds: Int,
+    val currentBoard: Map<AxialPos, Tile>,
+    var sharedGates: Boolean,
+    val currentPlayers: MutableList<Player>,
+    var playerAtTurn: Player,
+    val currentGems: MutableList<Gem>,
+    val undoStack: MutableList<GameState>,
+    val redoStack: MutableList<GameState>
+)
