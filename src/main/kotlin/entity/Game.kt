@@ -1,5 +1,7 @@
 package entity
 
+import kotlinx.serialization.Serializable
+
 /**
  * Entity class that represents a game state of "Indigo"
  * @property aiMoveMilliseconds the time that an AI player needs to finish a step
@@ -12,6 +14,8 @@ package entity
  * @property redoStack next game states
  * @property currentDrawStack represents the draw stack in the game
  */
+
+@Serializable
 data class Game(
     var aiMoveMilliseconds: Int,
     val currentBoard: MutableMap<AxialPos, Tile>,

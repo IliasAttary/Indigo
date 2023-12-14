@@ -1,5 +1,9 @@
 package service
 import entity.*
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import java.io.File
+
 
 /**
  * The GameService class manages game-related logic and actions that affect the overall game state.
@@ -406,5 +410,21 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
         rootService.currentGame = null
 
         onAllRefreshables{refreshAfterEndGame(players)}
+    }
+    /**
+     * saves the current Game in the file saveGame.ser
+     */
+    fun save(){
+        val file = File("saveGame.ser")
+        file.writeText(Json.encodeToString(rootService.currentGame))
+    }
+
+    /**
+     * loads the current Game from the saveGame.ser file
+     */
+    fun load(){
+        val file = File("saveGame.ser")
+        rootService.currentGame = Json.decodeFromString<Game>(file.readText())
+        onAllRefreshables { refreshAfterNewGame() }
     }
 }
