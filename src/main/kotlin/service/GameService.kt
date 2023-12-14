@@ -393,6 +393,11 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
         return drawStack
     }
 
+    /**
+     * Ends the current game session.
+     *
+     * @throws IllegalStateException if called when no game is in progress.
+     */
     fun endGame(){
         val game = rootService.currentGame
         checkNotNull(game){"No game started yet!"}
