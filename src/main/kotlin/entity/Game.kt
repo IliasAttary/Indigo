@@ -16,13 +16,21 @@ import kotlinx.serialization.Serializable
  */
 
 @Serializable
+
 data class Game(
+
     var aiMoveMilliseconds: Int,
+
     val currentBoard: MutableMap<AxialPos, Tile>,
+
     val sharedGates: Boolean,
+
     val currentPlayers: List<Player>,
+
     var playerAtTurn: Player,
+
     val currentGems: MutableList<Gem>,
+
     val currentDrawStack : MutableList<Tile>
 ) {
     val undoStack: MutableList<GameState> = mutableListOf()

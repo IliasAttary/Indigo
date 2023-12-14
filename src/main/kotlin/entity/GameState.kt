@@ -1,5 +1,7 @@
 package entity
 
+import kotlinx.serialization.Serializable
+
 /**
  * This Entity represents the state of the Game
  * @property board is a map which will represent the board of the game
@@ -7,6 +9,7 @@ package entity
  * @property players a list contains the players of the game
  * @property gems a list contains the available gems on the board
  */
+@Serializable
 data class GameState(
     val board: Map<AxialPos, Tile>,
     val drawStack: List<Tile>,

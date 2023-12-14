@@ -1,5 +1,7 @@
 package entity
 
+import kotlinx.serialization.Serializable
+
 /**
  * Entity to represent a player in the game
  * @property name to represent the name of the player
@@ -10,6 +12,7 @@ package entity
  * @property color to represent the color that the player chose
  * @property collectedGems to represent the collected gems of the player
  */
+@Serializable
 data class Player(val name: String, val color: Color, val isAI: Boolean, val smartAI: Boolean, var heldTile: Tile) {
     var points = 0
     val collectedGems = Gem.values().associateWith { 0 }.toMutableMap()
