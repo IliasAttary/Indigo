@@ -43,7 +43,7 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
         allGems.add(Gem.SAPPHIRE)
         allGems.add(Gem.SAPPHIRE)
 
-        rootService.game = Game(currentPlayers = players,
+        rootService.currentGame = Game(currentPlayers = players,
             currentBoard = initializeBoard(players, sharedGates),
             currentDrawStack = initializeDrawStack(),
             aiMoveMilliseconds = aiSpeed,
@@ -394,11 +394,11 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
     }
 
     fun endGame(){
-        val game = rootService.game
+        val game = rootService.currentGame
         checkNotNull(game){"No game started yet!"}
 
         val players = game.currentPlayers
-        rootService.game = null
+        rootService.currentGame = null
 
         onAllRefreshables{refreshAfterEndGame(players)}
     }
