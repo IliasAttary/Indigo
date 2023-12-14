@@ -10,6 +10,7 @@ package entity
  * @property currentGems to represent the current gems on the board
  * @property undoStack previous game states
  * @property redoStack next game states
+ * @property currentDrawStack represents the draw stack in the game
  */
 data class Game(
     var aiMoveMilliseconds: Int,
@@ -18,6 +19,7 @@ data class Game(
     val currentPlayers: List<Player>,
     var playerAtTurn: Player,
     val currentGems: MutableList<Gem>,
+    val currentDrawStack : MutableList<Tile>
 ) {
     val undoStack: MutableList<GameState> = mutableListOf()
     val redoStack: MutableList<GameState> = mutableListOf()
