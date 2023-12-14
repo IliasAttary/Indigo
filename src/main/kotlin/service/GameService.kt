@@ -36,14 +36,16 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
         check(playerNames.toSet().size == playerNames.size) { "The players need to have different names" }
 
         val allGems = mutableListOf<Gem>()
-        for(i in 0 .. 5){
+        repeat(6){
             allGems.add(Gem.AMBER)
             allGems.add(Gem.AMBER)
         }
-        for(i in 0..4){
+
+        repeat(5){
             allGems.add(Gem.EMERALD)
             allGems.add(Gem.EMERALD)
         }
+
         allGems.add(Gem.SAPPHIRE)
         allGems.add(Gem.SAPPHIRE)
 
@@ -82,15 +84,11 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
                 // TilePositions for a TreasureTile
 
                 if(r == -4 && q == 0){
-                    val gemPositions = hashMapOf<Int,Gem>()
-                    gemPositions[0] = Gem.AMBER
-                    gameBoard[AxialPos(q,r)] = TreasureTile( gemPositions, mutableListOf(Gem.AMBER))
+                    placeTreasureTile(gameBoard,q,r)
                 }
 
                 if(r == -4 && q == 4){
-                    val gemPositions = hashMapOf<Int,Gem>()
-                    gemPositions[0] = Gem.AMBER
-                    gameBoard[AxialPos(q,r)] = TreasureTile( gemPositions, mutableListOf(Gem.AMBER))
+                    placeTreasureTile(gameBoard,q,r)
                 }
 
                 //Middle TilePosition
@@ -99,217 +97,59 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
                 }
 
                 if(r == 0 && q == 0){
-                    val gemPositions = hashMapOf<Int,Gem>()
-                    gemPositions[0] = Gem.AMBER
-                    gameBoard[AxialPos(-4,r)] = TreasureTile(gemPositions,mutableListOf(Gem.AMBER))
+                    placeTreasureTile(gameBoard,-4,r)
                 }
 
                 if(r == 0 && q == 8){
-                    val gemPositions = hashMapOf<Int,Gem>()
-                    gemPositions[0] = Gem.AMBER
-                    gameBoard[AxialPos(q-4,r)] = TreasureTile(gemPositions,mutableListOf(Gem.AMBER))
+                    placeTreasureTile(gameBoard,4,r)
                 }
 
                 if(r == 4 && q == 0){
-                    val gemPositions = hashMapOf<Int,Gem>()
-                    gemPositions[0] = Gem.AMBER
-                    gameBoard[AxialPos(-4,r)] = TreasureTile(gemPositions,mutableListOf(Gem.AMBER))
+                    placeTreasureTile(gameBoard,-4,r)
                 }
 
                 if(r == 4 && q == 4){
-                    val gemPositions = hashMapOf<Int,Gem>()
-                    gemPositions[0] = Gem.AMBER
-                    gameBoard[AxialPos(0,r)] = TreasureTile(gemPositions,mutableListOf(Gem.AMBER))
+                    placeTreasureTile(gameBoard,0,r)
                 }
 
                 //TilePositions for a GatewayTile
 
                 // Gates at 1
                 if(r == -4 && 1 <= q && q <= 3){
-                    when(players.size){
-                        2 -> {
-                            val gatePlayers = searchPlayerWithColor(players,Color.RED,Color.RED)
-                            gatePlayers.removeLast()
-                            gameBoard[AxialPos(q,r)] = GatewayTile(gatePlayers)
-                        }
-
-                        3 -> {
-                            val gatePlayers = searchPlayerWithColor(players,Color.RED,Color.RED)
-                            gatePlayers.removeLast()
-                            gameBoard[AxialPos(q,r)] = GatewayTile(gatePlayers)
-                        }
-                    }
-
-
+                    placeGateWayTile(gameBoard,q,r,1,players,sharedGates)
                 }
 
                 // Gates at 2
                 if( (r == -3 && q == 5) || (r == -2 && q == 6) || (r == -1 && q == 7) ){
-                    when (players.size){
-                        2 -> {
-                            val gatePlayers = searchPlayerWithColor(players,Color.BLUE,Color.BLUE)
-                            gatePlayers.removeLast()
-                            gameBoard[AxialPos(4,r)] = GatewayTile(gatePlayers)
-                        }
-
-                        3 -> {
-                            if(sharedGates){
-                                val gatePlayers = searchPlayerWithColor(players,Color.RED,Color.BLUE)
-                                gameBoard[AxialPos(4,r)] = GatewayTile(gatePlayers)
-                            }
-                            else{
-                                val gatePlayers = searchPlayerWithColor(players,Color.BLUE,Color.BLUE)
-                                gatePlayers.removeLast()
-                                gameBoard[AxialPos(4,r)] = GatewayTile(gatePlayers)
-                            }
-                        }
-
-                        4 -> {
-                            val gatePlayers = searchPlayerWithColor(players,Color.BLUE,Color.WHITE)
-                            gameBoard[AxialPos(4,r)] = GatewayTile(gatePlayers)
-                        }
-                    }
+                    placeGateWayTile(gameBoard,4,r,2,players,sharedGates)
                 }
 
                 // Gates at 3
                 if( (r == 1 && q == 7) || (r == 2 && q == 6) || (r == 1 && q == 5) ){
-                    when (players.size){
-                        2 -> {
-                            val gatePlayers = searchPlayerWithColor(players,Color.RED,Color.RED)
-                            gatePlayers.removeLast()
-                            gameBoard[AxialPos(q-4,r)] = GatewayTile(gatePlayers)
-                        }
-
-                        3 -> {
-                            val gatePlayers = searchPlayerWithColor(players,Color.WHITE,Color.WHITE)
-                            gatePlayers.removeLast()
-                            gameBoard[AxialPos(q-4,r)] = GatewayTile(gatePlayers)
-                        }
-
-                        4 -> {
-                            val gatePlayers = searchPlayerWithColor(players,Color.RED,Color.PURPLE)
-                            gameBoard[AxialPos(q-4,r)] = GatewayTile(gatePlayers)
-                        }
-                    }
+                    placeGateWayTile(gameBoard,q-4,r,3,players,sharedGates)
                 }
 
                 // Gates at 4
                 if(r == 4 && 1 <= q && q <= 3 ){
-                    when (players.size){
-                        2 -> {
-                            val gatePlayers = searchPlayerWithColor(players,Color.BLUE,Color.BLUE)
-                            gatePlayers.removeLast()
-                            gameBoard[AxialPos(q-4,r)] = GatewayTile(gatePlayers)
-                        }
-
-                        3 -> {
-                            if(sharedGates){
-                                val gatePlayers = searchPlayerWithColor(players,Color.WHITE,Color.RED)
-                                gameBoard[AxialPos(q-4,r)] = GatewayTile(gatePlayers)
-                            }
-                            else{
-                                val gatePlayers = searchPlayerWithColor(players,Color.RED,Color.RED)
-                                gatePlayers.removeLast()
-                                gameBoard[AxialPos(q-4,r)] = GatewayTile(gatePlayers)
-                            }
-
-                        }
-
-                        4 -> {
-                            val gatePlayers = searchPlayerWithColor(players,Color.PURPLE,Color.BLUE)
-                            gameBoard[AxialPos(q-4,r)] = GatewayTile(gatePlayers)
-                        }
-                    }
+                    placeGateWayTile(gameBoard,q-4,r,4,players,sharedGates)
                 }
 
                 //Gates at 5
                 if(r == 1 && q == 0 || r == 2 && q == 0 || r == 3 && q == 0){
-                    when (players.size){
-                        2 -> {
-                            val gatePlayers = searchPlayerWithColor(players,Color.RED,Color.RED)
-                            gatePlayers.removeLast()
-                            gameBoard[AxialPos(-4,r)] = GatewayTile(gatePlayers)
-                        }
-
-                        3 -> {
-                            val gatePlayers = searchPlayerWithColor(players,Color.BLUE,Color.BLUE)
-                            gatePlayers.removeLast()
-                            gameBoard[AxialPos(-4,r)] = GatewayTile(gatePlayers)
-                        }
-
-                        4 -> {
-                            val gatePlayers = searchPlayerWithColor(players,Color.WHITE,Color.RED)
-                            gameBoard[AxialPos(-4,r)] = GatewayTile(gatePlayers)
-                        }
-                    }
+                    placeGateWayTile(gameBoard,-4,r,5,players,sharedGates)
                 }
 
                 // Gates at 6
                 if(r == -3 && q == 0){
-                    when (players.size){
-                        2 -> {
-                            val gatePlayers = searchPlayerWithColor(players,Color.BLUE,Color.BLUE)
-                            gatePlayers.removeLast()
-                            gameBoard[AxialPos(-1,r)] = GatewayTile(gatePlayers)
-                        }
-
-                        3 -> {
-                            if(sharedGates){
-                                val gatePlayers = searchPlayerWithColor(players,Color.BLUE,Color.WHITE)
-                                gameBoard[AxialPos(-1,r)] = GatewayTile(gatePlayers)
-                            }
-                            else{
-                                val gatePlayers = searchPlayerWithColor(players,Color.WHITE,Color.WHITE)
-                                gatePlayers.removeLast()
-                                gameBoard[AxialPos(-1,r)] = GatewayTile(gatePlayers)
-                            }
-                        }
-
-                        4 -> {
-                            val gatePlayers = searchPlayerWithColor(players,Color.WHITE,Color.PURPLE)
-                            gameBoard[AxialPos(-1,r)] = GatewayTile(gatePlayers)
-                        }
-                    }
+                    placeGateWayTile(gameBoard,-1,r,6,players,sharedGates)
                 }
 
                 if(r == -2 && q == 0){
-                    when (players.size){
-                        2 -> {
-                            val gatePlayers = searchPlayerWithColor(players,Color.BLUE,Color.BLUE)
-                            gatePlayers.removeLast()
-                            gameBoard[AxialPos(-2,r)] = GatewayTile(gatePlayers)
-                        }
-
-                        3 -> {
-                            val gatePlayers = searchPlayerWithColor(players,Color.BLUE,Color.WHITE)
-                            gameBoard[AxialPos(-2,r)] = GatewayTile(gatePlayers)
-                        }
-
-                        4 -> {
-                            val gatePlayers = searchPlayerWithColor(players,Color.WHITE,Color.PURPLE)
-                            gameBoard[AxialPos(-2,r)] = GatewayTile(gatePlayers)
-                        }
-                    }
+                    placeGateWayTile(gameBoard,-2,r,6,players,sharedGates)
                 }
 
                 if(r == -1 && q == 0){
-                    when (players.size){
-                        2 -> {
-                            val gatePlayers = searchPlayerWithColor(players,Color.BLUE,Color.BLUE)
-                            gatePlayers.removeLast()
-                            gameBoard[AxialPos(-3,r)] = GatewayTile(gatePlayers)
-                        }
-
-                        3 -> {
-                            val gatePlayers = searchPlayerWithColor(players,Color.BLUE,Color.WHITE)
-                            gameBoard[AxialPos(-3,r)] = GatewayTile(gatePlayers)
-                        }
-
-                        4 -> {
-                            val gatePlayers = searchPlayerWithColor(players,Color.WHITE,Color.PURPLE)
-                            gameBoard[AxialPos(-3,r)] = GatewayTile(gatePlayers)
-                        }
-                    }
+                    placeGateWayTile(gameBoard,-3,r,6,players,sharedGates)
                 }
 
                 //TilePosition for a RouteTile
@@ -363,6 +203,96 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
         return mutableListOf(color1Player,color2Player)
     }
 
+    private fun placeTreasureTile(board : MutableMap<AxialPos, Tile>, q : Int, r : Int){
+        val gemPositions = mutableMapOf<Int,Gem>()
+        gemPositions[0] = Gem.AMBER
+        board[AxialPos(q,r)] = TreasureTile( gemPositions, mutableListOf(Gem.AMBER))
+    }
+
+    private fun placeGateWayTile(board : MutableMap<AxialPos, Tile>, q : Int, r : Int,
+                                 gate : Int, players : List<Player>, sharedGates: Boolean){
+
+        //initialize gatePlayers with something, this gets overwritten in when block
+        var gatePlayers = mutableListOf(players[0],players[1])
+
+        when (players.size){
+            2 -> {
+                when(gate){
+
+                    1 -> { gatePlayers = searchPlayerWithColor(players,Color.RED,Color.RED) }
+
+                    2 -> { gatePlayers = searchPlayerWithColor(players,Color.BLUE,Color.BLUE) }
+
+                    3 -> { gatePlayers = searchPlayerWithColor(players,Color.RED,Color.RED) }
+
+                    4 -> { gatePlayers = searchPlayerWithColor(players,Color.BLUE,Color.BLUE) }
+
+                    5 -> { gatePlayers = searchPlayerWithColor(players,Color.RED,Color.RED) }
+
+                    6 -> { gatePlayers = searchPlayerWithColor(players,Color.BLUE,Color.BLUE) }
+                }
+            }
+
+            3 -> {
+                when(gate){
+
+                    1 -> { gatePlayers = searchPlayerWithColor(players,Color.RED,Color.RED) }
+
+                    2 -> {
+                        gatePlayers = if(sharedGates){
+                            searchPlayerWithColor(players,Color.RED,Color.BLUE)
+                        } else{
+                            searchPlayerWithColor(players,Color.BLUE,Color.BLUE)
+                        }
+                    }
+
+                    3 -> { gatePlayers = searchPlayerWithColor(players,Color.WHITE,Color.WHITE) }
+
+                    4 -> {
+                        gatePlayers = if(sharedGates){
+                            searchPlayerWithColor(players,Color.WHITE,Color.RED)
+                        } else{
+                            searchPlayerWithColor(players,Color.RED,Color.RED)
+                        }
+                    }
+
+                    5 -> { gatePlayers = searchPlayerWithColor(players,Color.BLUE,Color.BLUE) }
+
+                    6 -> {
+                        gatePlayers = if(sharedGates){
+                            searchPlayerWithColor(players,Color.BLUE,Color.WHITE)
+                        } else{
+                            searchPlayerWithColor(players,Color.WHITE,Color.WHITE)
+                        }
+                    }
+                }
+            }
+
+            4 -> {
+                when(gate){
+
+                    1 -> { gatePlayers = searchPlayerWithColor(players,Color.RED,Color.BLUE) }
+
+                    2 -> { gatePlayers = searchPlayerWithColor(players,Color.BLUE,Color.WHITE) }
+
+                    3 -> { gatePlayers = searchPlayerWithColor(players,Color.RED,Color.PURPLE) }
+
+                    4 -> { gatePlayers = searchPlayerWithColor(players,Color.PURPLE,Color.BLUE) }
+
+                    5 -> { gatePlayers = searchPlayerWithColor(players,Color.WHITE,Color.RED) }
+
+                    6 -> { gatePlayers = searchPlayerWithColor(players,Color.WHITE,Color.PURPLE) }
+                }
+            }
+        }
+
+        if(gatePlayers.first() == gatePlayers.last()){
+            gatePlayers.removeLast()
+        }
+
+        board[AxialPos(q,r)] = GatewayTile(gatePlayers)
+    }
+
     /**
      * Initializes the draw stack for the game, consisting of a shuffled collection of route tiles.
      *
@@ -372,23 +302,23 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
 
         val drawStack = mutableListOf<Tile>()
 
-        for(i in 0 .. 13){
+        repeat(14){
             drawStack.add(RouteTile(TileType.TILE0))
         }
 
-        for(i in 0..5){
+        repeat(6){
             drawStack.add(RouteTile(TileType.TILE1))
         }
 
-        for(i in 0..13){
+        repeat(14){
             drawStack.add(RouteTile(TileType.TILE2))
         }
 
-        for(i in 0..13){
+        repeat(14){
             drawStack.add(RouteTile(TileType.TILE3))
         }
 
-        for(i in 0..5){
+        repeat(6){
             drawStack.add(RouteTile(TileType.TILE4))
         }
 
