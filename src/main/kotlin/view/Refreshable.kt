@@ -17,21 +17,63 @@ import service.AbstractRefreshingService
  */
 interface Refreshable {
 
+    /**
+     * Called when a new game is started.
+     * This method should be used to reset or initialize the UI elements relevant to a new game state.
+     */
     fun refreshAfterNewGame() {}
 
+    /**
+     * Called at the end of a game.
+     * This method can be used to update the UI with final game results or player scores.
+     *
+     * @param players The list of players involved in the game to display end-game statistics.
+     */
     fun refreshAfterEndGame(players: List<Player>) {}
 
+    /**
+     * Called after a tile is placed in the game.
+     * Use this method to update the UI to reflect the new position of a tile.
+     *
+     * @param position The axial position where the tile has been placed.
+     */
     fun refreshAfterPlaceTile(position: AxialPos) {}
 
+    /**
+     * Called when there is a change in the active player.
+     * This method should be used to update any UI elements that reflect the current player's turn.
+     */
     fun refreshAfterChangePlayer() {}
 
+    /**
+     * Called after an undo action is performed.
+     * Use this method to revert the UI to a previous state that matches the game state before the latest action.
+     */
     fun refreshAfterUndo() {}
 
+    /**
+     * Called after a redo action is performed.
+     * Use this to update the UI to reflect the reinstated state of the game following an undo.
+     */
     fun refreshAfterRedo() {}
 
+    /**
+     * Called when the game state is successfully saved.
+     * This can be used to notify the user that their progress has been saved or to update the UI accordingly.
+     */
     fun refreshAfterSaveGame() {}
 
+    /**
+     * Called when a game is loaded.
+     * This method should update the UI to reflect the loaded game state, including any necessary UI elements.
+     */
     fun refreshAfterLoadGame() {}
 
+    /**
+     * Called when a new player joins the game.
+     * This method should update the UI to include the new player, such as updating player lists or indicators.
+     *
+     * @param playerName The name of the player who has joined the game.
+     */
     fun refreshAfterJoinPlayer(playerName: String) {}
 }
