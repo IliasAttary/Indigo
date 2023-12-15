@@ -77,107 +77,49 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
 
         // place the tiles onto the game-board by filling the map
 
-        var border = 4
-        var wasAtSymmetricLine = false
-        var offset = 0
+        // place all TreasureTiles
+        placeTreasureTile(gameBoard,0,-4)
+        placeTreasureTile(gameBoard,4,-4)
+        placeTreasureTile(gameBoard,4,0)
+        placeTreasureTile(gameBoard,0,4)
+        placeTreasureTile(gameBoard,-4,4)
+        placeTreasureTile(gameBoard,-4,0)
 
-        for(r in -4 .. 4){
-            for(q in 0..border){
+        // place middle TreasureTile
+        gameBoard[AxialPos(0,0)] = TreasureTile(null,gemsOnMiddleTreasureTile)
 
-                // TilePositions for a TreasureTile
+        // place all GateWayTiles
 
-                if(r == -4 && q == 0){
-                    placeTreasureTile(gameBoard,q,r)
-                }
 
-                if(r == -4 && q == 4){
-                    placeTreasureTile(gameBoard,q,r)
-                }
+        // Gates at 1
+        placeGateWayTile(gameBoard,AxialPos(1,-4),1,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(2,-4),1,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(3,-4),1,players,sharedGates)
 
-                //Middle TilePosition
-                if(r == 0 && q == 4){
-                    gameBoard[AxialPos(0,r)] = TreasureTile(null,gemsOnMiddleTreasureTile)
-                }
+        // Gates at 2
+        placeGateWayTile(gameBoard,AxialPos(4,-3),2,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(4,-2),2,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(4,-1),2,players,sharedGates)
 
-                if(r == 0 && q == 0){
-                    placeTreasureTile(gameBoard,-4,r)
-                }
+        //Gates at 3
+        placeGateWayTile(gameBoard,AxialPos(3,1),3,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(2,2),3,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(1,3),3,players,sharedGates)
 
-                if(r == 0 && q == 8){
-                    placeTreasureTile(gameBoard,4,r)
-                }
+        //Gates at 4
+        placeGateWayTile(gameBoard,AxialPos(-1,4),4,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(-2,4),4,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(-3,4),4,players,sharedGates)
 
-                if(r == 4 && q == 0){
-                    placeTreasureTile(gameBoard,-4,r)
-                }
+        //Gates at 5
+        placeGateWayTile(gameBoard,AxialPos(-4,3),5,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(-4,2),5,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(-4,1),5,players,sharedGates)
 
-                if(r == 4 && q == 4){
-                    placeTreasureTile(gameBoard,0,r)
-                }
-
-                //TilePositions for a GatewayTile
-
-                // Gates at 1
-                if(r == -4 && 1 <= q && q <= 3){
-                    placeGateWayTile(gameBoard,q,r,1,players,sharedGates)
-                }
-
-                // Gates at 2
-                if( (r == -3 && q == 5) || (r == -2 && q == 6) || (r == -1 && q == 7) ){
-                    placeGateWayTile(gameBoard,4,r,2,players,sharedGates)
-                }
-
-                // Gates at 3
-                if( (r == 1 && q == 7) || (r == 2 && q == 6) || (r == 1 && q == 5) ){
-                    placeGateWayTile(gameBoard,q-4,r,3,players,sharedGates)
-                }
-
-                // Gates at 4
-                if(r == 4 && 1 <= q && q <= 3 ){
-                    placeGateWayTile(gameBoard,q-4,r,4,players,sharedGates)
-                }
-
-                //Gates at 5
-                if(r == 1 && q == 0 || r == 2 && q == 0 || r == 3 && q == 0){
-                    placeGateWayTile(gameBoard,-4,r,5,players,sharedGates)
-                }
-
-                // Gates at 6
-                if(r == -3 && q == 0){
-                    placeGateWayTile(gameBoard,-1,r,6,players,sharedGates)
-                }
-
-                if(r == -2 && q == 0){
-                    placeGateWayTile(gameBoard,-2,r,6,players,sharedGates)
-                }
-
-                if(r == -1 && q == 0){
-                    placeGateWayTile(gameBoard,-3,r,6,players,sharedGates)
-                }
-
-                //TilePosition for a RouteTile
-                else{
-                    gameBoard[AxialPos(q-offset,r)] = RouteTile(null)
-                }
-            }
-
-            if(border == 8){
-                wasAtSymmetricLine = true
-            }
-
-            if(wasAtSymmetricLine){
-                border--
-            }
-
-            else{
-                border++
-            }
-
-            if(offset < 4){
-                offset++
-            }
-
-        }
+        //Gates at 6
+        placeGateWayTile(gameBoard,AxialPos(-3,-1),6,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(-2,-2),6,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(-1,-3),6,players,sharedGates)
 
         return gameBoard
     }
@@ -219,18 +161,16 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
         board[AxialPos(q,r)] = TreasureTile( gemPositions, mutableListOf(Gem.AMBER))
     }
 
-
     /**
      * Places a gateway tile on the game board at the specified axial position (q, r).
      *
      * @param board The mutable map representing the game board.
-     * @param q The axial coordinate q where the tile is to be placed.
-     * @param r The axial coordinate r where the tile is to be placed.
+     * @param coordinates the coordinates where the tile should get placed
      * @param gate determines where the gate is on the game-board
      * @param players The list of players in the game.
      * @param sharedGates indicating whether gates are shared among players.
      */
-    private fun placeGateWayTile(board : MutableMap<AxialPos, Tile>, q : Int, r : Int,
+    private fun placeGateWayTile(board : MutableMap<AxialPos, Tile>, coordinates : AxialPos,
                                  gate : Int, players : List<Player>, sharedGates: Boolean){
 
         //initialize gatePlayers with something, this gets overwritten in when block
@@ -311,7 +251,7 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
             gatePlayers.removeLast()
         }
 
-        board[AxialPos(q,r)] = GatewayTile(gatePlayers)
+        board[coordinates] = GatewayTile(gatePlayers)
     }
 
     /**
