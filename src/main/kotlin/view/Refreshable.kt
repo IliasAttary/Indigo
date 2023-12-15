@@ -76,4 +76,10 @@ interface Refreshable {
      * @param playerName The name of the player who has joined the game.
      */
     fun refreshAfterJoinPlayer(playerName: String) {}
+
+    /**
+     * Called when a player rotates his held tile.
+     * This method should update the UI with the new rotation of the tile.
+     */
+    fun refreshAfterRotateTile(){}
 }

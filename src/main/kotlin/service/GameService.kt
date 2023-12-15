@@ -57,6 +57,9 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
             playerAtTurn = players.first(),
             currentGems = allGems)
 
+        //refresh view layer
+        onAllRefreshables { refreshAfterNewGame() }
+
     }
 
     /**
@@ -203,12 +206,30 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
         return mutableListOf(color1Player,color2Player)
     }
 
+    /**
+     * Places a treasure tile on the game board at the specified axial position (q, r).
+     *
+     * @param board The mutable map representing the game board.
+     * @param q The axial coordinate q where the tile is to be placed.
+     * @param r The axial coordinate r where the tile is to be placed.
+     */
     private fun placeTreasureTile(board : MutableMap<AxialPos, Tile>, q : Int, r : Int){
         val gemPositions = mutableMapOf<Int,Gem>()
         gemPositions[0] = Gem.AMBER
         board[AxialPos(q,r)] = TreasureTile( gemPositions, mutableListOf(Gem.AMBER))
     }
 
+
+    /**
+     * Places a gateway tile on the game board at the specified axial position (q, r).
+     *
+     * @param board The mutable map representing the game board.
+     * @param q The axial coordinate q where the tile is to be placed.
+     * @param r The axial coordinate r where the tile is to be placed.
+     * @param gate determines where the gate is on the game-board
+     * @param players The list of players in the game.
+     * @param sharedGates indicating whether gates are shared among players.
+     */
     private fun placeGateWayTile(board : MutableMap<AxialPos, Tile>, q : Int, r : Int,
                                  gate : Int, players : List<Player>, sharedGates: Boolean){
 
@@ -342,7 +363,7 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
         onAllRefreshables{refreshAfterEndGame(players)}
     }
     /**
-     * saves the current Game in the file saveGame.ser
+     * saves the current Game in the file "saveGame.ser"
      */
     fun save(){
         val file = File("saveGame.ser")
@@ -350,7 +371,7 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
     }
 
     /**
-     * loads the current Game from the saveGame.ser file
+     * loads the current Game from the "saveGame.ser" file
      */
     fun load(){
         val file = File("saveGame.ser")
