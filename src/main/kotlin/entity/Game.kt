@@ -21,17 +21,17 @@ data class Game(
 
     var aiMoveMilliseconds: Int,
 
-    val currentBoard: MutableMap<AxialPos, Tile>,
+    var currentBoard: MutableMap<AxialPos, Tile>,
 
     val sharedGates: Boolean,
 
-    val currentPlayers: List<Player>,
+    var currentPlayers: List<Player>,
 
     var playerAtTurn: Player,
 
-    val currentGems: MutableList<Gem>,
+    var currentGems: MutableList<Gem>,
 
-    val currentDrawStack : MutableList<Tile>
+    var currentDrawStack : MutableList<Tile>
 ) {
     val undoStack: MutableList<GameState> = mutableListOf()
     val redoStack: MutableList<GameState> = mutableListOf()
