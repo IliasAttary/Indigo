@@ -1,12 +1,12 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.9.21"
+    kotlin("jvm") version "1.8.21"
     application
     jacoco
     id("io.gitlab.arturbosch.detekt") version "1.18.0-RC3"
     id("org.jetbrains.dokka") version "1.4.32"
-    kotlin("plugin.serialization") version "1.9.21"
+    kotlin("plugin.serialization") version "1.8.21"
 
 }
 
