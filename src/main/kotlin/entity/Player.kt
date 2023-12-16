@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
  * @property collectedGems to represent the collected gems of the player
  */
 @Serializable
-data class Player(val name: String, val color: Color, val isAI: Boolean, val smartAI: Boolean, var heldTile: Tile) {
+data class Player(val name: String, val color: Color, val isAI: Boolean, val smartAI: Boolean, var heldTile: RouteTile) {
     var points = 0
     val collectedGems = Gem.values().associateWith { 0 }.toMutableMap()
 }
