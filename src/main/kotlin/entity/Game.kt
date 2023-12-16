@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
  * @property currentGems to represent the current gems on the board
  * @property undoStack previous game states
  * @property redoStack next game states
- * @property currentDrawStack represents the draw stack in the game
+ * @property currentDrawStack represents the draw stack in the game.
  */
 
 @Serializable

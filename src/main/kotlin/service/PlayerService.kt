@@ -1,5 +1,7 @@
 package service
-import entity.*
+import entity.AxialPos
+import entity.GameState
+import entity.TileType
 /**
  * Service layer class which provides all the actions that the players can do.
  *
@@ -9,6 +11,7 @@ import entity.*
  * @property rootService The reference to the root service, enabling communication with the core game entity.
  */
 class PlayerService(private val rootService:RootService) : AbstractRefreshingService() {
+
 
     /**
      * Rotates the tile held by the current player in the game.
@@ -68,7 +71,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
     }
     /**
      * undo enables the player to go back to the last step
-     * @throws IllegalStateException if no game is started or if the list is empty
+     * @throws IllegalStateException if no game is started or if the list is empty.
      */
     fun undo(){
         val game = rootService.currentGame
@@ -92,7 +95,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
 
     /**
      * redo enables the player to go to the next step
-     *  @throws IllegalStateException if no game is started or if the list is empty
+     *  @throws IllegalStateException if no game is started or if the list is empty.
      */
     fun redo(){
         val game = rootService.currentGame
