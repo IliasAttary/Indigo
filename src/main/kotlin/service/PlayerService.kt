@@ -1,6 +1,7 @@
 package service
 import entity.AxialPos
 import entity.GameState
+import entity.RouteTile
 import entity.TileType
 /**
  * Service layer class which provides all the actions that the players can do.
@@ -149,7 +150,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         val game = rootService.currentGame
         checkNotNull(game) { "No game started yet." }
 
-        checkPlacement(coordinates) { "The position is already occupied or the tile is blocking 2 exits" }
+        require(checkPlacement(coordinates)) { "The position is already occupied or the tile is blocking 2 exits" }
         requireNotNull(game.playerAtTurn.heldTile) { "The current player has no tile" }
 
         val tile = game.playerAtTurn.heldTile
@@ -161,7 +162,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         game.currentBoard.put(coordinates,tile)
 
         //Move Gems
-        moveGems(coordinates)
+        moveGems()
 
         // Swap current player
         changePlayer()
@@ -172,11 +173,12 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         checkNotNull(game) { "No game started yet." }
 
         var drawStack = game.currentDrawStack
-        var heldTile = game.playerAtTurn.heldTile
+        var heldTile: RouteTile? = game.playerAtTurn.heldTile
 
         // Checks if DrawStack is not empty
         if(drawStack.isNotEmpty()){
-            heldTile = drawStack.removeFirst()
+            val drawnTile = drawStack.removeFirst()
+            heldTile = drawnTile as? RouteTile
         } else{
             // Tile should be changed into nullable
             //heldTile = null
