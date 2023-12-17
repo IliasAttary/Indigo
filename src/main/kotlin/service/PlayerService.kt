@@ -178,7 +178,8 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         if(drawStack.isNotEmpty()){
             heldTile = drawStack.removeFirst()
         } else{
-            heldTile = null
+            // Tile should be changed into nullable
+            //heldTile = null
         }
     }
 
