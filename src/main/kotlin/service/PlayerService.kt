@@ -145,6 +145,46 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         return true
     }
 
+    fun PlaceTile(coordinates: AxialPos){
+        val game = rootService.currentGame
+        checkNotNull(game) { "No game started yet." }
+
+        checkPlacement(coordinates) { "The position is already occupied or the tile is blocking 2 exits" }
+        requireNotNull(game.playerAtTurn.heldTile) { "The current player has no tile" }
+
+        val tile = game.playerAtTurn.heldTile
+
+        // Draw a tile
+        drawTile()
+
+        // Place tile
+        game.currentBoard.put(coordinates,tile)
+
+        //Move Gems
+        moveGems(coordinates)
+
+        // Swap current player
+        changePlayer()
+    }
+
+    private fun drawTile(){
+        val game = rootService.currentGame
+        checkNotNull(game) { "No game started yet." }
+
+        var drawStack = game.currentDrawStack
+        var heldTile = game.playerAtTurn.heldTile
+
+        // Checks if DrawStack is not empty
+        if(drawStack.isNotEmpty()){
+            heldTile = drawStack.removeFirst()
+        } else{
+            heldTile = null
+        }
+    }
+
+    fun moveGems(){
+        TODO()
+    }
     private fun tileAtGate(q : Int, r : Int) : Pair<Boolean,Int> {
 
         var atGate = 0
