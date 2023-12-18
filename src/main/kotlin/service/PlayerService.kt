@@ -1,8 +1,6 @@
 package service
-import entity.AxialPos
-import entity.GameState
-import entity.RouteTile
-import entity.TileType
+import entity.*
+
 /**
  * Service layer class which provides all the actions that the players can do.
  *
@@ -25,12 +23,13 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         checkNotNull(game){"No game started yet"}
 
         val heldTile = game.playerAtTurn.heldTile
+        checkNotNull(heldTile){"There is no held tile."}
 
-        if(heldTile.rotation == 300){
+        if(heldTile.rotation == 5){
             heldTile.rotation = 0
         }
         else{
-            heldTile.rotation += 60
+            heldTile.rotation += 1
         }
 
 
@@ -43,9 +42,10 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
     private fun changePlayer(){
         val game = rootService.currentGame
         checkNotNull(game){"No game started yet"}
-        val playerAtturn = game.playerAtTurn
+
+        val playerAtTurn = game.playerAtTurn
         val currentPlayers = game.currentPlayers
-        val indexOfCurrentPlayer = currentPlayers.indexOf(playerAtturn)
+        val indexOfCurrentPlayer = currentPlayers.indexOf(playerAtTurn)
         if(indexOfCurrentPlayer == currentPlayers.size-1){
             game.playerAtTurn = game.currentPlayers[0]
         }
@@ -60,9 +60,9 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
     private fun changePlayerBack(){
         val game = rootService.currentGame
         checkNotNull(game){"No game started yet"}
-        val playerAtturn = game.playerAtTurn
+        val playerAtTurn = game.playerAtTurn
         val currentPlayers = game.currentPlayers
-        val indexOfCurrentPlayer = currentPlayers.indexOf(playerAtturn)
+        val indexOfCurrentPlayer = currentPlayers.indexOf(playerAtTurn)
         if(indexOfCurrentPlayer == 0){
             game.playerAtTurn = game.currentPlayers[currentPlayers.size-1]
         }
@@ -77,9 +77,9 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
     fun undo(){
         val game = rootService.currentGame
         checkNotNull(game){"No game started yet"}
-        require(game.undoStack.isNotEmpty()){
-            "The undo list is empty"
-        }
+
+        require(game.undoStack.isNotEmpty()){ "The undo list is empty" }
+
         val redo = GameState(game.currentBoard,
                             game.currentDrawStack,
                             game.currentPlayers,
@@ -120,13 +120,27 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
 
     }
 
+    /**
+     * Checks whether placing a tile at the specified coordinates is valid.
+     *
+     * @param coordinates The axial position where the player intends to place the tile.
+     * @return `true` if the placement is valid, `false` otherwise.
+     */
     fun checkPlacement(coordinates : AxialPos) : Boolean{
         val game = rootService.currentGame
         checkNotNull(game){"No game started yet"}
 
+        //check if there is already a Tile at the coordinates
+        if(coordinates in game.currentBoard){
+            return false
+        }
+
         var tileHasCurve = false
 
         val heldTile = game.playerAtTurn.heldTile
+
+        requireNotNull(heldTile){"There is no held tile."}
+
         val typeOfTile = heldTile.tileType
         val rotation = heldTile.rotation
 
@@ -146,20 +160,27 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         return true
     }
 
-    fun PlaceTile(coordinates: AxialPos){
+    /**
+     * Places a tile on the game board at the specified coordinates.
+     *
+     * @param coordinates The axial position where the player intends to place the tile.
+     * @throws IllegalArgumentException if the position is already occupied or the tile is blocking two exits.
+     * @throws IllegalStateException if the current player has no tile.
+     */
+    fun placeTile(coordinates: AxialPos){
         val game = rootService.currentGame
         checkNotNull(game) { "No game started yet." }
 
-        require(checkPlacement(coordinates)) { "The position is already occupied or the tile is blocking 2 exits" }
-        requireNotNull(game.playerAtTurn.heldTile) { "The current player has no tile" }
+        require(checkPlacement(coordinates)) { "The position is already occupied or the tile is blocking two exits" }
 
         val tile = game.playerAtTurn.heldTile
+        requireNotNull(tile) { "The current player has no tile" }
 
         // Draw a tile
         drawTile()
 
         // Place tile
-        game.currentBoard.put(coordinates,tile)
+        game.currentBoard[coordinates] = tile
 
         //Move Gems
         moveGems()
@@ -168,26 +189,41 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         changePlayer()
     }
 
+    /**
+     * Draws a tile for the current player from the draw stack and updates the player's held tile.
+     *
+     * If the draw stack is not empty, it removes the first tile and assigns it to the current player's held tile.
+     * If the draw stack is empty, the held tile remains unchanged.
+     */
     private fun drawTile(){
         val game = rootService.currentGame
         checkNotNull(game) { "No game started yet." }
 
-        var drawStack = game.currentDrawStack
-        var heldTile: RouteTile? = game.playerAtTurn.heldTile
+        val drawStack = game.currentDrawStack
 
-        // Checks if DrawStack is not empty
+        // Checks if the drawStack is not empty
         if(drawStack.isNotEmpty()){
-            val drawnTile = drawStack.removeFirst()
-            heldTile = drawnTile as? RouteTile
-        } else{
-            // Tile should be changed into nullable
-            //heldTile = null
+            val drawnTile = drawStack.removeLast()
+            game.playerAtTurn.heldTile = drawnTile
+        }
+        else{
+            game.playerAtTurn.heldTile = null
         }
     }
 
     fun moveGems(){
         TODO()
     }
+
+    /**
+     * Checks if a tile is placed at a gateway location and returns a Pair indicating whether it is at a gateway
+     * and the gateway number if applicable.
+     *
+     * @param q The axial q-coordinate of the tile.
+     * @param r The axial r-coordinate of the tile.
+     * @return A Pair where the first element is a Boolean indicating whether the tile is at a gateway location,
+     *         and the second element is an Int representing the gateway number.
+     */
     private fun tileAtGate(q : Int, r : Int) : Pair<Boolean,Int> {
 
         var atGate = 0
@@ -232,24 +268,32 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         return Pair(coordinatesAtAGate, atGate)
     }
 
+    /**
+     * Checks if the rotation of a tile at a gateway location is valid based on the tile type and rotation angle.
+     *
+     * @param tileIsAtGate An Int representing the gateway number (1 to 6) where the tile is placed.
+     * @param typeOfTile The type of the tile (TILE2, TILE3, TILE4).
+     * @param rotation The rotation angle of the tile. (1 -> 60°, 2 -> 120° ...)
+     * @return Boolean indicating whether the rotation is valid for the given tile type and gateway location.
+     */
     private fun checkRotation(tileIsAtGate : Int, typeOfTile : TileType, rotation : Int) : Boolean{
         when(tileIsAtGate){
             1 -> {
                 when(typeOfTile){
                     TileType.TILE2 -> {
-                        if(rotation == 120 || rotation == 300){
+                        if(rotation == 2 || rotation == 5){
                             return false
                         }
                     }
 
                     TileType.TILE3 -> {
-                        if(rotation == 300){
+                        if(rotation == 5){
                             return false
                         }
                     }
 
                     TileType.TILE4 -> {
-                        if(rotation == 60 || rotation == 180 || rotation == 300){
+                        if(rotation == 1 || rotation == 3 || rotation == 5){
                             return false
                         }
                     }
@@ -261,7 +305,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
             2 -> {
                 when(typeOfTile){
                     TileType.TILE2 -> {
-                        if(rotation == 0 || rotation == 180){
+                        if(rotation == 0 || rotation == 3){
                             return false
                         }
                     }
@@ -273,7 +317,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
                     }
 
                     TileType.TILE4 -> {
-                        if(rotation == 0 || rotation == 120 || rotation == 240){
+                        if(rotation == 0 || rotation == 2 || rotation == 4){
                             return false
                         }
                     }
@@ -285,19 +329,19 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
             3 -> {
                 when(typeOfTile){
                     TileType.TILE2 -> {
-                        if(rotation == 60 || rotation == 240){
+                        if(rotation == 1 || rotation == 4){
                             return false
                         }
                     }
 
                     TileType.TILE3 -> {
-                        if(rotation == 60){
+                        if(rotation == 1){
                             return false
                         }
                     }
 
                     TileType.TILE4 -> {
-                        if(rotation == 60 || rotation == 180 || rotation == 300){
+                        if(rotation == 1 || rotation == 3 || rotation == 5){
                             return false
                         }
                     }
@@ -309,19 +353,19 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
             4 -> {
                 when(typeOfTile){
                     TileType.TILE2 -> {
-                        if(rotation == 120 || rotation == 300){
+                        if(rotation == 2 || rotation == 5){
                             return false
                         }
                     }
 
                     TileType.TILE3 -> {
-                        if(rotation == 120){
+                        if(rotation == 2){
                             return false
                         }
                     }
 
                     TileType.TILE4 -> {
-                        if(rotation == 0 || rotation == 120 || rotation == 240){
+                        if(rotation == 0 || rotation == 2 || rotation == 4){
                             return false
                         }
                     }
@@ -333,19 +377,19 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
             5 -> {
                 when(typeOfTile){
                     TileType.TILE2 -> {
-                        if(rotation == 0 || rotation == 180){
+                        if(rotation == 0 || rotation == 3){
                             return false
                         }
                     }
 
                     TileType.TILE3 -> {
-                        if(rotation == 180){
+                        if(rotation == 3){
                             return false
                         }
                     }
 
                     TileType.TILE4 -> {
-                        if(rotation == 60 || rotation == 180 || rotation == 300){
+                        if(rotation == 1 || rotation == 3 || rotation == 5){
                             return false
                         }
                     }
@@ -357,19 +401,19 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
             6 -> {
                 when(typeOfTile){
                     TileType.TILE2 -> {
-                        if(rotation == 60 || rotation == 240){
+                        if(rotation == 1 || rotation == 4){
                             return false
                         }
                     }
 
                     TileType.TILE3 -> {
-                        if(rotation == 240){
+                        if(rotation == 4){
                             return false
                         }
                     }
 
                     TileType.TILE4 -> {
-                        if(rotation == 0 || rotation == 120 || rotation == 240){
+                        if(rotation == 0 || rotation == 2 || rotation == 4){
                             return false
                         }
                     }

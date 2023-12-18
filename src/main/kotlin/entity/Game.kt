@@ -31,7 +31,7 @@ data class Game(
 
     var currentGems: MutableList<Gem>,
 
-    var currentDrawStack : MutableList<Tile>
+    var currentDrawStack : MutableList<RouteTile>
 ) {
     val undoStack: MutableList<GameState> = mutableListOf()
     val redoStack: MutableList<GameState> = mutableListOf()

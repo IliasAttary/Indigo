@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GameState(
     val board: MutableMap<AxialPos, Tile>,
-    val drawStack: MutableList<Tile>,
+    val drawStack: MutableList<RouteTile>,
     val players: List<Player>,
     val gems: List<Gem>
 )

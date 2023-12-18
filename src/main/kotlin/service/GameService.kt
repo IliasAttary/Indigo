@@ -27,7 +27,10 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
      * @throws IllegalArgumentException if player names are empty or not unique.
      *
      */
-    fun startGame(players : MutableList<Player>, aiSpeed : Int, sharedGates:Boolean){
+    fun startGame(players : MutableList<Player>,
+                  aiSpeed : Int,
+                  drawStack : MutableList<RouteTile> = initializeDrawStack(),
+                  sharedGates:Boolean){
 
         //check if the player names are valid
         val playerNames = players.map { it.name }.toMutableList()
@@ -51,7 +54,7 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
 
         rootService.currentGame = Game(currentPlayers = players,
             currentBoard = initializeBoard(players, sharedGates),
-            currentDrawStack = initializeDrawStack(),
+            currentDrawStack = drawStack,
             aiMoveMilliseconds = aiSpeed,
             sharedGates = sharedGates,
             playerAtTurn = players.first(),
@@ -78,12 +81,12 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
         // place the tiles onto the game-board by filling the map
 
         // place all TreasureTiles
-        placeTreasureTile(gameBoard,0,-4)
-        placeTreasureTile(gameBoard,4,-4)
-        placeTreasureTile(gameBoard,4,0)
-        placeTreasureTile(gameBoard,0,4)
-        placeTreasureTile(gameBoard,-4,4)
-        placeTreasureTile(gameBoard,-4,0)
+        placeTreasureTile(gameBoard,AxialPos(0,-4), 3)
+        placeTreasureTile(gameBoard,AxialPos(4,-4), 4)
+        placeTreasureTile(gameBoard,AxialPos(4,0), 5)
+        placeTreasureTile(gameBoard,AxialPos(0,4), 0)
+        placeTreasureTile(gameBoard,AxialPos(-4,4),1)
+        placeTreasureTile(gameBoard,AxialPos(-4,0),2)
 
         // place middle TreasureTile
         gameBoard[AxialPos(0,0)] = TreasureTile(null,gemsOnMiddleTreasureTile)
@@ -155,10 +158,12 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
      * @param q The axial coordinate q where the tile is to be placed.
      * @param r The axial coordinate r where the tile is to be placed.
      */
-    private fun placeTreasureTile(board : MutableMap<AxialPos, Tile>, q : Int, r : Int){
+    private fun placeTreasureTile(board : MutableMap<AxialPos, Tile>, coordinates: AxialPos, rotation : Int){
         val gemPositions = mutableMapOf<Int,Gem>()
-        gemPositions[0] = Gem.AMBER
-        board[AxialPos(q,r)] = TreasureTile( gemPositions, mutableListOf(Gem.AMBER))
+        gemPositions[rotation] = Gem.AMBER
+        val tile = TreasureTile(gemPositions, null)
+        tile.rotation = rotation
+        board[coordinates] = tile
     }
 
     /**
@@ -259,9 +264,9 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
      *
      * @return ArrayDeque<Tile> representing the initialized draw stack.
      */
-    private fun initializeDrawStack() : MutableList<Tile>{
+    private fun initializeDrawStack() : MutableList<RouteTile>{
 
-        val drawStack = mutableListOf<Tile>()
+        val drawStack = mutableListOf<RouteTile>()
 
         repeat(14){
             drawStack.add(RouteTile(TileType.TILE0))
