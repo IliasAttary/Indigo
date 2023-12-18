@@ -27,7 +27,7 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
      * @throws IllegalArgumentException if player names are empty or not unique.
      *
      */
-    fun startGame(players : MutableList<Player>,
+    fun startGame(players : List<Player>,
                   aiSpeed : Int,
                   drawStack : MutableList<RouteTile> = initializeDrawStack(),
                   sharedGates:Boolean){
