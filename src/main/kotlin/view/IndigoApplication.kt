@@ -1,57 +1,62 @@
 package view
 
-import tools.aqua.bgw.core.BoardGameApplication
 import service.RootService
+import tools.aqua.bgw.core.BoardGameApplication
 
-/**
- * Implementation of the BGW [BoardGameApplication] for the boardgame "Indigo"
- */
+class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
 
-class IndigoApplication : BoardGameApplication(), Refreshable {
-
-    // Central service from which all others are created/accessed
-    // also holds the currently active game
+    /**
+     * rootService for accessing the current game and other logic.
+     */
     private val rootService = RootService()
 
-    //Scenes
+    /**
+     *  Main scene where the game is played.
+     */
+    private val mainGameScene = MainGameScene(rootService)
 
-    // first menu Scene seen when opening the Game
-    private val launchScene = LaunchMenuScene(rootService).apply {
-        newGameButton.onMouseClicked = {
-            this@IndigoApplication.showMenuScene(preGameScene)
-        }
-        loadGameButton.onMouseClicked = {
-            this@IndigoApplication.showGameScene(gameScene)
-        }
-    }
+    /**
+     * Menu scene that gets displayed right after launching the application.
+     */
+    private val launchMenuScene = LaunchMenuScene()
 
-    // scene for choosing Game Style
-    private val preGameScene = PreGameMenuScene(rootService)
+    /**
+     * Menu Scene that gets displayed after the player clicks on New Game.
+     */
+    private val preGameMenuScene = PreGameMenuScene()
 
-    // Scene for configuring Players
-    private val newGameScene = NewGameMenuScene(rootService)
+    /**
+     * Menu scene where the players can enter their name and configure the game mode, as well as AI Style.
+     */
+    private val newGameMenuScene = NewGameMenuScene()
 
-    // the board game scene
-    private val gameScene = MainGameScene(rootService)
-
-    // scene that shows after a finished game
-    private val endGameScene = EndGameMenuScene(rootService)
-
+    /**
+     * Menu scene where the players see their points and who won the game.
+     */
+    private val endGameMenuScene = EndGameScene()
 
     init {
-
-        // all scenes and the application itself need to
-        // react to changes done in the service layer
         rootService.addRefreshables(
             this,
-            launchScene,
-            preGameScene,
-            newGameScene,
-            gameScene,
-            endGameScene
+            launchMenuScene,
+            preGameMenuScene,
+            newGameMenuScene,
+            mainGameScene,
+            endGameMenuScene
         )
-        this.showMenuScene(launchScene)
+
+        // show the mainGameScene in the background and open the preGameMenuScene
+        this.showMenuScene(preGameMenuScene)
+
+        preGameMenuScene.startButton.onMouseClicked = {
+            this.showMenuScene(newGameMenuScene)
+        }
+        newGameMenuScene.returnButton.onMouseClicked = { this.showMenuScene(preGameMenuScene) }
+        newGameMenuScene.startRoundButton.onMouseClicked = {
+            this.hideMenuScene()
+            this.showGameScene(mainGameScene)
+        }
     }
+
+
 }
-
-
