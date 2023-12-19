@@ -78,7 +78,10 @@ interface Refreshable {
     fun refreshAfterJoinPlayer(playerName: String) {}
 
     /**
+     *  Called when a new player joins the game.
+     *  Updates the UI for the guest player that joins the game.
      *
+     *  @param playerNames The names of the players that get displayed in the name fields.
      */
     fun refreshAfterJoiningGame(playerNames: List<String>) {}
 
