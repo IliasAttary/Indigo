@@ -183,7 +183,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         game.currentBoard[coordinates] = tile
 
         //Move Gems
-        moveGems()
+        moveGems(coordinates)
 
         // Swap current player
         changePlayer()
@@ -211,7 +211,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         }
     }
 
-    fun moveGems(){
+    fun moveGems(coordinates : AxialPos){
         TODO()
     }
 
