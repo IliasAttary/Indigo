@@ -161,8 +161,7 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
      * Places a treasure tile on the game board at the specified axial position (q, r).
      *
      * @param board The mutable map representing the game board.
-     * @param q The axial coordinate q where the tile is to be placed.
-     * @param r The axial coordinate r where the tile is to be placed.
+     * @param coordinates The AxialPos where the tile gets placed to
      */
     private fun placeTreasureTile(board : MutableMap<AxialPos, Tile>, coordinates: AxialPos, rotation : Int){
         val gemPositions = mutableMapOf<Int,Gem>()
