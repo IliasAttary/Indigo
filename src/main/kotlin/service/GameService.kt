@@ -262,7 +262,7 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
             gatePlayers.removeLast()
         }
 
-        board[coordinates] = GatewayTile(gatePlayers)
+        board[coordinates] = GatewayTile(gatePlayers, gate)
     }
 
     /**

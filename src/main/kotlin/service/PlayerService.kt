@@ -130,31 +130,116 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         val game = rootService.currentGame
         checkNotNull(game){"No game started yet"}
 
-        //check if there is already a Tile at the coordinates
+        //check if there is already a Tile at this coordinates
         if(coordinates in game.currentBoard){
             return false
         }
 
-        var tileHasCurve = false
-
         val heldTile = game.playerAtTurn.heldTile
-
         requireNotNull(heldTile){"There is no held tile."}
 
         val typeOfTile = heldTile.tileType
         val rotation = heldTile.rotation
 
-        if(typeOfTile == TileType.TILE2 || typeOfTile == TileType.TILE3 || typeOfTile == TileType.TILE4 ){
-            tileHasCurve = true
+        //if RouteTile has no curves, it can't block two exits
+        if(typeOfTile == TileType.TILE0 || typeOfTile == TileType.TILE1){
+            return true
         }
 
+        // get the neighbours of the tile
         val q = coordinates.q
         val r = coordinates.r
-        val isTileAtGate = tileAtGate(q,r)
 
-        if(isTileAtGate.first && tileHasCurve) {
-            val tileIsAtGate = isTileAtGate.second
-            return checkRotation(tileIsAtGate, typeOfTile, rotation)
+        val neighbours = listOf(
+           game.currentBoard[AxialPos(q+1,r)],
+           game.currentBoard[AxialPos(q+1,r+1)],
+           game.currentBoard[AxialPos(q,r+1)],
+           game.currentBoard[AxialPos(q-1,r)],
+           game.currentBoard[AxialPos(q-1,r+1)],
+           game.currentBoard[AxialPos(q,r+1)]
+        )
+
+        // this variable indicates at which gate the tile should get placed
+        // if it is 0 after the for loop the tile is not at the edge of the game-board and can be placed.
+        var atGate = 0
+
+        for(neighbour in neighbours){
+            if(neighbour == null){
+                continue
+            }
+            else if(neighbour is GatewayTile){
+               atGate = neighbour.gate
+            }
+        }
+
+        // Retrieve the paths of the tile and consider its rotation
+        val pathsWithRotation = mutableListOf<Pair<Int, Int>>()
+
+        typeOfTile.paths.forEach{ (start, end) ->
+            pathsWithRotation.add(Pair(start + rotation % 6, end + rotation % 6))
+        }
+
+        return checkPathsAtEdge(pathsWithRotation,atGate)
+    }
+
+    /**
+     * Checks if a given list of paths contains specific paths based on the provided gate number.
+     *
+     * @param paths List of pairs representing paths of a tile.
+     * @param atGate The gate number to determine which specific paths to check.
+     * @return Returns true if the paths at the specified gate is not in the list, otherwise false.
+     */
+    private fun checkPathsAtEdge(paths : MutableList<Pair<Int,Int>>, atGate : Int) : Boolean{
+        when(atGate){
+            1 -> {
+                for(path in paths){
+                    if(path.first == 0 && path.second == 1){
+                        return false
+                    }
+                }
+            }
+
+            2 -> {
+                for(path in paths){
+                    if(path.first == 1 && path.second == 2){
+                        return false
+                    }
+                }
+            }
+
+            3 -> {
+                for(path in paths){
+                    if(path.first == 2 && path.second == 3){
+                        return false
+                    }
+                }
+            }
+
+            4 -> {
+                for(path in paths){
+                    if(path.first == 3 && path.second == 4){
+                        return false
+                    }
+                }
+            }
+
+            5 -> {
+                for(path in paths){
+                    if(path.first == 4 && path.second == 5){
+                        return false
+                    }
+                }
+            }
+
+            6 -> {
+                for(path in paths){
+                    if(path.first == 5 && path.second == 0){
+                        return false
+                    }
+                }
+            }
+
+            else -> {return true}
         }
 
         return true
@@ -215,215 +300,5 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         TODO()
     }
 
-    /**
-     * Checks if a tile is placed at a gateway location and returns a Pair indicating whether it is at a gateway
-     * and the gateway number if applicable.
-     *
-     * @param q The axial q-coordinate of the tile.
-     * @param r The axial r-coordinate of the tile.
-     * @return A Pair where the first element is a Boolean indicating whether the tile is at a gateway location,
-     *         and the second element is an Int representing the gateway number.
-     */
-    private fun tileAtGate(q : Int, r : Int) : Pair<Boolean,Int> {
-
-        var atGate = 0
-        var coordinatesAtAGate = false
-
-        // Tile gets placed at 1 ?
-        if(r == -4 && 1 <= q && q <= 3){
-            coordinatesAtAGate = true
-            atGate = 1
-        }
-
-        // Tile gets placed at 2 ?
-        if( (r == -3 || r == -2 || r == -1) && q == 4){
-            coordinatesAtAGate = true
-            atGate = 2
-        }
-
-        // Tile gets placed at 3 ?
-        if( r == 1 && q == 3 || r == 2 && q == 2 || r == 3 && q == 1){
-            coordinatesAtAGate = true
-            atGate = 3
-        }
-
-        // Tile gets placed at 4 ?
-        if( (q == -3 || q == -2 || q == -1) && r == 4){
-            coordinatesAtAGate = true
-            atGate = 4
-        }
-
-        //Tile gets placed at 5 ?
-        if( (r == 1 || r == 2 || r == 3) && q == -4){
-            coordinatesAtAGate = true
-            atGate = 5
-        }
-
-        //Tile gets placed at 6 ?
-        if( r == -1 && q == -3 || r == -2 && q == -3 || r == -3 && q == -1){
-            coordinatesAtAGate = true
-            atGate = 6
-        }
-
-        return Pair(coordinatesAtAGate, atGate)
-    }
-
-    /**
-     * Checks if the rotation of a tile at a gateway location is valid based on the tile type and rotation angle.
-     *
-     * @param tileIsAtGate An Int representing the gateway number (1 to 6) where the tile is placed.
-     * @param typeOfTile The type of the tile (TILE2, TILE3, TILE4).
-     * @param rotation The rotation angle of the tile. (1 -> 60°, 2 -> 120° ...)
-     * @return Boolean indicating whether the rotation is valid for the given tile type and gateway location.
-     */
-    private fun checkRotation(tileIsAtGate : Int, typeOfTile : TileType, rotation : Int) : Boolean{
-        when(tileIsAtGate){
-            1 -> {
-                when(typeOfTile){
-                    TileType.TILE2 -> {
-                        if(rotation == 2 || rotation == 5){
-                            return false
-                        }
-                    }
-
-                    TileType.TILE3 -> {
-                        if(rotation == 5){
-                            return false
-                        }
-                    }
-
-                    TileType.TILE4 -> {
-                        if(rotation == 1 || rotation == 3 || rotation == 5){
-                            return false
-                        }
-                    }
-
-                    else -> { return true }
-                }
-            }
-
-            2 -> {
-                when(typeOfTile){
-                    TileType.TILE2 -> {
-                        if(rotation == 0 || rotation == 3){
-                            return false
-                        }
-                    }
-
-                    TileType.TILE3 -> {
-                        if(rotation == 0){
-                            return false
-                        }
-                    }
-
-                    TileType.TILE4 -> {
-                        if(rotation == 0 || rotation == 2 || rotation == 4){
-                            return false
-                        }
-                    }
-
-                    else -> { return true }
-                }
-            }
-
-            3 -> {
-                when(typeOfTile){
-                    TileType.TILE2 -> {
-                        if(rotation == 1 || rotation == 4){
-                            return false
-                        }
-                    }
-
-                    TileType.TILE3 -> {
-                        if(rotation == 1){
-                            return false
-                        }
-                    }
-
-                    TileType.TILE4 -> {
-                        if(rotation == 1 || rotation == 3 || rotation == 5){
-                            return false
-                        }
-                    }
-
-                    else -> { return true }
-                }
-            }
-
-            4 -> {
-                when(typeOfTile){
-                    TileType.TILE2 -> {
-                        if(rotation == 2 || rotation == 5){
-                            return false
-                        }
-                    }
-
-                    TileType.TILE3 -> {
-                        if(rotation == 2){
-                            return false
-                        }
-                    }
-
-                    TileType.TILE4 -> {
-                        if(rotation == 0 || rotation == 2 || rotation == 4){
-                            return false
-                        }
-                    }
-
-                    else -> { return true }
-                }
-            }
-
-            5 -> {
-                when(typeOfTile){
-                    TileType.TILE2 -> {
-                        if(rotation == 0 || rotation == 3){
-                            return false
-                        }
-                    }
-
-                    TileType.TILE3 -> {
-                        if(rotation == 3){
-                            return false
-                        }
-                    }
-
-                    TileType.TILE4 -> {
-                        if(rotation == 1 || rotation == 3 || rotation == 5){
-                            return false
-                        }
-                    }
-
-                    else -> { return true }
-                }
-            }
-
-            6 -> {
-                when(typeOfTile){
-                    TileType.TILE2 -> {
-                        if(rotation == 1 || rotation == 4){
-                            return false
-                        }
-                    }
-
-                    TileType.TILE3 -> {
-                        if(rotation == 4){
-                            return false
-                        }
-                    }
-
-                    TileType.TILE4 -> {
-                        if(rotation == 0 || rotation == 2 || rotation == 4){
-                            return false
-                        }
-                    }
-
-                    else -> { return true }
-                }
-            }
-        }
-
-        return true
-    }
 
 }
