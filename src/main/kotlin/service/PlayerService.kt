@@ -279,6 +279,9 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         // Add the move to the undoStack
         game.undoStack.add(currentGameState)
 
+        // refresh GUI
+        onAllRefreshables { refreshAfterPlaceTile(coordinates) }
+
         // Swap current player
         changePlayer()
     }
