@@ -255,17 +255,26 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
      * @throws IllegalArgumentException if the position is already occupied or the tile is blocking two exits.
      * @throws IllegalStateException if the current player has no tile.
      */
-    fun placeTile(coordinates: AxialPos){
+    fun placeTile(coordinates: AxialPos) {
+        // Checks if a game is running
         val game = rootService.currentGame
         checkNotNull(game) { "No game started yet." }
 
-        require(checkPlacement(coordinates)) { "The position is already occupied or the tile is blocking two exits" }
+        // Checks if position is valid
+        require(checkPlacement(coordinates)) {
+            "The position is already occupied or the tile is blocking two exits"
+        }
 
-        game.undoStack.add(GameState(game.currentBoard,game.currentDrawStack,
-                                    game.currentPlayers,game.currentGems))
-
+        // Checks if the player has a tile to place
         val tile = game.playerAtTurn.heldTile
         requireNotNull(tile) { "The current player has no tile" }
+
+        // Create the current GameState
+        val currentGameState =
+            GameState(game.currentBoard, game.currentDrawStack, game.currentPlayers, game.currentGems)
+
+        // Add the move to the undoStack
+        game.undoStack.add(currentGameState)
 
         // Draw a tile
         drawTile()
@@ -273,8 +282,11 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         // Place tile
         game.currentBoard[coordinates] = tile
 
-        //Move Gems
+        // Move Gems
         moveGems(coordinates)
+
+        // Refresh GUI
+        onAllRefreshables { refreshAfterPlaceTile(coordinates) }
 
         // Swap current player
         changePlayer()
