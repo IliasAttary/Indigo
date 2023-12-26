@@ -1,5 +1,8 @@
 package service
-import entity.*
+import entity.AxialPos
+import entity.GameState
+import entity.GatewayTile
+import entity.TileType
 
 /**
  * Service layer class which provides all the actions that the players can do.
@@ -257,6 +260,9 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         checkNotNull(game) { "No game started yet." }
 
         require(checkPlacement(coordinates)) { "The position is already occupied or the tile is blocking two exits" }
+
+        game.undoStack.add(GameState(game.currentBoard,game.currentDrawStack,
+                                    game.currentPlayers,game.currentGems))
 
         val tile = game.playerAtTurn.heldTile
         requireNotNull(tile) { "The current player has no tile" }
