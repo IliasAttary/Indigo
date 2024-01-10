@@ -3,6 +3,10 @@ package view
 import service.RootService
 import tools.aqua.bgw.core.BoardGameApplication
 
+/**
+ * The class which handles all the scenes of the application window
+ */
+
 class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
 
     /**

@@ -10,7 +10,9 @@ import tools.aqua.bgw.util.Font
 import tools.aqua.bgw.visual.ImageVisual
 import java.awt.Color
 
-
+/**
+ * New Game Scene for Indigo.
+ */
 class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
 
     /**
