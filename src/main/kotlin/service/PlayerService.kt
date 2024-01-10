@@ -11,14 +11,14 @@ import entity.*
  */
 class PlayerService(private val rootService:RootService) : AbstractRefreshingService() {
 
-    val NEIGHBOR_OFFSET_MAP = mapOf(    0 to AxialPos(q=1,  r=-1),
+    val neighborOffsetMap = mapOf(    0 to AxialPos(q=1,  r=-1),
                                         1 to AxialPos(q=1,  r=0),
                                         2 to  AxialPos(q=0,  r=1),
                                         3 to  AxialPos(q=-1, r=1),
                                         4 to  AxialPos(q=-1, r=0),
                                         5 to  AxialPos(q=0,  r=-1))
 
-    val TREASURE_TILE_PATHS = mapOf(
+    val treasureTilePaths = mapOf(
         0 to 2,
         2 to 0,
     )
@@ -344,6 +344,19 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
             .toMap()
     }
 
+    /**
+     * Moves gems on the game board tiles according to defined paths.
+     * This function handles the movement of gems from one tile to another, considering
+     * different types of tiles (RouteTile, TreasureTile, GatewayTile) and their properties.
+     * It also updates the points and collected gems for the players.
+     *
+     * @param coordinates The axial coordinates of the current tile on the game board. This is the position
+     *                    of the tile where the gems are to be moved.
+     * @throws IllegalStateException if an unexpected tile is encountered or if an invalid operation
+     *                               is performed on the gems.
+     * @throws IllegalArgumentException if the placed tile is null or not an instance of RouteTile.
+     * @throws NullPointerException if no game has been started yet.
+     */
     fun moveGems(coordinates : AxialPos){
         // retrieve current game from root service
         val game = rootService.currentGame
@@ -359,7 +372,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         val placedTilePaths = tilePathsWithRotation(placedTile.tileType.paths, placedTile.rotation)
         val newGemPositions = mutableListOf<Int>() // the positions of the gems that have been moved to the placed tile
 
-        for ((direction, neighborOffset) in NEIGHBOR_OFFSET_MAP){
+        for ((direction, neighborOffset) in neighborOffsetMap){
             val neighborPos = coordinates + neighborOffset
             val neighbor = game.currentBoard[neighborPos]
 
@@ -409,7 +422,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
             var currentGemPos = newGemPosition
 
             while(true){
-                val nextTilePos = currentTilePos + NEIGHBOR_OFFSET_MAP[currentGemPos]!!
+                val nextTilePos = currentTilePos + neighborOffsetMap[currentGemPos]!!
                 val nextTile = game.currentBoard[nextTilePos]
                 // if the next tile is not existent, we can stop
                 if (nextTile == null) {
@@ -435,7 +448,11 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
                     break
                 }
                     else{
-                    val nextTileRawPaths = if (nextTile is RouteTile) { nextTile.tileType.paths } else { TREASURE_TILE_PATHS }
+                    val nextTileRawPaths = if (nextTile is RouteTile) {
+                        nextTile.tileType.paths
+                    } else {
+                        treasureTilePaths
+                    }
                     val nextTilePaths = tilePathsWithRotation(nextTileRawPaths, nextTile.rotation)
                     val oppositeDirection = (currentGemPos + 3) % 6
                     val endPosition = nextTilePaths[oppositeDirection]!!
