@@ -135,9 +135,40 @@ class CheckPlacementTest {
             sharedGates = false
         )
 
+        // gate 1
         rootService.currentGame?.playerAtTurn?.heldTile = RouteTile(TileType.TILE2)
         rootService.currentGame?.playerAtTurn?.heldTile!!.rotation = 1
 
         assertFalse(playerService.checkPlacement(AxialPos(3, -4)))
+
+        // gate 2
+        rootService.currentGame?.playerAtTurn?.heldTile = RouteTile(TileType.TILE2)
+        rootService.currentGame?.playerAtTurn?.heldTile!!.rotation = 2
+
+        assertFalse(playerService.checkPlacement(AxialPos(4, -1)))
+
+        // gate 3
+        rootService.currentGame?.playerAtTurn?.heldTile = RouteTile(TileType.TILE2)
+        rootService.currentGame?.playerAtTurn?.heldTile!!.rotation = 3
+
+        assertFalse(playerService.checkPlacement(AxialPos(1, 3)))
+
+        // gate 4
+        rootService.currentGame?.playerAtTurn?.heldTile = RouteTile(TileType.TILE2)
+        rootService.currentGame?.playerAtTurn?.heldTile!!.rotation = 4
+
+        assertFalse(playerService.checkPlacement(AxialPos(-3, 4)))
+
+        // gate 5
+        rootService.currentGame?.playerAtTurn?.heldTile = RouteTile(TileType.TILE2)
+        rootService.currentGame?.playerAtTurn?.heldTile!!.rotation = 5
+
+        assertFalse(playerService.checkPlacement(AxialPos(-4, 1)))
+
+        // gate 6
+        rootService.currentGame?.playerAtTurn?.heldTile = RouteTile(TileType.TILE2)
+        rootService.currentGame?.playerAtTurn?.heldTile!!.rotation = 0
+
+        assertFalse(playerService.checkPlacement(AxialPos(-1, -3)))
     }
 }
