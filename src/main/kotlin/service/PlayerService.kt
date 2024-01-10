@@ -93,19 +93,20 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
 
         require(game.undoStack.isNotEmpty()){ "The undo list is empty" }
 
-        val redo = GameState(game.currentBoard,
-                            game.currentDrawStack,
-                            game.currentPlayers,
-                            game.currentGems)
+        val redo = GameState(game.currentBoard, game.currentDrawStack, game.currentPlayers, game.currentGems)
 
         game.redoStack.add(redo)
+
         val gameState = game.undoStack.removeLast()
         game.currentBoard = gameState.board
         game.currentDrawStack = gameState.drawStack
         game.currentPlayers = gameState.players
+        game.currentGems = gameState.gems
+
         changePlayerBack()
         onAllRefreshables { refreshAfterUndo() }
     }
+
 
     /**
      * redo enables the player to go to the next step
@@ -117,17 +118,17 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         require(game.redoStack.isNotEmpty()){
             "The redo list is empty"
         }
-        val undo = GameState(game.currentBoard,
-                            game.currentDrawStack,
-                            game.currentPlayers,
-                            game.currentGems)
 
-        game.redoStack.add(undo)
+        val undo = GameState(game.currentBoard, game.currentDrawStack, game.currentPlayers, game.currentGems)
+
+        game.undoStack.add(undo)
         val gameState =  game.redoStack.removeLast()
 
         game.currentBoard = gameState.board
         game.currentDrawStack = gameState.drawStack
         game.currentPlayers = gameState.players
+        game.currentGems = gameState.gems
+
         changePlayer()
         onAllRefreshables { refreshAfterRedo() }
 
@@ -165,8 +166,8 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
 
         val neighbours = listOf(
            game.currentBoard[AxialPos(q+1,r)],
-           game.currentBoard[AxialPos(q+1,r+1)],
-           game.currentBoard[AxialPos(q,r+1)],
+           game.currentBoard[AxialPos(q+1,r-1)],
+           game.currentBoard[AxialPos(q,r-1)],
            game.currentBoard[AxialPos(q-1,r)],
            game.currentBoard[AxialPos(q-1,r+1)],
            game.currentBoard[AxialPos(q,r+1)]
@@ -189,7 +190,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         val pathsWithRotation = mutableListOf<Pair<Int, Int>>()
 
         typeOfTile.paths.forEach{ (start, end) ->
-            pathsWithRotation.add(Pair(start + rotation % 6, end + rotation % 6))
+            pathsWithRotation.add(Pair( (start + rotation) % 6, (end + rotation) % 6))
         }
 
         return checkPathsAtEdge(pathsWithRotation,atGate)
@@ -280,11 +281,23 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         requireNotNull(tile) { "The current player has no tile" }
 
         // Create the current GameState
-        val currentGameState =
-            GameState(game.currentBoard, game.currentDrawStack, game.currentPlayers, game.currentGems)
+        val currentBoard : MutableMap<AxialPos,Tile> = mutableMapOf()
+        for(element in game.currentBoard){
+            currentBoard[element.key] = element.value
+        }
 
-        // Add the move to the undoStack
-        game.undoStack.add(currentGameState)
+        val currentDrawStack : MutableList<RouteTile> = mutableListOf()
+        for(element in game.currentDrawStack){
+            currentDrawStack.add(element)
+        }
+
+        val currentGems : MutableList<Gem> = mutableListOf()
+        for(element in game.currentGems){
+            currentGems.add(element)
+        }
+
+        // Add the gameState to the undoStack
+       game.undoStack.add(GameState(currentBoard,currentDrawStack,game.currentPlayers,currentGems))
 
         // Draw a tile
         drawTile()
@@ -293,7 +306,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         game.currentBoard[coordinates] = tile
 
         // Move Gems
-        moveGems(coordinates)
+        //moveGems(coordinates)
 
         // Refresh GUI
         onAllRefreshables { refreshAfterPlaceTile(coordinates) }
@@ -308,7 +321,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
      * If the draw stack is not empty, it removes the first tile and assigns it to the current player's held tile.
      * If the draw stack is empty, the held tile remains unchanged.
      */
-    private fun drawTile(){
+     fun drawTile(){
         val game = rootService.currentGame
         checkNotNull(game) { "No game started yet." }
 

@@ -312,20 +312,27 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
 
         onAllRefreshables{refreshAfterEndGame(players)}
     }
+
     /**
      * saves the current Game in the file "saveGame.ser"
      */
-    fun save(){
+    fun save() {
         val file = File("saveGame.ser")
-        file.writeText(Json.encodeToString(rootService.currentGame))
+        val json = Json {
+            allowStructuredMapKeys = true
+        }
+        file.writeText(json.encodeToString(rootService.currentGame))
     }
 
     /**
      * loads the current Game from the "saveGame.ser" file
      */
-    fun load(){
+    fun load() {
         val file = File("saveGame.ser")
-        rootService.currentGame = Json.decodeFromString<Game>(file.readText())
+        val json = Json {
+            allowStructuredMapKeys = true
+        }
+        rootService.currentGame = json.decodeFromString<Game>(file.readText())
         onAllRefreshables { refreshAfterNewGame() }
     }
 }
