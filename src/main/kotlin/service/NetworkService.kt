@@ -402,8 +402,8 @@ class NetworkService(private val rootService: RootService) : AbstractRefreshingS
         }
 
         val message = TilePlacedMessage(
-            rCoordinate = position.r,
-            qCoordinate = position.q,
+            rcoordinate = position.r,
+            qcoordinate = position.q,
             rotation = tile.rotation,
         )
 
@@ -446,8 +446,8 @@ class NetworkService(private val rootService: RootService) : AbstractRefreshingS
         }
 
         val position = AxialPos(
-            r = message.rCoordinate,
-            q = message.qCoordinate,
+            r = message.rcoordinate,
+            q = message.qcoordinate,
         )
         val tile = game.playerAtTurn.heldTile
 
