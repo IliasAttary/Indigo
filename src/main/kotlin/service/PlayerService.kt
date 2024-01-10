@@ -10,6 +10,7 @@ import entity.*
  * @property rootService The reference to the root service, enabling communication with the core game entity.
  */
 class PlayerService(private val rootService:RootService) : AbstractRefreshingService() {
+
     val NEIGHBOR_OFFSET_MAP = mapOf(    0 to AxialPos(q=1,  r=-1),
                                         1 to AxialPos(q=1,  r=0),
                                         2 to  AxialPos(q=0,  r=1),
@@ -21,9 +22,6 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         0 to 2,
         2 to 0,
     )
-
-
-
 
     /**
      * Rotates the tile held by the current player in the game.
@@ -306,7 +304,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         game.currentBoard[coordinates] = tile
 
         // Move Gems
-        //moveGems(coordinates)
+        moveGems(coordinates)
 
         // Refresh GUI
         onAllRefreshables { refreshAfterPlaceTile(coordinates) }

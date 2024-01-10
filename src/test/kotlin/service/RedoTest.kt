@@ -1,10 +1,7 @@
 package service
 
 import entity.*
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
+import kotlin.test.*
 
 /**
  * This class contains test cases for the [PlayerService.redo] function.
