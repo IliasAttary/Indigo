@@ -15,7 +15,7 @@ class StartGameTest {
      * ending a game, and attempting to start a game with invalid configurations.
      */
     @Test
-    fun startGameTest() {
+    fun testStartGame() {
         val mc = RootService()
 
         assertNull(mc.currentGame)

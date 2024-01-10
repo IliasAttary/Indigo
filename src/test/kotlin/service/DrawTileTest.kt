@@ -21,7 +21,7 @@ class DrawTileTest {
      * and assigned to the current player.
      */
     @Test
-    fun drawTileTest() {
+    fun testDrawTile() {
 
         val mc = RootService()
 

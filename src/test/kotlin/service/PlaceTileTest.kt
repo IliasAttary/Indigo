@@ -17,7 +17,7 @@ class PlaceTileTest {
      * and attempting to place a tile on an occupied space.
      */
     @Test
-    fun placeTileTest() {
+    fun testPlaceTile() {
         val mc = RootService()
         assertFails { mc.playerService.placeTile(AxialPos(1, -3)) }
 
