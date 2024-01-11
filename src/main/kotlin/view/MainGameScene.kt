@@ -9,6 +9,8 @@ import tools.aqua.bgw.util.Font
 import tools.aqua.bgw.visual.ImageVisual
 import tools.aqua.bgw.visual.ColorVisual
 import tools.aqua.bgw.visual.CompoundVisual
+import tools.aqua.bgw.components.container.HexagonGrid
+import tools.aqua.bgw.components.gamecomponentviews.HexagonView
 import java.awt.Color
 
 /**
@@ -91,6 +93,20 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(1920,
         scale = 0.9
     }
 
+    // game board
+    val gameBoard: HexagonGrid<HexagonView> = HexagonGrid<HexagonView>(coordinateSystem = HexagonGrid.CoordinateSystem.AXIAL,
+        height = 1000, width = 1000, posX = 850, posY = 420).apply {
+
+        for (row in -3..3) {
+            for (col in -3..3) {
+                val hexagon = HexagonView(visual = ImageVisual("smart_ai_icon.png"))
+                this[col, row] = hexagon
+            }
+        }
+        scale = 0.9
+    }
+
+
     // background image with black overlay
     val blackOverlay = ColorVisual(color = Color.black).apply { transparency = 0.7 }
     val backgroundOverlay = CompoundVisual(children = listOf( ImageVisual("background.png"),blackOverlay))
@@ -100,6 +116,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(1920,
         background = backgroundOverlay
 
         addComponents(
+            gameBoard,
             undoButton,
             redoButton,
             rulesButton,
