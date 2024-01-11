@@ -15,7 +15,7 @@ class StartGameTest {
      * ending a game, and attempting to start a game with invalid configurations.
      */
     @Test
-    fun testStartGame() {
+    fun testStartGameTwoPlayers() {
         val mc = RootService()
 
         assertNull(mc.currentGame)
@@ -62,5 +62,90 @@ class StartGameTest {
                 sharedGates = false
             )
         }
+    }
+
+    @Test
+    fun testStartGameThreePlayersSharedGates(){
+        val mc = RootService()
+
+        mc.gameService.startGame(
+            players = listOf(
+                Player("P1", Color.RED, heldTile = RouteTile(TileType.TILE0), isAI = false, smartAI = false),
+                Player("P2", Color.BLUE, heldTile = RouteTile(TileType.TILE1), isAI = false, smartAI = false),
+                Player("P3", Color.WHITE, heldTile = RouteTile(TileType.TILE1), isAI = false, smartAI = false)
+            ),
+            aiSpeed = 10,
+            sharedGates = false
+        )
+
+        assertNotNull(mc.currentGame)
+
+        val currentGame = mc.currentGame
+        assertNotEquals(currentGame!!.currentPlayers[0].name, currentGame.currentPlayers[1].name, currentGame.currentPlayers[2].name)
+        assertNotNull(currentGame.playerAtTurn)
+        assertEquals(31, currentGame.currentBoard.size)
+        assertEquals(24, currentGame.currentGems.size)
+        assertEquals(54, currentGame.currentDrawStack.size)
+        assertEquals(0, currentGame.undoStack.size)
+        assertEquals(0, currentGame.redoStack.size)
+
+
+    }
+
+    @Test
+    fun testStartGameThreePlayersNoSharedGates(){
+        val mc = RootService()
+
+        mc.gameService.startGame(
+            players = listOf(
+                Player("P1", Color.RED, heldTile = RouteTile(TileType.TILE0), isAI = false, smartAI = false),
+                Player("P2", Color.BLUE, heldTile = RouteTile(TileType.TILE1), isAI = false, smartAI = false),
+                Player("P3", Color.WHITE, heldTile = RouteTile(TileType.TILE1), isAI = false, smartAI = false)
+            ),
+            aiSpeed = 10,
+            sharedGates = true
+        )
+
+        assertNotNull(mc.currentGame)
+
+        val currentGame = mc.currentGame
+        assertNotEquals(currentGame!!.currentPlayers[0].name, currentGame.currentPlayers[1].name, currentGame.currentPlayers[2].name)
+        assertNotNull(currentGame.playerAtTurn)
+        assertEquals(31, currentGame.currentBoard.size)
+        assertEquals(24, currentGame.currentGems.size)
+        assertEquals(54, currentGame.currentDrawStack.size)
+        assertEquals(0, currentGame.undoStack.size)
+        assertEquals(0, currentGame.redoStack.size)
+
+
+    }
+
+    @Test
+    fun testStartGameFourPlayers(){
+        val mc = RootService()
+
+        mc.gameService.startGame(
+            players = listOf(
+                Player("P1", Color.RED, heldTile = RouteTile(TileType.TILE0), isAI = false, smartAI = false),
+                Player("P2", Color.BLUE, heldTile = RouteTile(TileType.TILE1), isAI = false, smartAI = false),
+                Player("P3", Color.WHITE, heldTile = RouteTile(TileType.TILE2), isAI = false, smartAI = false),
+                Player("P4", Color.PURPLE, heldTile = RouteTile(TileType.TILE3), isAI = false, smartAI = false),
+            ),
+            aiSpeed = 10,
+            sharedGates = false
+        )
+
+        assertNotNull(mc.currentGame)
+
+        val currentGame = mc.currentGame
+        assertNotEquals(currentGame!!.currentPlayers[0].name, currentGame.currentPlayers[1].name, currentGame.currentPlayers[2].name)
+        assertNotNull(currentGame.playerAtTurn)
+        assertEquals(31, currentGame.currentBoard.size)
+        assertEquals(24, currentGame.currentGems.size)
+        assertEquals(54, currentGame.currentDrawStack.size)
+        assertEquals(0, currentGame.undoStack.size)
+        assertEquals(0, currentGame.redoStack.size)
+
+
     }
 }
