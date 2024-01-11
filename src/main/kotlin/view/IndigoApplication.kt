@@ -3,6 +3,9 @@ package view
 import service.RootService
 import tools.aqua.bgw.core.BoardGameApplication
 
+/**
+ *  Application for launching the game.
+ */
 class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
 
     /**
