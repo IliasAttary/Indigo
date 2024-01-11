@@ -64,6 +64,9 @@ class StartGameTest {
         }
     }
 
+    /**
+     * Tests the startGame with 3 players with SharedGates
+     */
     @Test
     fun testStartGameThreePlayersSharedGates(){
         val mc = RootService()
@@ -81,7 +84,8 @@ class StartGameTest {
         assertNotNull(mc.currentGame)
 
         val currentGame = mc.currentGame
-        assertNotEquals(currentGame!!.currentPlayers[0].name, currentGame.currentPlayers[1].name, currentGame.currentPlayers[2].name)
+        assertNotEquals(currentGame!!.currentPlayers[0].name, currentGame.currentPlayers[1].name,
+            currentGame.currentPlayers[2].name)
         assertNotNull(currentGame.playerAtTurn)
         assertEquals(31, currentGame.currentBoard.size)
         assertEquals(24, currentGame.currentGems.size)
@@ -92,6 +96,9 @@ class StartGameTest {
 
     }
 
+    /**
+     * Tests the startGame with 3 players without SharedGates
+     */
     @Test
     fun testStartGameThreePlayersNoSharedGates(){
         val mc = RootService()
@@ -109,7 +116,8 @@ class StartGameTest {
         assertNotNull(mc.currentGame)
 
         val currentGame = mc.currentGame
-        assertNotEquals(currentGame!!.currentPlayers[0].name, currentGame.currentPlayers[1].name, currentGame.currentPlayers[2].name)
+        assertNotEquals(currentGame!!.currentPlayers[0].name, currentGame.currentPlayers[1].name,
+            currentGame.currentPlayers[2].name)
         assertNotNull(currentGame.playerAtTurn)
         assertEquals(31, currentGame.currentBoard.size)
         assertEquals(24, currentGame.currentGems.size)
@@ -120,6 +128,9 @@ class StartGameTest {
 
     }
 
+    /**
+     * Tests the startGame with 4 players
+     */
     @Test
     fun testStartGameFourPlayers(){
         val mc = RootService()
@@ -138,7 +149,8 @@ class StartGameTest {
         assertNotNull(mc.currentGame)
 
         val currentGame = mc.currentGame
-        assertNotEquals(currentGame!!.currentPlayers[0].name, currentGame.currentPlayers[1].name, currentGame.currentPlayers[2].name)
+        assertNotEquals(currentGame!!.currentPlayers[0].name, currentGame.currentPlayers[1].name,
+            currentGame.currentPlayers[2].name)
         assertNotNull(currentGame.playerAtTurn)
         assertEquals(31, currentGame.currentBoard.size)
         assertEquals(24, currentGame.currentGems.size)
