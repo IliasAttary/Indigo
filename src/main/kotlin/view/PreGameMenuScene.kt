@@ -27,6 +27,7 @@ class PreGameMenuScene : MenuScene(1920, 1080), Refreshable {
     ).apply {
         visual.borderRadius = BorderRadius(15)
         visual.backgroundRadius = BackgroundRadius(15)
+        isDisabled = true
     }
 
     /**
@@ -152,6 +153,7 @@ class PreGameMenuScene : MenuScene(1920, 1080), Refreshable {
                     gameIDField.isDisabled = true
                     playerNameField.visual = ColorVisual.GRAY
                     gameIDField.visual = ColorVisual.GRAY
+                    startButton.isDisabled = false
                 }
 
                 "Host Network Game" -> {
@@ -163,6 +165,7 @@ class PreGameMenuScene : MenuScene(1920, 1080), Refreshable {
                     gameIDField.isDisabled = true
                     playerNameField.visual = ColorVisual.GRAY
                     gameIDField.visual = ColorVisual.GRAY
+                    startButton.isDisabled = false
                 }
 
                 "Join Network Game" -> {
@@ -172,8 +175,17 @@ class PreGameMenuScene : MenuScene(1920, 1080), Refreshable {
                     gameIDField.isDisabled = false
                     playerNameField.visual = ColorVisual.WHITE
                     gameIDField.visual = ColorVisual.WHITE
+                    startButton.isDisabled = true
                 }
             }
+        }
+
+        playerNameField.onKeyTyped = {
+            startButton.isDisabled = playerNameField.text.isBlank() || gameIDField.text.isBlank()
+        }
+
+        gameIDField.onKeyTyped = {
+            startButton.isDisabled = playerNameField.text.isBlank() || gameIDField.text.isBlank()
         }
     }
 
