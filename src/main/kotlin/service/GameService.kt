@@ -316,6 +316,6 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
             allowStructuredMapKeys = true
         }
         rootService.currentGame = json.decodeFromString<Game>(file.readText())
-        onAllRefreshables { refreshAfterNewGame() }
+        onAllRefreshables { refreshAfterLoadGame() }
     }
 }

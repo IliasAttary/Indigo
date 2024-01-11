@@ -63,6 +63,8 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         else{
             game.playerAtTurn = game.currentPlayers[indexOfCurrentPlayer + 1]
         }
+
+        onAllRefreshables { refreshAfterChangePlayer() }
     }
     /**
      * change the current player to the previous player if undo was called
@@ -80,6 +82,8 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         else{
             game.playerAtTurn = game.currentPlayers[indexOfCurrentPlayer - 1]
         }
+
+        onAllRefreshables { refreshAfterChangePlayer() }
     }
     /**
      * undo enables the player to go back to the last step
