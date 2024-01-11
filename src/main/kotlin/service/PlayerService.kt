@@ -334,49 +334,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         require(placedTile != null && placedTile is RouteTile ){"placedTile is null or not RouteTile"}
 
         val placedTilePaths = tilePathsWithRotation(placedTile.tileType.paths, placedTile.rotation)
-        val newGemPositions = mutableListOf<Int>() // the positions of the gems that have been moved to the placed tile
-
-        for ((direction, neighborOffset) in neighborOffsetMap){
-            val neighborPos = coordinates + neighborOffset
-            val neighbor = game.currentBoard[neighborPos]
-
-            if (neighbor == null ) {
-                continue
-            }
-
-            val oppositeDirection = (direction + 3) % 6
-
-            val gem = if (neighbor is RouteTile) {
-                neighbor.gemPositions.remove(oppositeDirection)
-            } else if (neighbor is TreasureTile) {
-                if (neighbor.gems != null) {
-                    neighbor.gems.removeLastOrNull()
-                } else {
-                    neighbor.gemPositions?.remove(oppositeDirection)
-                }
-            } else {
-                continue
-            }
-
-            if (gem == null) {
-                continue
-            }
-
-            // check for collision on path
-            if (placedTile.gemPositions.containsKey(direction)) {
-                // remove other gem
-                placedTile.gemPositions.remove(direction)
-                newGemPositions.remove(direction)
-                continue
-            }
-
-            // move gem over to the current tile, to the end of the path
-            val endPosition = placedTilePaths[direction]
-            if(endPosition != null) {
-                placedTile.gemPositions[endPosition] = gem
-                newGemPositions.add(endPosition)
-            }
-        }
+        val newGemPositions = calculateNewGemPositions(placedTile,placedTilePaths,coordinates) // the positions of the gems that have been moved to the placed tile
 
         // move gems to their final destination
 
@@ -436,5 +394,56 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
 
             }
         }
+    }
+    private fun calculateNewGemPositions(placedTile:RouteTile,
+                                 placedTilePaths:Map<Int,Int> ,
+                                 coordinates : AxialPos):MutableList<Int>{
+        val game = rootService.currentGame
+        checkNotNull(game)
+        val newGemPositions = mutableListOf<Int>()
+
+        for ((direction, neighborOffset) in neighborOffsetMap){
+            val neighborPos = coordinates + neighborOffset
+            val neighbor = game.currentBoard[neighborPos]
+
+            if (neighbor == null ) {
+                continue
+            }
+
+            val oppositeDirection = (direction + 3) % 6
+
+            val gem = if (neighbor is RouteTile) {
+                neighbor.gemPositions.remove(oppositeDirection)
+            } else if (neighbor is TreasureTile) {
+                if (neighbor.gems != null) {
+                    neighbor.gems.removeLastOrNull()
+                } else {
+                    neighbor.gemPositions?.remove(oppositeDirection)
+                }
+            } else {
+                continue
+            }
+
+            if (gem == null) {
+                continue
+            }
+
+            // check for collision on path
+            if (placedTile.gemPositions.containsKey(direction)) {
+                // remove other gem
+                placedTile.gemPositions.remove(direction)
+                newGemPositions.remove(direction)
+                continue
+            }
+
+            // move gem over to the current tile, to the end of the path
+            val endPosition = placedTilePaths[direction]
+            if(endPosition != null) {
+                placedTile.gemPositions[endPosition] = gem
+                newGemPositions.add(endPosition)
+            }
+        }
+
+        return newGemPositions
     }
 }
