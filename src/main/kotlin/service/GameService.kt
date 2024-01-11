@@ -180,88 +180,71 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
      * @param players The list of players in the game.
      * @param sharedGates indicating whether gates are shared among players.
      */
-    private fun placeGateWayTile(board : MutableMap<AxialPos, Tile>, coordinates : AxialPos,
-                                 gate : Int, players : List<Player>, sharedGates: Boolean){
+    private fun placeGateWayTile(
+        board: MutableMap<AxialPos, Tile>,
+        coordinates: AxialPos,
+        gate: Int,
+        players: List<Player>,
+        sharedGates: Boolean
+    ) {
+        var gatePlayers = determineGatePlayers(gate, players, sharedGates)
 
-        //initialize gatePlayers with something, this gets overwritten in when block
-        var gatePlayers = mutableListOf(players[0],players[1])
-
-        when (players.size){
-            2 -> {
-                when(gate){
-
-                    1 -> { gatePlayers = searchPlayerWithColor(players,Color.RED,Color.RED) }
-
-                    2 -> { gatePlayers = searchPlayerWithColor(players,Color.BLUE,Color.BLUE) }
-
-                    3 -> { gatePlayers = searchPlayerWithColor(players,Color.RED,Color.RED) }
-
-                    4 -> { gatePlayers = searchPlayerWithColor(players,Color.BLUE,Color.BLUE) }
-
-                    5 -> { gatePlayers = searchPlayerWithColor(players,Color.RED,Color.RED) }
-
-                    6 -> { gatePlayers = searchPlayerWithColor(players,Color.BLUE,Color.BLUE) }
-                }
-            }
-
-            3 -> {
-                when(gate){
-
-                    1 -> { gatePlayers = searchPlayerWithColor(players,Color.RED,Color.RED) }
-
-                    2 -> {
-                        gatePlayers = if(sharedGates){
-                            searchPlayerWithColor(players,Color.RED,Color.BLUE)
-                        } else{
-                            searchPlayerWithColor(players,Color.BLUE,Color.BLUE)
-                        }
-                    }
-
-                    3 -> { gatePlayers = searchPlayerWithColor(players,Color.WHITE,Color.WHITE) }
-
-                    4 -> {
-                        gatePlayers = if(sharedGates){
-                            searchPlayerWithColor(players,Color.WHITE,Color.RED)
-                        } else{
-                            searchPlayerWithColor(players,Color.RED,Color.RED)
-                        }
-                    }
-
-                    5 -> { gatePlayers = searchPlayerWithColor(players,Color.BLUE,Color.BLUE) }
-
-                    6 -> {
-                        gatePlayers = if(sharedGates){
-                            searchPlayerWithColor(players,Color.BLUE,Color.WHITE)
-                        } else{
-                            searchPlayerWithColor(players,Color.WHITE,Color.WHITE)
-                        }
-                    }
-                }
-            }
-
-            4 -> {
-                when(gate){
-
-                    1 -> { gatePlayers = searchPlayerWithColor(players,Color.RED,Color.BLUE) }
-
-                    2 -> { gatePlayers = searchPlayerWithColor(players,Color.BLUE,Color.WHITE) }
-
-                    3 -> { gatePlayers = searchPlayerWithColor(players,Color.RED,Color.PURPLE) }
-
-                    4 -> { gatePlayers = searchPlayerWithColor(players,Color.PURPLE,Color.BLUE) }
-
-                    5 -> { gatePlayers = searchPlayerWithColor(players,Color.WHITE,Color.RED) }
-
-                    6 -> { gatePlayers = searchPlayerWithColor(players,Color.WHITE,Color.PURPLE) }
-                }
-            }
-        }
-
-        if(gatePlayers.first() == gatePlayers.last()){
-            gatePlayers.removeLast()
+        // Remove duplicate player if both assigned players are the same
+        if (gatePlayers.size > 1 && gatePlayers.first() == gatePlayers.last()) {
+            gatePlayers = mutableListOf(gatePlayers.first())
         }
 
         board[coordinates] = GatewayTile(gatePlayers, gate)
+    }
+
+    private fun determineGatePlayers(gate: Int, players: List<Player>, sharedGates: Boolean): MutableList<Player> {
+        val colorMapping = getColorMappingForPlayers(players.size, sharedGates)
+        val playerColors = colorMapping[gate] ?: return mutableListOf(players[0])
+        return searchPlayerWithColor(players, playerColors.first, playerColors.second)
+    }
+
+    private fun getColorMappingForPlayers(playerCount: Int, sharedGates: Boolean): Map<Int, Pair<Color, Color>> {
+        return when (playerCount) {
+            2 -> mapOf(
+                1 to Pair(Color.RED, Color.RED),
+                2 to Pair(Color.BLUE, Color.BLUE),
+                3 to Pair(Color.RED, Color.RED),
+                4 to Pair(Color.BLUE, Color.BLUE),
+                5 to Pair(Color.RED, Color.RED),
+                6 to Pair(Color.BLUE, Color.BLUE),
+            )
+
+            3 -> if (sharedGates) {
+                mapOf(
+                    1 to Pair(Color.RED, Color.RED),
+                    2 to Pair(Color.RED, Color.BLUE),
+                    3 to Pair(Color.WHITE, Color.WHITE),
+                    4 to Pair(Color.WHITE, Color.RED),
+                    5 to Pair(Color.BLUE, Color.BLUE),
+                    6 to Pair(Color.BLUE, Color.WHITE)
+                )
+            } else {
+                mapOf(
+                    1 to Pair(Color.RED, Color.RED),
+                    2 to Pair(Color.BLUE, Color.BLUE),
+                    3 to Pair(Color.WHITE, Color.WHITE),
+                    4 to Pair(Color.RED, Color.RED),
+                    5 to Pair(Color.BLUE, Color.BLUE),
+                    6 to Pair(Color.WHITE, Color.WHITE)
+                )
+            }
+
+            4 -> mapOf(
+                1 to Pair(Color.RED, Color.BLUE),
+                2 to Pair(Color.BLUE, Color.WHITE),
+                3 to Pair(Color.RED, Color.PURPLE),
+                4 to Pair(Color.PURPLE, Color.BLUE),
+                5 to Pair(Color.WHITE, Color.RED),
+                6 to Pair(Color.WHITE, Color.PURPLE)
+            )
+
+            else -> emptyMap()
+        }
     }
 
     /**
