@@ -58,12 +58,6 @@ interface Refreshable {
     fun refreshAfterRedo() {}
 
     /**
-     * Called when the game state is successfully saved.
-     * This can be used to notify the user that their progress has been saved or to update the UI accordingly.
-     */
-    fun refreshAfterSaveGame() {}
-
-    /**
      * Called when a game is loaded.
      * This method should update the UI to reflect the loaded game state, including any necessary UI elements.
      */
