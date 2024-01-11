@@ -72,5 +72,8 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
             this.showGameScene(mainGameScene)}
 
         mainGameScene.rulesButton.onMouseClicked = {this.showMenuScene(rules)}    }
+    }
+
+
 
 }

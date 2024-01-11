@@ -11,7 +11,7 @@ import tools.aqua.bgw.visual.ImageVisual
 import java.awt.Color
 
 /**
- * New Game Scene for Indigo.
+ *  Menu scene from where a game can be created.
  */
 class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
 
@@ -380,6 +380,29 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
         fourthPlayerNameField
     )
 
+    // Variables for finding the actual player fields in case the order was shuffled
+    private var actualFirstPlayerField = firstPlayerNameField
+    private var actualSecondPlayerField = secondPlayerNameField
+    private var actualThirdPlayerField = thirdPlayerNameField
+    private var actualFourthPlayerField = fourthPlayerNameField
+
+    private var actualFieldsList = listOf<TextField>()
+
+    /**
+     *  Determine the actual player fields in order using their position
+     */
+    private fun determineActualFields() {
+        //
+        playerNameFields.forEach { field ->
+            if (field.posY.toInt() == absolutePlayerFieldPos[0]) actualFirstPlayerField = field
+            if (field.posY.toInt() == absolutePlayerFieldPos[1]) actualSecondPlayerField = field
+            if (field.posY.toInt() == absolutePlayerFieldPos[2]) actualThirdPlayerField = field
+            if (field.posY.toInt() == absolutePlayerFieldPos[3]) actualFourthPlayerField = field
+        }
+        actualFieldsList =
+            listOf(actualFirstPlayerField, actualSecondPlayerField, actualThirdPlayerField, actualFourthPlayerField)
+    }
+
     /**
      *  Randomizes the player Order when pressed.
      */
@@ -395,38 +418,30 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
         onMouseClicked = {
             // randomize the player order by shuffling the input field positions
             randomizedPlayerFieldPos = absolutePlayerFieldPos.subList(0, playerCount).shuffled()
+
+            // Determine the actual player fields
+            determineActualFields()
+
             // apply new positions to fields
-            firstPlayerNameField.posY = randomizedPlayerFieldPos[0].toDouble()
-            secondPlayerNameField.posY = randomizedPlayerFieldPos[1].toDouble()
-            if (playerCount >= 3) thirdPlayerNameField.posY = randomizedPlayerFieldPos[2].toDouble()
-            if (playerCount == 4) fourthPlayerNameField.posY = randomizedPlayerFieldPos[3].toDouble()
+            actualFirstPlayerField.posY = randomizedPlayerFieldPos[0].toDouble()
+            actualSecondPlayerField.posY = randomizedPlayerFieldPos[1].toDouble()
+            if (playerCount >= 3) actualThirdPlayerField.posY = randomizedPlayerFieldPos[2].toDouble()
+            if (playerCount == 4) actualFourthPlayerField.posY = randomizedPlayerFieldPos[3].toDouble()
 
-            /* Update the player order in the name list and adds a player to the list if it does not already contain
-            *  the correct amount of players.
-            */
-            for (field in 0 until playerCount) {
-                when (playerNameFields[field].posY) {
-                    250.0 -> if (playerNames.size >= 1)
-                        playerNames[0] = playerNameFields[field].text
-                    else if (playerNameFields[field].text.isNotBlank())
-                        playerNames.add(playerNameFields[field].text)
+            // Determine the actual player fields again, because their positions have changed
+            determineActualFields()
 
-                    350.0 -> if (playerNames.size >= 2)
-                        playerNames[1] = playerNameFields[field].text
-                    else if (playerNameFields[field].text.isNotBlank())
-                        playerNames.add(playerNameFields[field].text)
+            // Set player names list to the correct size
+            for (i in 0 until playerCount) {
+                if (playerNames.size < playerCount)
+                    playerNames.add("")
+                else if (playerNames.size > playerCount)
+                    playerNames.remove(playerNames.last())
+            }
 
-                    450.0 -> if (playerNames.size >= 3)
-                        playerNames[2] = playerNameFields[field].text
-                    else if (playerNameFields[field].text.isNotBlank())
-                        playerNames.add(playerNameFields[field].text)
-
-                    550.0 -> if (playerNames.size == 4)
-                        playerNames[3] = playerNameFields[field].text
-                    else if (playerNames.size == 3 && playerNameFields[field].text.isNotBlank())
-                        playerNames.add(playerNameFields[field].text)
-
-                }
+            // Set the player names in the new order
+            for (player in 0 until playerCount) {
+                playerNames[player] = actualFieldsList[player].text.trim()
             }
         }
     }
@@ -466,6 +481,9 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
                 // Update the player count.
                 playerCount = 3
 
+                // Determine the actual fields
+                determineActualFields()
+
                 // Show the Button to remove the third player.
                 removeThirdPlayerButton.isDisabled = false
                 removeThirdPlayerButton.isVisible = true
@@ -476,8 +494,8 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
 
                 // Show the third player field and label.
                 thirdPlayerLabel.isVisible = true
-                thirdPlayerNameField.isVisible = true
-                thirdPlayerNameField.isDisabled = false
+                actualThirdPlayerField.isVisible = true
+                actualThirdPlayerField.isDisabled = false
 
                 // Show the button to add a fourth player.
                 addFourthPlayerButton.isVisible = true
@@ -490,11 +508,14 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
                 // Update the player count.
                 playerCount = 2
 
+                // Determine the actual fields
+                determineActualFields()
+
                 // Clear the third players input and hide the field as well as label.
                 thirdPlayerLabel.isVisible = false
-                thirdPlayerNameField.text = ""
-                thirdPlayerNameField.isVisible = false
-                thirdPlayerNameField.isDisabled = true
+                actualThirdPlayerField.text = ""
+                actualThirdPlayerField.isVisible = false
+                actualThirdPlayerField.isDisabled = true
 
                 // Hide this Button.
                 isVisible = false
@@ -517,10 +538,13 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
                 // Update the player count
                 playerCount = 4
 
+                // Determine the actual fields
+                determineActualFields()
+
                 // Show the Input field and label for the fourth player
                 fourthPlayerLabel.isVisible = true
-                fourthPlayerNameField.isVisible = true
-                fourthPlayerNameField.isDisabled = false
+                actualFourthPlayerField.isVisible = true
+                actualFourthPlayerField.isDisabled = false
 
                 // Hide this Button
                 isVisible = false
@@ -541,10 +565,13 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
                 // Update the player count.
                 playerCount = 3
 
+                // Determine the actual fields
+                determineActualFields()
+
                 // Clear the fourth players input and hide the field as well as the label.
-                fourthPlayerNameField.text = ""
-                fourthPlayerNameField.isVisible = false
-                fourthPlayerNameField.isDisabled = true
+                actualFourthPlayerField.text = ""
+                actualFourthPlayerField.isVisible = false
+                actualFourthPlayerField.isDisabled = true
                 fourthPlayerLabel.isVisible = false
 
                 // Hide this Button.
