@@ -338,7 +338,8 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         require(placedTile != null && placedTile is RouteTile ){"placedTile is null or not RouteTile"}
 
         val placedTilePaths = tilePathsWithRotation(placedTile.tileType.paths, placedTile.rotation)
-        val newGemPositions = calculateNewGemPositions(placedTile,placedTilePaths,coordinates) // the positions of the gems that have been moved to the placed tile
+        // the positions of the gems that have been moved to the placed tile
+        val newGemPositions = calculateNewGemPositions(placedTile,placedTilePaths,coordinates)
 
         // move gems to their final destination
 
