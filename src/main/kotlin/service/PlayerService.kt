@@ -201,61 +201,25 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
      * @param atGate The gate number to determine which specific paths to check.
      * @return Returns true if the paths at the specified gate is not in the list, otherwise false.
      */
-    private fun checkPathsAtEdge(paths : MutableList<Pair<Int,Int>>, atGate : Int) : Boolean{
-        when(atGate){
-            1 -> {
-                for(path in paths){
-                    if(path.first == 0 && path.second == 1){
-                        return false
-                    }
-                }
-            }
-
-            2 -> {
-                for(path in paths){
-                    if(path.first == 1 && path.second == 2){
-                        return false
-                    }
-                }
-            }
-
-            3 -> {
-                for(path in paths){
-                    if(path.first == 2 && path.second == 3){
-                        return false
-                    }
-                }
-            }
-
-            4 -> {
-                for(path in paths){
-                    if(path.first == 3 && path.second == 4){
-                        return false
-                    }
-                }
-            }
-
-            5 -> {
-                for(path in paths){
-                    if(path.first == 4 && path.second == 5){
-                        return false
-                    }
-                }
-            }
-
-            6 -> {
-                for(path in paths){
-                    if(path.first == 5 && path.second == 0){
-                        return false
-                    }
-                }
-            }
-
-            else -> {return true}
+    private fun checkPathsAtEdge(paths: MutableList<Pair<Int, Int>>, atGate: Int): Boolean {
+        if (atGate == 0) {
+            return true
         }
 
-        return true
+        val edgeConditions = listOf(
+            0 to 1,
+            1 to 2,
+            2 to 3,
+            3 to 4,
+            4 to 5,
+            5 to 0
+        )
+
+        return paths.none { path ->
+            path.first == edgeConditions[atGate - 1].first && path.second == edgeConditions[atGate - 1].second
+        }
     }
+
 
     /**
      * Places a tile on the game board at the specified coordinates.
