@@ -40,11 +40,9 @@ class StartGameTest {
         assertEquals(0, currentGame.undoStack.size)
         assertEquals(0, currentGame.redoStack.size)
 
-        val middleTreasureTile = currentGame.currentBoard[AxialPos(0, 0)]
+        val middleTreasureTile = currentGame.currentBoard[AxialPos(0, 0)] as TreasureTile
+        middleTreasureTile.gems?.let { assertEquals(6, it.size) }
 
-        if (middleTreasureTile is TreasureTile) {
-            assertEquals(6, middleTreasureTile.gems!!.size)
-        }
 
 
         mc.gameService.endGame()
