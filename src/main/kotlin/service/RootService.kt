@@ -1,6 +1,7 @@
 package service
 
 import entity.*
+import service.ai.HelpFunctions
 import view.Refreshable
 
 /**
@@ -10,6 +11,7 @@ import view.Refreshable
  */
 class RootService {
 
+    val helpFunctions = HelpFunctions(this)
     val gameService = GameService(this)
     val playerService = PlayerService(this)
 
