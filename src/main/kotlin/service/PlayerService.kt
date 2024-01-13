@@ -271,6 +271,11 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         // Place tile
         game.currentBoard[coordinates] = tile
 
+        // If network game, notify others of placed tile
+        if (rootService.networkService.connectionState == ConnectionState.PLAYING_MY_TURN) {
+            rootService.networkService.sendPlacedTile(coordinates)
+        }
+
         // Move Gems
         moveGems(coordinates)
 
