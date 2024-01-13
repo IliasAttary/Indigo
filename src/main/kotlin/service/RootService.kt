@@ -12,6 +12,7 @@ class RootService {
 
     val gameService = GameService(this)
     val playerService = PlayerService(this)
+    val networkService = NetworkService(this)
 
     /**
      * The currently active game. Can be `null`, if no game has started yet.
@@ -25,6 +26,7 @@ class RootService {
     fun addRefreshable(newRefreshable: Refreshable) {
         gameService.addRefreshable(newRefreshable)
         playerService.addRefreshable(newRefreshable)
+        networkService.addRefreshable(newRefreshable)
     }
 
     /**
