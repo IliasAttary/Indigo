@@ -3,7 +3,7 @@ package service.ai
 import entity.AxialPos
 import entity.GameState
 
-class Node {
+class Node(currentState: GameState) {
 
     /**
      * Represents a node in the context of a Monte Carlo Tree Search (MCTS) algorithm.
@@ -20,7 +20,6 @@ class Node {
 
 
     //attributes
-
     var visits: Int = 0
     var totalScore: Double = 0.0 // wins
     var children: MutableList<Node> = mutableListOf()
