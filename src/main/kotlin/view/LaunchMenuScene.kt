@@ -1,4 +1,3 @@
-
 package view
 
 import tools.aqua.bgw.core.MenuScene
@@ -45,4 +44,3 @@ class LaunchMenuScene : MenuScene(1920, 1080), Refreshable {
         )
     }
 }
-

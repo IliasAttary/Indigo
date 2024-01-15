@@ -35,8 +35,8 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
         //check if the player names are valid
         val playerNames = players.map { it.name }.toMutableList()
 
-        check(playerNames.all { it.isNotEmpty() }) { "The players need to have a name" }
-        check(playerNames.toSet().size == playerNames.size) { "The players need to have different names" }
+        check(playerNames.all { it.isNotEmpty() }) { "The players need to have a name !" }
+        check(playerNames.toSet().size == playerNames.size) { "The players need to have different names !" }
 
         val allGems = mutableListOf<Gem>()
         repeat(6){
@@ -52,7 +52,8 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
         allGems.add(Gem.SAPPHIRE)
         allGems.add(Gem.SAPPHIRE)
 
-        rootService.currentGame = Game(currentPlayers = players,
+        rootService.currentGame = Game(
+            currentPlayers = players,
             currentBoard = initializeBoard(players, sharedGates),
             currentDrawStack = drawStack,
             aiMoveMilliseconds = aiSpeed,
@@ -76,7 +77,7 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
 
         val gameBoard = mutableMapOf<AxialPos,Tile>()
         val gemsOnMiddleTreasureTile = mutableListOf(Gem.SAPPHIRE, Gem.EMERALD, Gem.EMERALD,
-            Gem.EMERALD, Gem.EMERALD, Gem.EMERALD)
+                                                     Gem.EMERALD, Gem.EMERALD, Gem.EMERALD)
 
         // place the tiles onto the game-board by filling the map
 
@@ -93,36 +94,41 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
 
         // place all GateWayTiles
 
-
         // Gates at 1
-        placeGateWayTile(gameBoard,AxialPos(1,-4),1,players,sharedGates)
-        placeGateWayTile(gameBoard,AxialPos(2,-4),1,players,sharedGates)
-        placeGateWayTile(gameBoard,AxialPos(3,-4),1,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(1,-5),1,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(2,-5),1,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(3,-5),1,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(4,-5),1,players,sharedGates)
 
         // Gates at 2
-        placeGateWayTile(gameBoard,AxialPos(4,-3),2,players,sharedGates)
-        placeGateWayTile(gameBoard,AxialPos(4,-2),2,players,sharedGates)
-        placeGateWayTile(gameBoard,AxialPos(4,-1),2,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(5,-4),2,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(5,-3),2,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(5,-2),2,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(5,-1),2,players,sharedGates)
 
         //Gates at 3
-        placeGateWayTile(gameBoard,AxialPos(3,1),3,players,sharedGates)
-        placeGateWayTile(gameBoard,AxialPos(2,2),3,players,sharedGates)
-        placeGateWayTile(gameBoard,AxialPos(1,3),3,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(4,1),3,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(3,2),3,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(2,3),3,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(1,4),3,players,sharedGates)
 
         //Gates at 4
-        placeGateWayTile(gameBoard,AxialPos(-1,4),4,players,sharedGates)
-        placeGateWayTile(gameBoard,AxialPos(-2,4),4,players,sharedGates)
-        placeGateWayTile(gameBoard,AxialPos(-3,4),4,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(-1,5),4,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(-2,5),4,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(-3,5),4,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(-4,5),4,players,sharedGates)
 
         //Gates at 5
-        placeGateWayTile(gameBoard,AxialPos(-4,3),5,players,sharedGates)
-        placeGateWayTile(gameBoard,AxialPos(-4,2),5,players,sharedGates)
-        placeGateWayTile(gameBoard,AxialPos(-4,1),5,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(-5,4),5,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(-5,3),5,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(-5,2),5,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(-5,1),5,players,sharedGates)
 
         //Gates at 6
-        placeGateWayTile(gameBoard,AxialPos(-3,-1),6,players,sharedGates)
-        placeGateWayTile(gameBoard,AxialPos(-2,-2),6,players,sharedGates)
-        placeGateWayTile(gameBoard,AxialPos(-1,-3),6,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(-4,-1),6,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(-3,-2),6,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(-2,-3),6,players,sharedGates)
+        placeGateWayTile(gameBoard,AxialPos(-1,-4),6,players,sharedGates)
 
         return gameBoard
     }
@@ -155,8 +161,7 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
      * Places a treasure tile on the game board at the specified axial position (q, r).
      *
      * @param board The mutable map representing the game board.
-     * @param q The axial coordinate q where the tile is to be placed.
-     * @param r The axial coordinate r where the tile is to be placed.
+     * @param coordinates The AxialPos where the tile gets placed to
      */
     private fun placeTreasureTile(board : MutableMap<AxialPos, Tile>, coordinates: AxialPos, rotation : Int){
         val gemPositions = mutableMapOf<Int,Gem>()
@@ -256,7 +261,7 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
             gatePlayers.removeLast()
         }
 
-        board[coordinates] = GatewayTile(gatePlayers)
+        board[coordinates] = GatewayTile(gatePlayers, gate)
     }
 
     /**
@@ -307,20 +312,27 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
 
         onAllRefreshables{refreshAfterEndGame(players)}
     }
+
     /**
      * saves the current Game in the file "saveGame.ser"
      */
-    fun save(){
+    fun save() {
         val file = File("saveGame.ser")
-        file.writeText(Json.encodeToString(rootService.currentGame))
+        val json = Json {
+            allowStructuredMapKeys = true
+        }
+        file.writeText(json.encodeToString(rootService.currentGame))
     }
 
     /**
      * loads the current Game from the "saveGame.ser" file
      */
-    fun load(){
+    fun load() {
         val file = File("saveGame.ser")
-        rootService.currentGame = Json.decodeFromString<Game>(file.readText())
+        val json = Json {
+            allowStructuredMapKeys = true
+        }
+        rootService.currentGame = json.decodeFromString<Game>(file.readText())
         onAllRefreshables { refreshAfterNewGame() }
     }
 }

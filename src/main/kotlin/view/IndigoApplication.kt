@@ -3,9 +3,6 @@ package view
 import service.RootService
 import tools.aqua.bgw.core.BoardGameApplication
 
-/**
- *  Application for launching the game.
- */
 class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
 
     /**
@@ -52,8 +49,10 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
             mainGameScene,
             endGameMenuScene
         )
-        //open the launchMenuScene
+
+        // open the launchMenuScene
         this.showMenuScene(launchMenuScene)
+
 
         preGameMenuScene.startButton.onMouseClicked = {
             this.showMenuScene(newGameMenuScene)
@@ -73,5 +72,4 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
 
         rules.returnButton.onMouseClicked = { this.hideMenuScene()}
     }
-
 }
