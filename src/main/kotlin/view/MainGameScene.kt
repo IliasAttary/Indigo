@@ -10,6 +10,7 @@ import tools.aqua.bgw.style.BorderRadius
 import tools.aqua.bgw.util.Font
 import tools.aqua.bgw.visual.ColorVisual
 import tools.aqua.bgw.visual.TextVisual
+import tools.aqua.bgw.visual.ImageVisual
 import tools.aqua.bgw.visual.CompoundVisual
 import java.awt.Color
 
