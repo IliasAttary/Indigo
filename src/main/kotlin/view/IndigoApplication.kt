@@ -24,6 +24,11 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
     private val launchMenuScene = LaunchMenuScene()
 
     /**
+     * Menu Scene that shows the rules
+     */
+    private val rules = RulesScene()
+
+    /**
      * Menu Scene that gets displayed after the player clicks on New Game.
      */
     private val preGameMenuScene = PreGameMenuScene()
@@ -47,9 +52,8 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
             mainGameScene,
             endGameMenuScene
         )
-
-        // show the mainGameScene in the background and open the preGameMenuScene
-        this.showMenuScene(preGameMenuScene)
+        //open the launchMenuScene
+        this.showMenuScene(launchMenuScene)
 
         preGameMenuScene.startButton.onMouseClicked = {
             this.showMenuScene(newGameMenuScene)
@@ -59,7 +63,15 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
             this.hideMenuScene()
             this.showGameScene(mainGameScene)
         }
-    }
+        launchMenuScene.newGameButton.onMouseClicked = { this.showMenuScene(preGameMenuScene)}
+        launchMenuScene.loadGameButton.onMouseClicked = {
+            this.hideMenuScene()
+            this.showGameScene(mainGameScene)}
 
+        mainGameScene.rulesButton.onMouseClicked = { this.showMenuScene(rules) }
+        mainGameScene.quitButton.onMouseClicked = { exit() }
+
+        rules.returnButton.onMouseClicked = { this.hideMenuScene()}
+    }
 
 }
