@@ -1,6 +1,7 @@
 package view
 
 import tools.aqua.bgw.components.uicomponents.Button
+import tools.aqua.bgw.components.uicomponents.ComboBox
 import tools.aqua.bgw.components.uicomponents.Label
 import tools.aqua.bgw.components.uicomponents.TextField
 import tools.aqua.bgw.core.MenuScene
@@ -28,23 +29,18 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
     private var randomizedPlayerFieldPos = listOf<Int>()
 
     /**
-     *  A list of the player names in order.
-     */
-    private var playerNames = mutableListOf<String>()
-
-    /**
      *  Variable saving the player count.
      */
     private var playerCount = 2
 
     /**
-     *  Saves the player types for game initiation.
+     *  Saves the available player types for cycling the type buttons.
      *  The Player Types are as follows:
      *  0 = Player,
      *  1 = Random AI,
      *  2 = Smart AI.
      */
-    private val playerTypes = mutableListOf(0, 0, 0, 0)
+    private val availableTypes = mutableListOf(0, 0, 0, 0)
 
     /**
      * Disabled Button to have a slightly opaque black box as an additional background.
@@ -85,6 +81,18 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
     )
 
     /**
+     *  Tells the host to set the player colors.
+     */
+    private val playerColorLabel = Label(
+        posX = setupPlayersLabel.posX + 490,
+        posY = 100,
+        width = 400,
+        height = 50,
+        text = "Color",
+        font = Font(size = 40, color = Color.WHITE, fontWeight = Font.FontWeight.BOLD)
+    )
+
+    /**
      *  Switches the player type for first player in the following order:
      *  "Player" -> "Random AI" -> "Smart AI" -> "Player"
      */
@@ -96,19 +104,32 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
         visual = ImageVisual("player_icon.png")
     ).apply {
         onMouseClicked = {
-            playerTypes[0] = (playerTypes[0] + 1) % 3
-            when (playerTypes[0]) {
-                0 -> visual = ImageVisual("player_icon.png")
-                1 -> visual = ImageVisual("random_ai_icon.png")
-                2 -> visual = ImageVisual("smart_ai_icon.png")
+            availableTypes[0] = (availableTypes[0] + 1) % 3
+            when (availableTypes[0]) {
+                0 -> {
+                    visual = ImageVisual("player_icon.png")
+                    this.name = "player"
+                }
+
+                1 -> {
+                    visual = ImageVisual("random_ai_icon.png")
+                    this.name = "random"
+                }
+
+                2 -> {
+                    visual = ImageVisual("smart_ai_icon.png")
+                    this.name = "smart"
+                }
             }
+            determineActualValues()
+            checkInputs()
         }
     }
 
     /**
      *  Indicates the third players name.
      */
-    val firstPlayerLabel = Label(
+    private val firstPlayerLabel = Label(
         posX = (1920 - 400) / 2 - 250,
         posY = absolutePlayerFieldPos[0] - 5,
         width = 250,
@@ -120,7 +141,7 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
     /**
      *  Input field for the first player to enter their name.
      */
-    val firstPlayerNameField = TextField(
+    private val firstPlayerNameField = TextField(
         posX = (1920 - 400) / 2,
         posY = absolutePlayerFieldPos[0],
         width = 400,
@@ -130,6 +151,58 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
         onKeyTyped = {
             startRoundButton.isDisabled = text.isBlank()
         }
+    }
+
+    /**
+     *  white color for the first player.
+     */
+    private val firstPlayerWhiteColor = Button(
+        posX = playerColorLabel.posX + 50,
+        posY = firstPlayerNameField.posY - 10,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_white.png"),
+    ).apply {
+        name = "white"
+    }
+
+    /**
+     *  red color for the first player.
+     */
+    private val firstPlayerRedColor = Button(
+        posX = firstPlayerWhiteColor.posX + 80,
+        posY = firstPlayerNameField.posY - 10,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_red.png"),
+    ).apply {
+        name = "red"
+    }
+
+    /**
+     *  blue color for the first player.
+     */
+    private val firstPlayerBlueColor = Button(
+        posX = firstPlayerRedColor.posX + 80,
+        posY = firstPlayerNameField.posY - 10,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_blue.png"),
+    ).apply {
+        name = "blue"
+    }
+
+    /**
+     *  purple color for the first player.
+     */
+    private val firstPlayerPurpleColor = Button(
+        posX = firstPlayerBlueColor.posX + 80,
+        posY = firstPlayerNameField.posY - 10,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_purple.png"),
+    ).apply {
+        name = "purple"
     }
 
     /**
@@ -144,19 +217,32 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
         visual = ImageVisual("player_icon.png")
     ).apply {
         onMouseClicked = {
-            playerTypes[1] = (playerTypes[1] + 1) % 3
-            when (playerTypes[1]) {
-                0 -> visual = ImageVisual("player_icon.png")
-                1 -> visual = ImageVisual("random_ai_icon.png")
-                2 -> visual = ImageVisual("smart_ai_icon.png")
+            availableTypes[1] = (availableTypes[1] + 1) % 3
+            when (availableTypes[1]) {
+                0 -> {
+                    visual = ImageVisual("player_icon.png")
+                    this.name = "player"
+                }
+
+                1 -> {
+                    visual = ImageVisual("random_ai_icon.png")
+                    this.name = "random"
+                }
+
+                2 -> {
+                    visual = ImageVisual("smart_ai_icon.png")
+                    this.name = "smart"
+                }
             }
+            determineActualValues()
+            checkInputs()
         }
     }
 
     /**
      *  Indicates the third players name.
      */
-    val secondPlayerLabel = Label(
+    private val secondPlayerLabel = Label(
         posX = (1920 - 400) / 2 - 250,
         posY = absolutePlayerFieldPos[1] - 5,
         width = 250,
@@ -168,7 +254,7 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
     /**
      *  Input field for the second player to enter their name.
      */
-    val secondPlayerNameField = TextField(
+    private val secondPlayerNameField = TextField(
         posX = (1920 - 400) / 2,
         posY = absolutePlayerFieldPos[1],
         width = 400,
@@ -178,6 +264,58 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
         onKeyTyped = {
             startRoundButton.isDisabled = text.isBlank()
         }
+    }
+
+    /**
+     *  white color for the second player.
+     */
+    private val secondPlayerWhiteColor = Button(
+        posX = playerColorLabel.posX + 50,
+        posY = secondPlayerNameField.posY - 10,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_white.png"),
+    ).apply {
+        name = "white"
+    }
+
+    /**
+     *  red color for the second player.
+     */
+    private val secondPlayerRedColor = Button(
+        posX = firstPlayerWhiteColor.posX + 80,
+        posY = secondPlayerNameField.posY - 10,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_red.png"),
+    ).apply {
+        name = "red"
+    }
+
+    /**
+     *  blue color for the second player.
+     */
+    private val secondPlayerBlueColor = Button(
+        posX = firstPlayerRedColor.posX + 80,
+        posY = secondPlayerNameField.posY - 10,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_blue.png"),
+    ).apply {
+        name = "blue"
+    }
+
+    /**
+     *  purple color for the second player.
+     */
+    private val secondPlayerPurpleColor = Button(
+        posX = firstPlayerBlueColor.posX + 80,
+        posY = secondPlayerNameField.posY - 10,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_purple.png"),
+    ).apply {
+        name = "purple"
     }
 
     /**
@@ -191,20 +329,35 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
         height = 100,
         visual = ImageVisual("player_icon.png")
     ).apply {
+        isVisible = false
+        isDisabled = true
         onMouseClicked = {
-            playerTypes[2] = (playerTypes[2] + 1) % 3
-            when (playerTypes[2]) {
-                0 -> visual = ImageVisual("player_icon.png")
-                1 -> visual = ImageVisual("random_ai_icon.png")
-                2 -> visual = ImageVisual("smart_ai_icon.png")
+            availableTypes[2] = (availableTypes[2] + 1) % 3
+            when (availableTypes[2]) {
+                0 -> {
+                    visual = ImageVisual("player_icon.png")
+                    this.name = "player"
+                }
+
+                1 -> {
+                    visual = ImageVisual("random_ai_icon.png")
+                    this.name = "random"
+                }
+
+                2 -> {
+                    visual = ImageVisual("smart_ai_icon.png")
+                    this.name = "smart"
+                }
             }
+            determineActualValues()
+            checkInputs()
         }
     }
 
     /**
      *  Indicates the third players name.
      */
-    val thirdPlayerLabel = Label(
+    private val thirdPlayerLabel = Label(
         posX = (1920 - 400) / 2 - 250,
         posY = absolutePlayerFieldPos[2] - 5,
         width = 250,
@@ -218,7 +371,7 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
     /**
      *  Input field for the third player to enter their name.
      */
-    val thirdPlayerNameField = TextField(
+    private val thirdPlayerNameField = TextField(
         posX = (1920 - 400) / 2,
         posY = absolutePlayerFieldPos[2],
         width = 400,
@@ -227,9 +380,66 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
     ).apply {
         isDisabled = true
         isVisible = false
-        onKeyTyped = {
-            startRoundButton.isDisabled = text.isBlank()
-        }
+    }
+
+    /**
+     *  white color for the third player.
+     */
+    private val thirdPlayerWhiteColor = Button(
+        posX = playerColorLabel.posX + 50,
+        posY = thirdPlayerNameField.posY - 10,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_white.png"),
+    ).apply {
+        name = "white"
+        isVisible = false
+        isDisabled = true
+    }
+
+    /**
+     *  red color for the third player.
+     */
+    private val thirdPlayerRedColor = Button(
+        posX = firstPlayerWhiteColor.posX + 80,
+        posY = thirdPlayerNameField.posY - 10,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_red.png"),
+    ).apply {
+        name = "red"
+        isVisible = false
+        isDisabled = true
+    }
+
+    /**
+     *  blue color for the third player.
+     */
+    private val thirdPlayerBlueColor = Button(
+        posX = firstPlayerRedColor.posX + 80,
+        posY = thirdPlayerNameField.posY - 10,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_blue.png"),
+    ).apply {
+        name = "blue"
+        isVisible = false
+        isDisabled = true
+    }
+
+    /**
+     *  purple color for the third player.
+     */
+    private val thirdPlayerPurpleColor = Button(
+        posX = firstPlayerBlueColor.posX + 80,
+        posY = thirdPlayerNameField.posY - 10,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_purple.png"),
+    ).apply {
+        name = "purple"
+        isVisible = false
+        isDisabled = true
     }
 
     /**
@@ -247,7 +457,7 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
      *  Removes the third Player.
      */
     private val removeThirdPlayerButton = Button(
-        posX = thirdPlayerNameField.posX + 440,
+        posX = thirdPlayerNameField.posX + 420,
         posY = absolutePlayerFieldPos[2] - 5,
         width = 50,
         height = 50,
@@ -268,20 +478,37 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
         height = 100,
         visual = ImageVisual("player_icon.png")
     ).apply {
+        isVisible = false
+        isDisabled = true
+        name = "player"
         onMouseClicked = {
-            playerTypes[3] = (playerTypes[3] + 1) % 3
-            when (playerTypes[3]) {
-                0 -> visual = ImageVisual("player_icon.png")
-                1 -> visual = ImageVisual("random_ai_icon.png")
-                2 -> visual = ImageVisual("smart_ai_icon.png")
+            // Cycle the player type
+            availableTypes[3] = (availableTypes[3] + 1) % 3
+            when (availableTypes[3]) {
+                0 -> {
+                    visual = ImageVisual("player_icon.png")
+                    this.name = "player"
+                }
+
+                1 -> {
+                    visual = ImageVisual("random_ai_icon.png")
+                    this.name = "random"
+                }
+
+                2 -> {
+                    visual = ImageVisual("smart_ai_icon.png")
+                    this.name = "smart"
+                }
             }
+            determineActualValues()
+            checkInputs()
         }
     }
 
     /**
      *  Indicates the third players name.
      */
-    val fourthPlayerLabel = Label(
+    private val fourthPlayerLabel = Label(
         posX = (1920 - 400) / 2 - 250,
         posY = absolutePlayerFieldPos[3] - 5,
         width = 250,
@@ -295,7 +522,7 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
     /**
      *  Input field for the fourth player to enter their name.
      */
-    val fourthPlayerNameField = TextField(
+    private val fourthPlayerNameField = TextField(
         posX = (1920 - 400) / 2,
         posY = absolutePlayerFieldPos[3],
         width = 400,
@@ -307,6 +534,66 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
         onKeyTyped = {
             startRoundButton.isDisabled = text.isBlank()
         }
+    }
+
+    /**
+     *  white color for the fourth player.
+     */
+    private val fourthPlayerWhiteColor = Button(
+        posX = playerColorLabel.posX + 50,
+        posY = fourthPlayerNameField.posY - 10,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_white.png"),
+    ).apply {
+        name = "white"
+        isVisible = false
+        isDisabled = true
+    }
+
+    /**
+     *  red color for the fourth player.
+     */
+    private val fourthPlayerRedColor = Button(
+        posX = firstPlayerWhiteColor.posX + 80,
+        posY = fourthPlayerNameField.posY - 10,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_red.png"),
+    ).apply {
+        name = "red"
+        isVisible = false
+        isDisabled = true
+    }
+
+    /**
+     *  blue color for the fourth player.
+     */
+    private val fourthPlayerBlueColor = Button(
+        posX = firstPlayerRedColor.posX + 80,
+        posY = fourthPlayerNameField.posY - 10,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_blue.png"),
+    ).apply {
+        name = "blue"
+        isVisible = false
+        isDisabled = true
+    }
+
+    /**
+     *  purple color for the fourth player.
+     */
+    private val fourthPlayerPurpleColor = Button(
+        posX = firstPlayerBlueColor.posX + 80,
+        posY = fourthPlayerNameField.posY - 10,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_purple.png")
+    ).apply {
+        name = "purple"
+        isVisible = false
+        isDisabled = true
     }
 
     /**
@@ -327,7 +614,7 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
      *  Removes the fourth player
      */
     private val removeFourthPlayerButton = Button(
-        posX = fourthPlayerNameField.posX + 440,
+        posX = fourthPlayerNameField.posX + 420,
         posY = absolutePlayerFieldPos[3] - 5,
         width = 50,
         height = 50,
@@ -371,7 +658,53 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
     }
 
     /**
-     *  List of the four player name input fields for getting the player order
+     *  Drop down Menu to select which game mode to play.
+     */
+    private val gameModeSelector = ComboBox(
+        width = 260,
+        height = 40,
+        posX = firstPlayerLabel.posX - 60,
+        posY = fourthPlayerNameField.posY + 120,
+        items = listOf("Shared Gates", "Solo"),
+        prompt = "  Select Mode:",
+        font = Font(size = 20, fontWeight = Font.FontWeight.SEMI_BOLD)
+    ).apply {
+        visual = ImageVisual("dropdown_background.png")
+        scale = 1.3
+        isVisible = false
+        isDisabled = true
+    }
+
+    /**
+     *  Drop down Menu to select the AI speed.
+     */
+    private val aiSpeedSelector = ComboBox(
+        width = 260,
+        height = 40,
+        posX = playerColorLabel.posX + 10,
+        posY = fourthPlayerNameField.posY + 120,
+        items = listOf("50 ms", "100 ms", "150 ms", "200 ms", "500 ms"),
+        prompt = "  Select AI Speed:",
+        font = Font(size = 20, fontWeight = Font.FontWeight.SEMI_BOLD)
+    ).apply {
+        visual = ImageVisual("dropdown_background.png")
+        scale = 1.3
+    }
+
+    /**
+     *  List containing the first-fourth players type buttons.
+     */
+    private val playerTypeButtons =
+        listOf(firstPlayerTypeButton, secondPlayerTypeButton, thirdPlayerTypeButton, fourthPlayerTypeButton)
+
+    /**
+     *  List containing the actual first-fourth player types in case the order was shuffled.
+     */
+    private var actualPlayerTypeButtons =
+        mutableListOf(firstPlayerTypeButton, secondPlayerTypeButton, thirdPlayerTypeButton, fourthPlayerRedColor)
+
+    /**
+     *  List of the four player name input fields for getting the player order.
      */
     private val playerNameFields = listOf(
         firstPlayerNameField,
@@ -380,27 +713,180 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
         fourthPlayerNameField
     )
 
-    // Variables for finding the actual player fields in case the order was shuffled
-    private var actualFirstPlayerField = firstPlayerNameField
-    private var actualSecondPlayerField = secondPlayerNameField
-    private var actualThirdPlayerField = thirdPlayerNameField
-    private var actualFourthPlayerField = fourthPlayerNameField
-
-    private var actualFieldsList = listOf<TextField>()
+    /**
+     *  First Player Color Buttons to determine the actual color buttons later.
+     */
+    private val firstPlayerColors =
+        listOf(firstPlayerWhiteColor, firstPlayerRedColor, firstPlayerBlueColor, firstPlayerPurpleColor)
 
     /**
-     *  Determine the actual player fields in order using their position
+     *  Second Player Color Buttons to determine the actual color buttons later.
      */
-    private fun determineActualFields() {
-        //
-        playerNameFields.forEach { field ->
-            if (field.posY.toInt() == absolutePlayerFieldPos[0]) actualFirstPlayerField = field
-            if (field.posY.toInt() == absolutePlayerFieldPos[1]) actualSecondPlayerField = field
-            if (field.posY.toInt() == absolutePlayerFieldPos[2]) actualThirdPlayerField = field
-            if (field.posY.toInt() == absolutePlayerFieldPos[3]) actualFourthPlayerField = field
+    private val secondPlayerColors =
+        listOf(secondPlayerWhiteColor, secondPlayerRedColor, secondPlayerBlueColor, secondPlayerPurpleColor)
+
+    /**
+     *  Third Player Color Buttons to determine the actual color buttons later.
+     */
+    private val thirdPlayerColors =
+        listOf(thirdPlayerWhiteColor, thirdPlayerRedColor, thirdPlayerBlueColor, thirdPlayerPurpleColor)
+
+    /**
+     *  Fourth Player Color Buttons to determine the actual color buttons later.
+     */
+    private val fourthPlayerColors =
+        listOf(fourthPlayerWhiteColor, fourthPlayerRedColor, fourthPlayerBlueColor, fourthPlayerPurpleColor)
+
+    /**
+     *  List of each of the four players colors.
+     */
+    private val playerColorButtons = listOf(
+        firstPlayerColors,
+        secondPlayerColors,
+        thirdPlayerColors,
+        fourthPlayerColors
+    )
+
+    /**
+     *  List containing each of the actual first-fourth players color Buttons
+     */
+    private var actualPlayerColorButtons = mutableListOf(
+        firstPlayerColors,
+        secondPlayerColors,
+        thirdPlayerColors,
+        fourthPlayerColors
+    )
+
+    /**
+     *  List of the player types in the correct order
+     */
+    var actualPlayerTypes = mutableListOf("", "", "", "")
+
+    /**
+     *  List of the player names in the correct order
+     */
+    var actualPlayerNames = mutableListOf("", "", "", "")
+
+    /**
+     *  List of the actual players colors first initialized empty
+     */
+    val actualPlayerColors = mutableListOf("", "", "", "")
+
+
+    /**
+     *  List containing the actual first-fourth player name fields, in case the order was shuffled
+     */
+    private val actualNameFieldsList =
+        mutableListOf(firstPlayerNameField, secondPlayerNameField, thirdPlayerNameField, fourthPlayerNameField)
+
+    /**
+     *  Determine the actual player types, fields and colors in order using their position
+     */
+    private fun determineActualValues() {
+
+        // find the correct first-fourth player types
+        playerTypeButtons.forEach { type ->
+            if (type.posY.toInt() == absolutePlayerFieldPos[0] - 30) actualPlayerTypeButtons[0] = type
+            if (type.posY.toInt() == absolutePlayerFieldPos[1] - 30) actualPlayerTypeButtons[1] = type
+            if (type.posY.toInt() == absolutePlayerFieldPos[2] - 30) actualPlayerTypeButtons[2] = type
+            if (type.posY.toInt() == absolutePlayerFieldPos[3] - 30) actualPlayerTypeButtons[3] = type
         }
-        actualFieldsList =
-            listOf(actualFirstPlayerField, actualSecondPlayerField, actualThirdPlayerField, actualFourthPlayerField)
+
+        // Update the actualPlayerTypes list
+        actualPlayerTypeButtons.forEach { typeButton ->
+            // Find the index of the specified Type
+            val indexOfType = actualPlayerTypeButtons.indexOf(typeButton)
+            // Set the selected type in the actualPlayerType list
+            actualPlayerTypes[indexOfType] = typeButton.name
+        }
+
+        // find our which player name field is now first-fourth and update the actualPlayerNames list
+        playerNameFields.forEach { field ->
+            if (field.posY.toInt() == absolutePlayerFieldPos[0]) {
+                actualNameFieldsList[0] = field
+                actualPlayerNames[0] = field.text
+            }
+            if (field.posY.toInt() == absolutePlayerFieldPos[1]) {
+                actualNameFieldsList[1] = field
+                actualPlayerNames[1] = field.text
+            }
+            if (field.posY.toInt() == absolutePlayerFieldPos[2]) {
+                actualNameFieldsList[2] = field
+                actualPlayerNames[2] = field.text
+            }
+            if (field.posY.toInt() == absolutePlayerFieldPos[3]) {
+                actualNameFieldsList[3] = field
+                actualPlayerNames[3] = field.text
+            }
+        }
+
+        // find out which player colors are now first-fourth
+        playerColorButtons.forEach { row ->
+            if (row[0].posY.toInt() == absolutePlayerFieldPos[0] - 10) actualPlayerColorButtons[0] = row
+            if (row[0].posY.toInt() == absolutePlayerFieldPos[1] - 10) actualPlayerColorButtons[1] = row
+            if (row[0].posY.toInt() == absolutePlayerFieldPos[2] - 10) actualPlayerColorButtons[2] = row
+            if (row[0].posY.toInt() == absolutePlayerFieldPos[3] - 10) actualPlayerColorButtons[3] = row
+        }
+
+        var indexOfColor: Int
+        // Update the actualPlayerColors list
+        actualPlayerColorButtons.forEach { row ->
+            row.forEach { button ->
+                if (button.scale == 1.3) {
+                    indexOfColor = actualPlayerColorButtons.indexOf(row)
+                    actualPlayerColors[indexOfColor] = button.name
+                }
+            }
+        }
+    }
+
+    /**
+     *  Checks if the entered player names and colors are valid, if not disables the start round button
+     */
+    private fun checkInputs() {
+        var falseInput = false
+        var otherPlayerColors: List<String>
+        for (i in 0 until playerCount) {
+            // If any name field contains the same text as another name field mark the inputs as faulty
+            if (playerNameFields.any { it != playerNameFields[i] && it.text == playerNameFields[i].text })
+                falseInput = true
+            // variable to compare all other colors with the currently looked at color
+            otherPlayerColors = actualPlayerColors.minus(actualPlayerColors[i])
+            // If any two players select the same colors mark the inputs as faulty
+            if (otherPlayerColors.any { it == actualPlayerColors[i] })
+                falseInput = true
+            // If any name fields is empty or any player did not select a color, mark the inputs as faulty
+            if (playerNameFields[i].text.isBlank()) falseInput = true
+            if (actualPlayerColors[i].isBlank()) falseInput = true
+            if (playerCount == 3 &&
+                (gameModeSelector.selectedItem.isNullOrBlank() ||
+                        gameModeSelector.selectedItem == "  Select Mode:")
+            ) falseInput = true
+            if ((actualPlayerTypes[i] == "random" || actualPlayerTypes[i] == "smart") &&
+                aiSpeedSelector.selectedItem.isNullOrBlank()
+            )
+                falseInput = true
+        }
+
+        // Disable the start round button if the inputs are faulty
+        startRoundButton.isDisabled = falseInput
+    }
+
+    /**
+     *  Scales the color buttons and adds the correct color to the list of actualPlayerColorButtons
+     */
+    private fun chooseColor(row: List<Button>, clickedButton: Button) {
+        // Scale all buttons back to 1.0
+        row.forEach { button ->
+            button.scale = 1.0
+        }
+        // make the clicked button bigger
+        clickedButton.scale = 1.3
+        // Find the index of the specified row
+        val indexOfRow = actualPlayerColorButtons.indexOf(row)
+        // Set the selected color in the actualPlayerColors list
+        actualPlayerColors[indexOfRow] = clickedButton.name
+
     }
 
     /**
@@ -419,30 +905,35 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
             // randomize the player order by shuffling the input field positions
             randomizedPlayerFieldPos = absolutePlayerFieldPos.subList(0, playerCount).shuffled()
 
-            // Determine the actual player fields
-            determineActualFields()
+            determineActualValues()
 
-            // apply new positions to fields
-            actualFirstPlayerField.posY = randomizedPlayerFieldPos[0].toDouble()
-            actualSecondPlayerField.posY = randomizedPlayerFieldPos[1].toDouble()
-            if (playerCount >= 3) actualThirdPlayerField.posY = randomizedPlayerFieldPos[2].toDouble()
-            if (playerCount == 4) actualFourthPlayerField.posY = randomizedPlayerFieldPos[3].toDouble()
-
+            // apply new positions to type, fields and colors
+            actualPlayerTypeButtons[0].posY = randomizedPlayerFieldPos[0].toDouble() - 30
+            actualNameFieldsList[0].posY = randomizedPlayerFieldPos[0].toDouble()
+            actualPlayerColorButtons[0].forEach { color ->
+                color.posY = randomizedPlayerFieldPos[0].toDouble() - 10
+            }
+            actualPlayerTypeButtons[1].posY = randomizedPlayerFieldPos[1].toDouble() - 30
+            actualNameFieldsList[1].posY = randomizedPlayerFieldPos[1].toDouble()
+            actualPlayerColorButtons[1].forEach { color ->
+                color.posY = randomizedPlayerFieldPos[1].toDouble() - 10
+            }
+            if (playerCount >= 3) {
+                actualPlayerTypeButtons[2].posY = randomizedPlayerFieldPos[2].toDouble() - 30
+                actualNameFieldsList[2].posY = randomizedPlayerFieldPos[2].toDouble()
+                actualPlayerColorButtons[2].forEach { color ->
+                    color.posY = randomizedPlayerFieldPos[2].toDouble() - 10
+                }
+            }
+            if (playerCount == 4) {
+                actualPlayerTypeButtons[3].posY = randomizedPlayerFieldPos[3].toDouble() - 30
+                actualNameFieldsList[3].posY = randomizedPlayerFieldPos[3].toDouble()
+                actualPlayerColorButtons[3].forEach { color ->
+                    color.posY = randomizedPlayerFieldPos[3].toDouble() - 10
+                }
+            }
             // Determine the actual player fields again, because their positions have changed
-            determineActualFields()
-
-            // Set player names list to the correct size
-            for (i in 0 until playerCount) {
-                if (playerNames.size < playerCount)
-                    playerNames.add("")
-                else if (playerNames.size > playerCount)
-                    playerNames.remove(playerNames.last())
-            }
-
-            // Set the player names in the new order
-            for (player in 0 until playerCount) {
-                playerNames[player] = actualFieldsList[player].text.trim()
-            }
+            determineActualValues()
         }
     }
 
@@ -452,28 +943,75 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
             returnButton,
             setupPlayersLabel,
             playerTypeLabel,
+            playerColorLabel,
             firstPlayerTypeButton,
-            secondPlayerTypeButton,
-            thirdPlayerTypeButton,
-            fourthPlayerTypeButton,
-            firstPlayerNameField,
             firstPlayerLabel,
-            secondPlayerNameField,
+            firstPlayerNameField,
+            firstPlayerWhiteColor,
+            firstPlayerRedColor,
+            firstPlayerBlueColor,
+            firstPlayerPurpleColor,
+            secondPlayerTypeButton,
             secondPlayerLabel,
-            thirdPlayerNameField,
+            secondPlayerNameField,
+            secondPlayerWhiteColor,
+            secondPlayerRedColor,
+            secondPlayerBlueColor,
+            secondPlayerPurpleColor,
+            thirdPlayerTypeButton,
             thirdPlayerLabel,
-            fourthPlayerNameField,
+            thirdPlayerNameField,
+            thirdPlayerWhiteColor,
+            thirdPlayerRedColor,
+            thirdPlayerBlueColor,
+            thirdPlayerPurpleColor,
+            fourthPlayerTypeButton,
             fourthPlayerLabel,
+            fourthPlayerNameField,
+            fourthPlayerWhiteColor,
+            fourthPlayerRedColor,
+            fourthPlayerBlueColor,
+            fourthPlayerPurpleColor,
             randomizePlayerOrderButton,
             startRoundButton,
             addThirdPlayerButton,
             removeThirdPlayerButton,
             addFourthPlayerButton,
-            removeFourthPlayerButton
+            removeFourthPlayerButton,
+            gameModeSelector,
+            aiSpeedSelector
         )
 
         background = ImageVisual("background.png")
         opacity = 0.4
+
+        // Check player names while writing them
+        firstPlayerNameField.onKeyTyped = { checkInputs() }
+        secondPlayerNameField.onKeyTyped = { checkInputs() }
+        thirdPlayerNameField.onKeyTyped = { checkInputs() }
+        fourthPlayerNameField.onKeyTyped = { checkInputs() }
+
+        /*
+         *   Define the onMouseClicked behaviour for all Color Buttons iteratively.
+         *   When a Color button is clicked, it puts the clicked color into the list of player colors and makes
+         *   the button bigger than the other ones
+         */
+        playerColorButtons.forEach { row ->
+            row.forEach { button ->
+                button.onMouseClicked = {
+                    chooseColor(row, button)
+                    checkInputs()
+                }
+            }
+        }
+
+        // Check inputs when clicking on the game mode or AI selectors
+        gameModeSelector.selectedItemProperty.addListener { _, _ ->
+            checkInputs()
+        }
+        aiSpeedSelector.selectedItemProperty.addListener { _, _ ->
+            checkInputs()
+        }
 
         // Add functionality to the add and remove third/fourth player buttons.
         addThirdPlayerButton.apply {
@@ -482,24 +1020,37 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
                 playerCount = 3
 
                 // Determine the actual fields
-                determineActualFields()
+                determineActualValues()
 
                 // Show the Button to remove the third player.
                 removeThirdPlayerButton.isDisabled = false
                 removeThirdPlayerButton.isVisible = true
 
+                // Show the player colors
+                actualPlayerColorButtons[2].forEach { colorButton ->
+                    colorButton.isVisible = true
+                    colorButton.isDisabled = false
+                }
+
+                // show the game mode selector
+                gameModeSelector.isVisible = true
+                gameModeSelector.isDisabled = false
+
                 // Hide this Button.
                 isVisible = false
                 isDisabled = true
 
-                // Show the third player field and label.
+                // Show the third player type, field and label.
+                actualPlayerTypeButtons[2].isVisible = true
+                actualPlayerTypeButtons[2].isDisabled = false
                 thirdPlayerLabel.isVisible = true
-                actualThirdPlayerField.isVisible = true
-                actualThirdPlayerField.isDisabled = false
+                actualNameFieldsList[2].isVisible = true
+                actualNameFieldsList[2].isDisabled = false
 
                 // Show the button to add a fourth player.
                 addFourthPlayerButton.isVisible = true
                 addFourthPlayerButton.isDisabled = false
+                checkInputs()
             }
         }
 
@@ -509,17 +1060,33 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
                 playerCount = 2
 
                 // Determine the actual fields
-                determineActualFields()
+                determineActualValues()
 
-                // Clear the third players input and hide the field as well as label.
+                // Clear the third players input and hide the field as well as label and type.
                 thirdPlayerLabel.isVisible = false
-                actualThirdPlayerField.text = ""
-                actualThirdPlayerField.isVisible = false
-                actualThirdPlayerField.isDisabled = true
+                actualNameFieldsList[2].text = ""
+                actualNameFieldsList[2].isVisible = false
+                actualNameFieldsList[2].isDisabled = true
+                actualPlayerTypeButtons[2].isVisible = false
+                actualPlayerTypeButtons[2].isDisabled = true
 
                 // Hide this Button.
                 isVisible = false
                 isDisabled = true
+
+                // Hide the player colors
+                actualPlayerColorButtons[2].forEach { colorButton ->
+                    colorButton.isVisible = false
+                    colorButton.isDisabled = true
+                    colorButton.scale = 1.0
+                }
+                // Clear the third player color
+                actualPlayerColors[2] = ""
+
+                // Hide the game mode selector and reset the selection
+                gameModeSelector.isVisible = false
+                gameModeSelector.isDisabled = true
+                gameModeSelector.selectedItem = "  Select Mode:"
 
                 // Show add third player button again.
                 addThirdPlayerButton.isVisible = true
@@ -529,7 +1096,7 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
                 addFourthPlayerButton.isVisible = false
                 addFourthPlayerButton.isDisabled = true
 
-
+                checkInputs()
             }
         }
 
@@ -539,12 +1106,25 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
                 playerCount = 4
 
                 // Determine the actual fields
-                determineActualFields()
+                determineActualValues()
 
-                // Show the Input field and label for the fourth player
+                // Show the type, field and label for the fourth player
+                actualPlayerTypeButtons[3].isVisible = true
+                actualPlayerTypeButtons[3].isDisabled = false
                 fourthPlayerLabel.isVisible = true
-                actualFourthPlayerField.isVisible = true
-                actualFourthPlayerField.isDisabled = false
+                actualNameFieldsList[3].isVisible = true
+                actualNameFieldsList[3].isDisabled = false
+
+                // Show the player colors
+                actualPlayerColorButtons[3].forEach { colorButton ->
+                    colorButton.isVisible = true
+                    colorButton.isDisabled = false
+                }
+
+                // Hide the game mode selector and reset the selection
+                gameModeSelector.isVisible = false
+                gameModeSelector.isDisabled = true
+                gameModeSelector.selectedItem = "  Select Mode:"
 
                 // Hide this Button
                 isVisible = false
@@ -557,6 +1137,8 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
                 // Hide the button to remove the third player, as only the last added player should be removable
                 removeThirdPlayerButton.isVisible = false
                 removeThirdPlayerButton.isDisabled = true
+
+                checkInputs()
             }
         }
 
@@ -566,17 +1148,32 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
                 playerCount = 3
 
                 // Determine the actual fields
-                determineActualFields()
+                determineActualValues()
 
-                // Clear the fourth players input and hide the field as well as the label.
-                actualFourthPlayerField.text = ""
-                actualFourthPlayerField.isVisible = false
-                actualFourthPlayerField.isDisabled = true
+                // Clear the fourth players input and hide the field as well as the label and type.
+                actualNameFieldsList[3].text = ""
+                actualNameFieldsList[3].isVisible = false
+                actualNameFieldsList[3].isDisabled = true
                 fourthPlayerLabel.isVisible = false
+                actualPlayerTypeButtons[3].isVisible = false
+                actualPlayerTypeButtons[3].isDisabled = true
 
                 // Hide this Button.
                 isVisible = false
                 isDisabled = true
+
+                // Hide the player colors
+                actualPlayerColorButtons[3].forEach { colorButton ->
+                    colorButton.isVisible = false
+                    colorButton.isDisabled = true
+                    colorButton.scale = 1.0
+                }
+                // Clear the fourth player color
+                actualPlayerColors[3] = ""
+
+                // Show the game mode selector
+                gameModeSelector.isVisible = true
+                gameModeSelector.isDisabled = false
 
                 // Show the remove third player button again.
                 removeThirdPlayerButton.isVisible = true
@@ -585,6 +1182,8 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
                 // Show the add fourth player button again.
                 addFourthPlayerButton.isVisible = true
                 addFourthPlayerButton.isDisabled = false
+
+                checkInputs()
             }
         }
     }

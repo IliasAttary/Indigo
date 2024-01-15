@@ -62,10 +62,13 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
             this.hideMenuScene()
             this.showGameScene(mainGameScene)
         }
-        launchMenuScene.newGameButton.onMouseClicked = { this.showMenuScene(preGameMenuScene)}
+        launchMenuScene.newGameButton.onMouseClicked = { this.showMenuScene(preGameMenuScene) }
         launchMenuScene.loadGameButton.onMouseClicked = {
             this.hideMenuScene()
-            this.showGameScene(mainGameScene)}
+            this.showGameScene(mainGameScene)
+        }
 
-        mainGameScene.rulesButton.onMouseClicked = {this.showMenuScene(rules)}    }
+        mainGameScene.rulesButton.onMouseClicked = { this.showMenuScene(rules) }
+        mainGameScene.quitButton.onMouseClicked = { exit() }
     }
+}

@@ -45,7 +45,7 @@ class PreGameMenuScene : MenuScene(1920, 1080), Refreshable {
     /**
      *  Drop down Menu to select which game mode to play.
      */
-    private val gameModeSelector = ComboBox<String>(
+    private val gameModeSelector = ComboBox(
         width = 280,
         height = 40,
         posX = (1920 - 280) / 2,
