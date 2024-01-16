@@ -1,5 +1,7 @@
 package view
 
+import entity.Color
+import entity.Player
 import service.RootService
 import tools.aqua.bgw.core.BoardGameApplication
 
@@ -60,6 +62,41 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
         newGameMenuScene.returnButton.onMouseClicked = { this.showMenuScene(preGameMenuScene) }
         newGameMenuScene.startRoundButton.onMouseClicked = {
             this.hideMenuScene()
+
+            // Find the correct player values and start a new game
+            var isAI = false
+            var smartAI = false
+            val playerList = mutableListOf<Player>()
+            var color = Color.WHITE
+            val aiSpeed = newGameMenuScene.aiSpeed
+            val sharedGates = newGameMenuScene.sharedGates
+            for (i in 0 until newGameMenuScene.playerCount) {
+                if (newGameMenuScene.actualPlayerTypes[i] == "random") {
+                    isAI = true
+                    smartAI = false
+                }
+                if (newGameMenuScene.actualPlayerTypes[i] == "smart") {
+                    isAI = true
+                    smartAI = true
+                }
+                when (newGameMenuScene.actualPlayerColors[i]) {
+                    "white" -> color = Color.WHITE
+                    "red" -> color = Color.RED
+                    "blue" -> color = Color.BLUE
+                    "purple" -> color = Color.PURPLE
+                }
+
+                playerList.add(
+                    Player(
+                        newGameMenuScene.actualPlayerNames[i],
+                        color,
+                        isAI,
+                        smartAI,
+                        heldTile = null
+                    )
+                )
+            }
+            rootService.gameService.startGame(playerList, aiSpeed, sharedGates = sharedGates)
             this.showGameScene(mainGameScene)
         }
         launchMenuScene.newGameButton.onMouseClicked = { this.showMenuScene(preGameMenuScene) }

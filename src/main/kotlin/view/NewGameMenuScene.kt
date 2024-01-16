@@ -31,7 +31,7 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
     /**
      *  Variable saving the player count.
      */
-    private var playerCount = 2
+    var playerCount = 2
 
     /**
      *  Saves the available player types for cycling the type buttons.
@@ -150,6 +150,7 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
     ).apply {
         onKeyTyped = {
             startRoundButton.isDisabled = text.isBlank()
+            determineActualValues()
         }
     }
 
@@ -263,6 +264,7 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
     ).apply {
         onKeyTyped = {
             startRoundButton.isDisabled = text.isBlank()
+            determineActualValues()
         }
     }
 
@@ -380,6 +382,10 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
     ).apply {
         isDisabled = true
         isVisible = false
+        onKeyTyped = {
+            startRoundButton.isDisabled = text.isBlank()
+            determineActualValues()
+        }
     }
 
     /**
@@ -533,6 +539,7 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
         isVisible = false
         onKeyTyped = {
             startRoundButton.isDisabled = text.isBlank()
+            determineActualValues()
         }
     }
 
@@ -772,6 +779,15 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
      */
     val actualPlayerColors = mutableListOf("", "", "", "")
 
+    /**
+     *  Variable for saving the selected game mode to be given to the IndigoApplication
+     */
+    var sharedGates = false
+
+    /**
+     *  Variable for saving the selected AI speed to be given to the IndigoApplication
+     */
+    var aiSpeed = 0
 
     /**
      *  List containing the actual first-fourth player name fields, in case the order was shuffled
@@ -780,7 +796,8 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
         mutableListOf(firstPlayerNameField, secondPlayerNameField, thirdPlayerNameField, fourthPlayerNameField)
 
     /**
-     *  Determine the actual player types, fields and colors in order using their position
+     *  Determine the actual player types, fields and colors in order using their position,
+     *  as well as sharedGates and aiSpeed
      */
     private fun determineActualValues() {
 
@@ -837,6 +854,14 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
                     actualPlayerColors[indexOfColor] = button.name
                 }
             }
+        }
+
+        if (!gameModeSelector.selectedItem.isNullOrBlank())
+            sharedGates = gameModeSelector.selectedItem == "Shared Gates"
+
+        val tempSpeed = aiSpeedSelector.selectedItem
+        if (!tempSpeed.isNullOrBlank()) {
+            aiSpeed = tempSpeed.dropLast(3).toInt()
         }
     }
 
@@ -1007,9 +1032,11 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
 
         // Check inputs when clicking on the game mode or AI selectors
         gameModeSelector.selectedItemProperty.addListener { _, _ ->
+            determineActualValues()
             checkInputs()
         }
         aiSpeedSelector.selectedItemProperty.addListener { _, _ ->
+            determineActualValues()
             checkInputs()
         }
 
