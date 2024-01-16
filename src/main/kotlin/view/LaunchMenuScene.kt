@@ -28,12 +28,12 @@ class LaunchMenuScene : MenuScene(1920, 1080), Refreshable {
     //button to load a game
     val loadGameButton = Button(
         posX = 1250, posY = 920,
-        text = "Load Game",
+        text = "Load Game"
     ).apply {
-        visual = ImageVisual("button.png")
-        visual.borderRadius = BorderRadius(15)
-        visual.backgroundRadius = BackgroundRadius(15)
-        scale = 3.0
+            visual = ImageVisual("button.png")
+            visual.borderRadius = BorderRadius(15)
+            visual.backgroundRadius = BackgroundRadius(15)
+            scale = 3.0
     }
 
     init {
@@ -43,5 +43,4 @@ class LaunchMenuScene : MenuScene(1920, 1080), Refreshable {
             newGameButton
         )
     }
-
 }

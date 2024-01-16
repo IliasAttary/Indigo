@@ -99,13 +99,14 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
             rootService.gameService.startGame(playerList, aiSpeed, sharedGates = sharedGates)
             this.showGameScene(mainGameScene)
         }
-        launchMenuScene.newGameButton.onMouseClicked = { this.showMenuScene(preGameMenuScene) }
+        launchMenuScene.newGameButton.onMouseClicked = { this.showMenuScene(preGameMenuScene)}
         launchMenuScene.loadGameButton.onMouseClicked = {
             this.hideMenuScene()
-            this.showGameScene(mainGameScene)
-        }
+            this.showGameScene(mainGameScene)}
 
         mainGameScene.rulesButton.onMouseClicked = { this.showMenuScene(rules) }
         mainGameScene.quitButton.onMouseClicked = { exit() }
+
+        rules.returnButton.onMouseClicked = { this.hideMenuScene()}
     }
 }

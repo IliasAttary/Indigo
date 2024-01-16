@@ -9,20 +9,21 @@ import tools.aqua.bgw.style.BackgroundRadius
 import tools.aqua.bgw.style.BorderRadius
 import tools.aqua.bgw.util.Font
 import tools.aqua.bgw.visual.ColorVisual
-import tools.aqua.bgw.visual.CompoundVisual
+import tools.aqua.bgw.visual.TextVisual
 import tools.aqua.bgw.visual.ImageVisual
+import tools.aqua.bgw.visual.CompoundVisual
 import java.awt.Color
 
 /**
  * Main Game Scene for Indigo.
  */
-class MainGameScene(private val rootService: RootService) : BoardGameScene(1920, 1080), Refreshable {
+class MainGameScene(private val rootService: RootService) : BoardGameScene(2160, 1080), Refreshable {
 
     //Button to undo action
     val undoButton = Button(
         width = 300,
         height = 150,
-        posX = (1920 - 350),
+        posX = (2160 - 350),
         posY = 40,
         text = "Undo",
         font = Font(size = 40),
@@ -37,7 +38,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(1920,
     val redoButton = Button(
         width = 300,
         height = 150,
-        posX = (1920 - 350),
+        posX = (2160 - 350),
         posY = 45 + 150,
         text = "Redo",
         font = Font(size = 40),
@@ -52,7 +53,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(1920,
     val rulesButton = Button(
         width = 300,
         height = 150,
-        posX = (1920 - 350),
+        posX =  (2160 - 350),
         posY = (1080 - 150) / 2,
         text = "Rules",
         font = Font(size = 40),
@@ -67,7 +68,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(1920,
     val saveButton = Button(
         width = 300,
         height = 150,
-        posX = (1920 - 350),
+        posX = (2160 - 350),
         posY = 900 - 155,
         text = "Save",
         font = Font(size = 40),
@@ -82,7 +83,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(1920,
     val quitButton = Button(
         width = 300,
         height = 150,
-        posX = (1920 - 350),
+        posX = (2160 - 350),
         posY = 900,
         text = "Quit",
         font = Font(size = 40),
@@ -93,21 +94,51 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(1920,
         scale = 0.9
     }
 
-    // game board
-    val gameBoard: HexagonGrid<HexagonView> = HexagonGrid<HexagonView>(
-        coordinateSystem = HexagonGrid.CoordinateSystem.AXIAL,
-        height = 1000, width = 1000, posX = 850, posY = 420
+    val rightTurnButton = Button(
+        width = 150,
+        height = 150,
+        posX = 300,
+        posY = 900,
+        visual = ImageVisual("arrow-right.png")
     ).apply {
-
-        for (row in -3..3) {
-            for (col in -3..3) {
-                val hexagon = HexagonView(visual = ImageVisual("tile_0.png"))
-                this[col, row] = hexagon
-            }
-        }
-        scale = 0.9
     }
 
+    val leftTurnButton = Button(
+        width = 150,
+        height = 150,
+        posX = 100,
+        posY = 900,
+        visual = ImageVisual("arrow-left.png")
+    ).apply {
+    }
+
+   val gameBoard: HexagonGrid<HexagonView> = HexagonGrid<HexagonView>(
+       posX = 2160/2,
+       posY = 460,
+       coordinateSystem = HexagonGrid.CoordinateSystem.AXIAL
+   ).apply {
+
+       // Radius of axial hexagon grid
+       val size = 4
+
+       for (q in -size..size) {
+           for (r in -size..size) {
+               if (q + r <= size && q + r >= -size) {
+                   val hexagon = HexagonView(
+                       size = 70,
+                       visual = CompoundVisual(
+                           ColorVisual(Color(235, 230, 188)),
+                           TextVisual(
+                               text = "($q, $r)",
+                               font = Font(15.0, fontStyle = Font.FontStyle.ITALIC, color = Color.WHITE)
+                           )
+                       )
+                   )
+                   this[q, r] = hexagon
+               }
+           }
+       }
+   }
 
     // background image with black overlay
     val blackOverlay = ColorVisual(color = Color.black).apply { transparency = 0.7 }
@@ -123,7 +154,10 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(1920,
             redoButton,
             rulesButton,
             saveButton,
-            quitButton
+            quitButton,
+            rightTurnButton,
+            leftTurnButton,
+
         )
     }
 }
