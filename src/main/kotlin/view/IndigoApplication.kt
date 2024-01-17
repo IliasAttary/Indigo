@@ -20,7 +20,7 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
     /**
      * Menu scene that gets displayed right after launching the application.
      */
-    private val launchMenuScene = LaunchMenuScene()
+    private val launchMenuScene = LaunchMenuScene(rootService)
 
     /**
      * Menu Scene that shows the rules
@@ -54,7 +54,6 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
 
         // open the launchMenuScene
         this.showMenuScene(launchMenuScene)
-
 
         preGameMenuScene.startButton.onMouseClicked = {
             if (preGameMenuScene.gameMode == "host") {
@@ -118,5 +117,17 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
         mainGameScene.quitButton.onMouseClicked = { exit() }
 
         rules.returnButton.onMouseClicked = { this.hideMenuScene() }
+
+        endGameMenuScene.quitButton.onMouseClicked = { exit()}
+        endGameMenuScene.startButton.onMouseClicked = { this.showMenuScene(preGameMenuScene) }
     }
+
+    override fun refreshAfterNewGame() {
+        this.hideMenuScene()
+        this.showGameScene(mainGameScene)
+    }
+    override fun refreshAfterEndGame(players: List<Player>) {
+        this.showMenuScene(endGameMenuScene)
+    }
+
 }
