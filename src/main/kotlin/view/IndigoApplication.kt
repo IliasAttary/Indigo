@@ -57,6 +57,15 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
 
 
         preGameMenuScene.startButton.onMouseClicked = {
+            if (preGameMenuScene.gameMode == "host") {
+                // NETWORK
+            }
+
+            if (preGameMenuScene.gameMode == "join") {
+                refreshAfterJoiningGame(newGameMenuScene.actualPlayerNames)
+            }
+
+
             this.showMenuScene(newGameMenuScene)
         }
         newGameMenuScene.returnButton.onMouseClicked = { this.showMenuScene(preGameMenuScene) }
@@ -99,14 +108,15 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
             rootService.gameService.startGame(playerList, aiSpeed, sharedGates = sharedGates)
             this.showGameScene(mainGameScene)
         }
-        launchMenuScene.newGameButton.onMouseClicked = { this.showMenuScene(preGameMenuScene)}
+        launchMenuScene.newGameButton.onMouseClicked = { this.showMenuScene(preGameMenuScene) }
         launchMenuScene.loadGameButton.onMouseClicked = {
             this.hideMenuScene()
-            this.showGameScene(mainGameScene)}
+            this.showGameScene(mainGameScene)
+        }
 
         mainGameScene.rulesButton.onMouseClicked = { this.showMenuScene(rules) }
         mainGameScene.quitButton.onMouseClicked = { exit() }
 
-        rules.returnButton.onMouseClicked = { this.hideMenuScene()}
+        rules.returnButton.onMouseClicked = { this.hideMenuScene() }
     }
 }

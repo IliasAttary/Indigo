@@ -58,6 +58,10 @@ class PreGameMenuScene : MenuScene(1920, 1080), Refreshable {
         scale = 1.3
     }
 
+    /**
+     *  Variable for saving the game mode
+     */
+    var gameMode = ""
 
     /**
      *  Label telling the player to enter their name for the game they want to join.
@@ -154,6 +158,7 @@ class PreGameMenuScene : MenuScene(1920, 1080), Refreshable {
                     playerNameField.visual = ColorVisual.GRAY
                     gameIDField.visual = ColorVisual.GRAY
                     startButton.isDisabled = false
+                    gameMode = "local"
                 }
 
                 "Host Network Game" -> {
@@ -166,6 +171,7 @@ class PreGameMenuScene : MenuScene(1920, 1080), Refreshable {
                     playerNameField.visual = ColorVisual.GRAY
                     gameIDField.visual = ColorVisual.GRAY
                     startButton.isDisabled = false
+                    gameMode = "host"
                 }
 
                 "Join Network Game" -> {
@@ -176,6 +182,7 @@ class PreGameMenuScene : MenuScene(1920, 1080), Refreshable {
                     playerNameField.visual = ColorVisual.WHITE
                     gameIDField.visual = ColorVisual.WHITE
                     startButton.isDisabled = true
+                    gameMode = "join"
                 }
             }
         }

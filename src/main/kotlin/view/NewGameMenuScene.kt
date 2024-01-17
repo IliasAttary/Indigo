@@ -915,6 +915,36 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
     }
 
     /**
+     *  Disables all Buttons and name fields for a joining player so only the host can edit them
+     */
+    private fun disableAll() {
+        firstPlayerTypeButton.isDisabled = true
+        firstPlayerNameField.isDisabled = true
+        firstPlayerColors.forEach { button ->
+            button.isDisabled = true
+        }
+        secondPlayerTypeButton.isDisabled = true
+        secondPlayerNameField.isDisabled = true
+        secondPlayerColors.forEach { button ->
+            button.isDisabled = true
+        }
+        thirdPlayerTypeButton.isDisabled = true
+        thirdPlayerNameField.isDisabled = true
+        thirdPlayerColors.forEach { button ->
+            button.isDisabled = true
+        }
+        fourthPlayerTypeButton.isDisabled = true
+        fourthPlayerNameField.isDisabled = true
+        fourthPlayerColors.forEach { button ->
+            button.isDisabled = true
+        }
+        gameModeSelector.isDisabled = true
+        aiSpeedSelector.isDisabled = true
+        startRoundButton.isDisabled = true
+        randomizePlayerOrderButton.isDisabled = true
+    }
+
+    /**
      *  Randomizes the player Order when pressed.
      */
     private val randomizePlayerOrderButton = Button(
@@ -959,6 +989,53 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
             }
             // Determine the actual player fields again, because their positions have changed
             determineActualValues()
+        }
+    }
+
+    override fun refreshAfterJoiningGame(playerNames: List<String>) {
+        disableAll()
+    }
+
+    override fun refreshAfterJoinPlayer(playerName: String) {
+        if (playerCount < 4) {
+            // Inout the players name into the name field and show the colors and types if not already shown
+            actualNameFieldsList[playerCount].isVisible = true
+            actualNameFieldsList[playerCount].isDisabled = false
+            actualNameFieldsList[playerCount].text = playerName
+            actualPlayerTypeButtons[playerCount].isVisible = true
+            actualPlayerTypeButtons[playerCount].isDisabled = false
+            actualPlayerColorButtons[playerCount].forEach { button ->
+                button.isVisible = true
+                button.isDisabled = false
+            }
+            playerCount++
+            // Show playerCount specific buttons and selectors
+            if (playerCount == 3) {
+                thirdPlayerLabel.isVisible = true
+                gameModeSelector.isVisible = true
+                gameModeSelector.isDisabled = false
+                addThirdPlayerButton.isVisible = false
+                addThirdPlayerButton.isDisabled = true
+                addFourthPlayerButton.isVisible = true
+                addFourthPlayerButton.isDisabled = false
+                removeThirdPlayerButton.isVisible = true
+                removeThirdPlayerButton.isDisabled = false
+            }
+            if (playerCount == 4) {
+                fourthPlayerLabel.isVisible = true
+                gameModeSelector.isVisible = false
+                gameModeSelector.isDisabled = true
+                addThirdPlayerButton.isVisible = false
+                addThirdPlayerButton.isDisabled = true
+                addFourthPlayerButton.isVisible = false
+                addFourthPlayerButton.isDisabled = true
+                removeThirdPlayerButton.isVisible = false
+                removeThirdPlayerButton.isDisabled = true
+                removeFourthPlayerButton.isVisible = true
+                removeFourthPlayerButton.isDisabled = false
+            }
+            determineActualValues()
+            checkInputs()
         }
     }
 
@@ -1011,10 +1088,22 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
         opacity = 0.4
 
         // Check player names while writing them
-        firstPlayerNameField.onKeyTyped = { checkInputs() }
-        secondPlayerNameField.onKeyTyped = { checkInputs() }
-        thirdPlayerNameField.onKeyTyped = { checkInputs() }
-        fourthPlayerNameField.onKeyTyped = { checkInputs() }
+        firstPlayerNameField.onKeyTyped = {
+            determineActualValues()
+            checkInputs()
+        }
+        secondPlayerNameField.onKeyTyped = {
+            determineActualValues()
+            checkInputs()
+        }
+        thirdPlayerNameField.onKeyTyped = {
+            determineActualValues()
+            checkInputs()
+        }
+        fourthPlayerNameField.onKeyTyped = {
+            determineActualValues()
+            checkInputs()
+        }
 
         /*
          *   Define the onMouseClicked behaviour for all Color Buttons iteratively.
