@@ -28,10 +28,14 @@ class StartNewHostedGameTest {
         clientRootService = RootService()
 
         hostRootService.networkService.hostGame(secret,"Player A", sessionID)
-        Thread.sleep(DELAY_IN_MS)
+        hostRootService.waitForState(ConnectionState.WAITING_FOR_GUESTS)
 
         clientRootService.networkService.joinGame(secret,"Player B", sessionID)
-        Thread.sleep(DELAY_IN_MS)
+        clientRootService.waitForState(ConnectionState.WAITING_FOR_INIT)
+
+        clientRootService.networkService.useAI = false
+        clientRootService.networkService.useSmartAI = false
+        clientRootService.networkService.aiMoveMilliseconds = 1
     }
 
     /**
@@ -69,5 +73,26 @@ class StartNewHostedGameTest {
         Thread.sleep(DELAY_IN_MS)
 
         assertEquals(hostRootService.currentGame, clientRootService.currentGame)
+    }
+
+    /**
+     * Waits the appropriate time for the response if the server
+     *
+     * @param state The desired State of the client after a response from the server
+     * @param timeout The time before a timeout
+     *
+     * @throws error If timed out
+     */
+    private fun RootService.waitForState(state: ConnectionState, timeout: Int = 5000) {
+        var timePassed = 0
+        while (timePassed < timeout) {
+            if (networkService.connectionState == state)
+                return
+            else {
+                Thread.sleep(100)
+                timePassed += 100
+            }
+        }
+        error("Did not arrive at state $state after waiting $timeout ms")
     }
 }

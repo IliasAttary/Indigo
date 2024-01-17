@@ -31,10 +31,14 @@ class SendPlacedTileTest {
         player.add(Player("Player B", Color.PURPLE,false,false,RouteTile(TileType.TILE0)))
 
         hostRootService.networkService.hostGame(secret,"Player A", sessionID)
-        Thread.sleep(DELAY_IN_MS)
+        hostRootService.waitForState(ConnectionState.WAITING_FOR_GUESTS)
 
         clientRootService.networkService.joinGame(secret,"Player B", sessionID)
-        Thread.sleep(DELAY_IN_MS)
+        clientRootService.waitForState(ConnectionState.WAITING_FOR_INIT)
+
+        clientRootService.networkService.useAI = false
+        clientRootService.networkService.useSmartAI = false
+        clientRootService.networkService.aiMoveMilliseconds = 1
 
         hostRootService.networkService.startNewHostedGame(player,false,1)
         Thread.sleep(DELAY_IN_MS)
@@ -47,12 +51,12 @@ class SendPlacedTileTest {
     fun testState(){
         if (hostRootService.networkService.connectionState == ConnectionState.PLAYING_MY_TURN){
             hostRootService.playerService.placeTile(AxialPos(-1,0))
-            Thread.sleep(DELAY_IN_MS)
+            hostRootService.waitForState(ConnectionState.WAITING_FOR_OPPONENTS_TURN)
 
             assertEquals(hostRootService.networkService.connectionState, ConnectionState.WAITING_FOR_OPPONENTS_TURN)
         } else {
             clientRootService.playerService.placeTile(AxialPos(-1,0))
-            Thread.sleep(DELAY_IN_MS)
+            clientRootService.waitForState(ConnectionState.WAITING_FOR_OPPONENTS_TURN)
 
             assertEquals(clientRootService.networkService.connectionState, ConnectionState.WAITING_FOR_OPPONENTS_TURN)
         }
@@ -67,7 +71,7 @@ class SendPlacedTileTest {
     fun testSync(){
         if (hostRootService.networkService.connectionState == ConnectionState.PLAYING_MY_TURN){
             hostRootService.playerService.placeTile(AxialPos(-1,0))
-            Thread.sleep(DELAY_IN_MS)
+            hostRootService.waitForState(ConnectionState.WAITING_FOR_OPPONENTS_TURN)
 
             val hostGame = hostRootService.currentGame
             val clientGame = clientRootService.currentGame
@@ -77,7 +81,7 @@ class SendPlacedTileTest {
             assertEquals(hostGame.currentBoard, clientGame.currentBoard)
         } else {
             clientRootService.playerService.placeTile(AxialPos(-1,0))
-            Thread.sleep(DELAY_IN_MS)
+            clientRootService.waitForState(ConnectionState.WAITING_FOR_OPPONENTS_TURN)
 
             val hostGame = hostRootService.currentGame
             val clientGame = clientRootService.currentGame
@@ -86,5 +90,26 @@ class SendPlacedTileTest {
 
             assertEquals(hostGame.currentBoard, clientGame.currentBoard)
         }
+    }
+
+    /**
+     * Waits the appropriate time for the response if the server
+     *
+     * @param state The desired State of the client after a response from the server
+     * @param timeout The time before a timeout
+     *
+     * @throws error If timed out
+     */
+    private fun RootService.waitForState(state: ConnectionState, timeout: Int = 5000) {
+        var timePassed = 0
+        while (timePassed < timeout) {
+            if (networkService.connectionState == state)
+                return
+            else {
+                Thread.sleep(100)
+                timePassed += 100
+            }
+        }
+        error("Did not arrive at state $state after waiting $timeout ms")
     }
 }

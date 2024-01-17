@@ -5,7 +5,6 @@ import service.*
 import kotlin.random.Random
 
 class HostGameTest {
-    private val DELAY_IN_MS = 1000.toLong()
 
     private val secret = "game23d"
 
@@ -27,7 +26,7 @@ class HostGameTest {
     @Test
     fun testBlankSessionID() {
         hostRootService.networkService.hostGame(secret,"Player A","")
-        Thread.sleep(DELAY_IN_MS)
+        hostRootService.waitForState(ConnectionState.WAITING_FOR_GUESTS)
 
         assertEquals(hostRootService.networkService.connectionState, ConnectionState.WAITING_FOR_GUESTS)
     }
@@ -39,8 +38,21 @@ class HostGameTest {
     fun testWithSessionID() {
         sessionID = "Gruppe_6_" + Random.nextInt(0, 10000).toString()
         hostRootService.networkService.hostGame(secret,"Player A", sessionID)
-        Thread.sleep(DELAY_IN_MS)
+        hostRootService.waitForState(ConnectionState.WAITING_FOR_GUESTS)
 
         assertEquals(hostRootService.networkService.connectionState, ConnectionState.WAITING_FOR_GUESTS)
+    }
+
+    private fun RootService.waitForState(state: ConnectionState, timeout: Int = 5000) {
+        var timePassed = 0
+        while (timePassed < timeout) {
+            if (networkService.connectionState == state)
+                return
+            else {
+                Thread.sleep(100)
+                timePassed += 100
+            }
+        }
+        error("Did not arrive at state $state after waiting $timeout ms")
     }
 }

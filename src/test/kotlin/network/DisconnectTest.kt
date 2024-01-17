@@ -5,7 +5,6 @@ import service.*
 import kotlin.random.Random
 
 class DisconnectTest {
-    private val DELAY_IN_MS = 1000.toLong()
 
     private val secret = "game23d"
 
@@ -25,10 +24,10 @@ class DisconnectTest {
         clientRootService = RootService()
 
         hostRootService.networkService.hostGame(secret,"Player A", sessionID)
-        Thread.sleep(DELAY_IN_MS)
+        hostRootService.waitForState(ConnectionState.WAITING_FOR_GUESTS)
 
         clientRootService.networkService.joinGame(secret,"Player B", sessionID)
-        Thread.sleep(DELAY_IN_MS)
+        clientRootService.waitForState(ConnectionState.WAITING_FOR_INIT)
     }
 
     /**
@@ -50,4 +49,27 @@ class DisconnectTest {
         clientRootService.networkService.disconnect()
         assertEquals(clientRootService.networkService.connectionState, ConnectionState.DISCONNECTED)
     }
+
+    /**
+     * Waits the appropriate time for the response if the server
+     *
+     * @param state The desired State of the client after a response from the server
+     * @param timeout The time before a timeout
+     *
+     * @throws error If timed out
+     */
+    private fun RootService.waitForState(state: ConnectionState, timeout: Int = 5000) {
+        var timePassed = 0
+        while (timePassed < timeout) {
+            if (networkService.connectionState == state)
+                return
+            else {
+                Thread.sleep(100)
+                timePassed += 100
+            }
+        }
+        error("Did not arrive at state $state after waiting $timeout ms")
+    }
+
+
 }
