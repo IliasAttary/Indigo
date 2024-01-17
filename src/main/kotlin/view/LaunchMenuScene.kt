@@ -1,5 +1,6 @@
 package view
 
+import service.RootService
 import tools.aqua.bgw.core.MenuScene
 import tools.aqua.bgw.components.uicomponents.Button
 import tools.aqua.bgw.style.BackgroundRadius
@@ -12,9 +13,12 @@ import tools.aqua.bgw.visual.ImageVisual
  *
  */
 
-class LaunchMenuScene : MenuScene(1920, 1080), Refreshable {
+class LaunchMenuScene(private val rootService: RootService) : MenuScene(1920, 1080), Refreshable {
 
-    // button to start a new game
+    /**
+     * Button to start a new game
+     */
+
     val newGameButton = Button(
         posX = 570, posY = 920,
         text = "New Game"
@@ -25,7 +29,10 @@ class LaunchMenuScene : MenuScene(1920, 1080), Refreshable {
         scale = 3.0
     }
 
-    //button to load a game
+    /**
+     * Button to load a game
+     */
+
     val loadGameButton = Button(
         posX = 1250, posY = 920,
         text = "Load Game"
@@ -34,6 +41,9 @@ class LaunchMenuScene : MenuScene(1920, 1080), Refreshable {
             visual.borderRadius = BorderRadius(15)
             visual.backgroundRadius = BackgroundRadius(15)
             scale = 3.0
+            onMouseClicked = {
+                rootService.gameService.load()
+            }
     }
 
     init {

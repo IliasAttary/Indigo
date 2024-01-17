@@ -37,6 +37,9 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         visual.borderRadius = BorderRadius(15)
         visual.backgroundRadius = BackgroundRadius(15)
         scale = 0.9
+        onMouseClicked = {
+            rootService.playerService.undo()
+        }
     }
 
     /**
@@ -54,6 +57,9 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         visual.borderRadius = BorderRadius(15)
         visual.backgroundRadius = BackgroundRadius(15)
         scale = 0.9
+        onMouseClicked = {
+            rootService.playerService.redo()
+        }
     }
 
     /**
@@ -88,6 +94,9 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         visual.borderRadius = BorderRadius(15)
         visual.backgroundRadius = BackgroundRadius(15)
         scale = 0.9
+        onMouseClicked = {
+            rootService.gameService.save()
+        }
     }
 
     /**
