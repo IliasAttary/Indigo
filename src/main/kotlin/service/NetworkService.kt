@@ -341,7 +341,7 @@ class NetworkService(private val rootService: RootService) : AbstractRefreshingS
             TileType.TILE3 -> edu.udo.cs.sopra.ntf.TileType.TYPE_3
             TileType.TILE4 -> edu.udo.cs.sopra.ntf.TileType.TYPE_4
         }
-    }
+    }.reversed()
 
     /**
      * Converts a draw stack in network representation to an internal draw stack.
@@ -360,7 +360,7 @@ class NetworkService(private val rootService: RootService) : AbstractRefreshingS
         }
 
         RouteTile(tileType)
-    }
+    }.reversed()
 
     /**
      * Send a [TilePlacedMessage] to the opponents.
