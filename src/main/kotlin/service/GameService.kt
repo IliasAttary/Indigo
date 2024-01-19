@@ -41,15 +41,12 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
         val allGems = mutableListOf<Gem>()
         repeat(6){
             allGems.add(Gem.AMBER)
-            allGems.add(Gem.AMBER)
         }
 
         repeat(5){
             allGems.add(Gem.EMERALD)
-            allGems.add(Gem.EMERALD)
         }
 
-        allGems.add(Gem.SAPPHIRE)
         allGems.add(Gem.SAPPHIRE)
 
         rootService.currentGame = Game(
