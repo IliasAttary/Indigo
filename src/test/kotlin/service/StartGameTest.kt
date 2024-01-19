@@ -36,7 +36,7 @@ class StartGameTest {
         assertNotNull(currentGame.playerAtTurn)
         assertEquals(31, currentGame.currentBoard.size)
         assertEquals(24, currentGame.currentGems.size)
-        assertEquals(54, currentGame.currentDrawStack.size)
+        assertEquals(52, currentGame.currentDrawStack.size)
         assertEquals(0, currentGame.undoStack.size)
         assertEquals(0, currentGame.redoStack.size)
 
@@ -87,7 +87,7 @@ class StartGameTest {
         assertNotNull(currentGame.playerAtTurn)
         assertEquals(31, currentGame.currentBoard.size)
         assertEquals(24, currentGame.currentGems.size)
-        assertEquals(54, currentGame.currentDrawStack.size)
+        assertEquals(51, currentGame.currentDrawStack.size)
         assertEquals(0, currentGame.undoStack.size)
         assertEquals(0, currentGame.redoStack.size)
 
@@ -119,7 +119,7 @@ class StartGameTest {
         assertNotNull(currentGame.playerAtTurn)
         assertEquals(31, currentGame.currentBoard.size)
         assertEquals(24, currentGame.currentGems.size)
-        assertEquals(54, currentGame.currentDrawStack.size)
+        assertEquals(51, currentGame.currentDrawStack.size)
         assertEquals(0, currentGame.undoStack.size)
         assertEquals(0, currentGame.redoStack.size)
 
@@ -152,7 +152,7 @@ class StartGameTest {
         assertNotNull(currentGame.playerAtTurn)
         assertEquals(31, currentGame.currentBoard.size)
         assertEquals(24, currentGame.currentGems.size)
-        assertEquals(54, currentGame.currentDrawStack.size)
+        assertEquals(50, currentGame.currentDrawStack.size)
         assertEquals(0, currentGame.undoStack.size)
         assertEquals(0, currentGame.redoStack.size)
 

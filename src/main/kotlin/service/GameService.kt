@@ -61,6 +61,11 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
             playerAtTurn = players.first(),
             currentGems = allGems)
 
+        // give every player a tile to start with
+        for(player in players){
+            player.heldTile = drawStack.removeLast()
+        }
+
         //refresh view layer
         onAllRefreshables { refreshAfterNewGame() }
 
