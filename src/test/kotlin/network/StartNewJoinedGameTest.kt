@@ -10,8 +10,6 @@ import service.RootService
 
 class StartNewJoinedGameTest {
 
-    private val DELAY_IN_MS = 1000.toLong()
-
     private val secret = "game23d"
 
     private var sessionID = String()
@@ -50,7 +48,7 @@ class StartNewJoinedGameTest {
         player.add(Player("Player B", Color.PURPLE,false,false,null))
 
         hostRootService.networkService.startNewHostedGame(player,false,1)
-        Thread.sleep(DELAY_IN_MS)
+        clientRootService.waitForState(ConnectionState.WAITING_FOR_OPPONENTS_TURN)
 
         val game = clientRootService.currentGame
         checkNotNull(game)
@@ -72,7 +70,7 @@ class StartNewJoinedGameTest {
         player.add(Player("Player B", Color.PURPLE,false,false,null))
 
         hostRootService.networkService.startNewHostedGame(player,false,1)
-        Thread.sleep(DELAY_IN_MS)
+        clientRootService.waitForState(ConnectionState.WAITING_FOR_OPPONENTS_TURN)
 
         assertEquals(clientRootService.currentGame, hostRootService.currentGame)
     }

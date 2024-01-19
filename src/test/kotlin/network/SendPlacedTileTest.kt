@@ -7,8 +7,6 @@ import kotlin.random.Random
 
 class SendPlacedTileTest {
 
-    private val DELAY_IN_MS = 1000.toLong()
-
     private val secret = "game23d"
 
     private var sessionID = String()
@@ -27,8 +25,8 @@ class SendPlacedTileTest {
         clientRootService = RootService()
 
         val player = mutableListOf<Player>()
-        player.add(Player("Player A", Color.BLUE,false,false, RouteTile(TileType.TILE0)))
-        player.add(Player("Player B", Color.PURPLE,false,false,RouteTile(TileType.TILE0)))
+        player.add(Player("Player A", Color.BLUE,false,false, null))
+        player.add(Player("Player B", Color.PURPLE,false,false,null))
 
         hostRootService.networkService.hostGame(secret,"Player A", sessionID)
         hostRootService.waitForState(ConnectionState.WAITING_FOR_GUESTS)
@@ -41,7 +39,7 @@ class SendPlacedTileTest {
         clientRootService.networkService.aiMoveMilliseconds = 1
 
         hostRootService.networkService.startNewHostedGame(player,false,1)
-        Thread.sleep(DELAY_IN_MS)
+        hostRootService.waitForState(ConnectionState.PLAYING_MY_TURN)
     }
 
     /**
@@ -71,7 +69,7 @@ class SendPlacedTileTest {
     fun testSync(){
         if (hostRootService.networkService.connectionState == ConnectionState.PLAYING_MY_TURN){
             hostRootService.playerService.placeTile(AxialPos(-1,0))
-            hostRootService.waitForState(ConnectionState.WAITING_FOR_OPPONENTS_TURN)
+            clientRootService.waitForState(ConnectionState.PLAYING_MY_TURN)
 
             val hostGame = hostRootService.currentGame
             val clientGame = clientRootService.currentGame
@@ -81,7 +79,7 @@ class SendPlacedTileTest {
             assertEquals(hostGame.currentBoard, clientGame.currentBoard)
         } else {
             clientRootService.playerService.placeTile(AxialPos(-1,0))
-            clientRootService.waitForState(ConnectionState.WAITING_FOR_OPPONENTS_TURN)
+            hostRootService.waitForState(ConnectionState.PLAYING_MY_TURN)
 
             val hostGame = hostRootService.currentGame
             val clientGame = clientRootService.currentGame

@@ -8,8 +8,6 @@ import kotlin.random.Random
 
 class StartNewHostedGameTest {
 
-    private val DELAY_IN_MS = 1000.toLong()
-
     private val secret = "game23d"
 
     private var sessionID = String()
@@ -48,7 +46,7 @@ class StartNewHostedGameTest {
         player.add(Player("Player B", Color.PURPLE,false,false,null))
 
         hostRootService.networkService.startNewHostedGame(player,false,1)
-        Thread.sleep(DELAY_IN_MS)
+        hostRootService.waitForState(ConnectionState.PLAYING_MY_TURN)
 
         val game = hostRootService.currentGame
         checkNotNull(game)
@@ -70,7 +68,7 @@ class StartNewHostedGameTest {
         player.add(Player("Player B", Color.PURPLE,false,false,null))
 
         hostRootService.networkService.startNewHostedGame(player,false,1)
-        Thread.sleep(DELAY_IN_MS)
+        clientRootService.waitForState(ConnectionState.WAITING_FOR_OPPONENTS_TURN)
 
         assertEquals(hostRootService.currentGame, clientRootService.currentGame)
     }
