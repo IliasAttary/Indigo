@@ -46,7 +46,7 @@ class StartNewHostedGameTest {
         player.add(Player("Player B", Color.PURPLE,false,false,null))
 
         hostRootService.networkService.startNewHostedGame(player,false,1)
-        hostRootService.waitForState(ConnectionState.PLAYING_MY_TURN)
+        clientRootService.waitForState(ConnectionState.WAITING_FOR_OPPONENTS_TURN)
 
         val game = hostRootService.currentGame
         checkNotNull(game)
