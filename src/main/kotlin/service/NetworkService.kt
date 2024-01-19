@@ -178,7 +178,8 @@ class NetworkService(private val rootService: RootService) : AbstractRefreshingS
      * @param aiMoveMilliseconds simulation speed of the artificial intelligence (AI) in milliseconds
      *
      * @throws IllegalStateException if [connectionState] != [ConnectionState.WAITING_FOR_GUESTS],
-     *   the network client is null, or the number of players is not 2, 3, or 4.
+     *   the network client is null, the number of players is not 2, 3, or 4,
+     *   or one of the players' held tiles is null on game start.
      */
     fun startNewHostedGame(players: List<Player>, sharedGates: Boolean, aiMoveMilliseconds: Int) {
         check(connectionState == ConnectionState.WAITING_FOR_GUESTS) {
@@ -214,17 +215,22 @@ class NetworkService(private val rootService: RootService) : AbstractRefreshingS
         }
         val gameMode = when (game.currentPlayers.size) {
             2 -> GameMode.TWO_NOT_SHARED_GATEWAYS
-            3 -> {
-                if (game.sharedGates) {
-                    GameMode.THREE_SHARED_GATEWAYS
-                } else {
-                    GameMode.THREE_NOT_SHARED_GATEWAYS
-                }
-            }
+            3 -> if (game.sharedGates) GameMode.THREE_SHARED_GATEWAYS else GameMode.THREE_NOT_SHARED_GATEWAYS
             4 -> GameMode.FOUR_SHARED_GATEWAYS
             else -> error("Invalid number of players")
         }
-        val tileList = convertDrawStackToNetwork(game.currentDrawStack)
+        val drawStack = game.currentDrawStack.toMutableList().apply {
+            addAll(game.currentPlayers.asReversed().map {
+                val heldTile = it.heldTile
+
+                checkNotNull(heldTile) {
+                    "The players' held tiles have to be initialized on game start"
+                }
+
+                heldTile
+            })
+        }
+        val tileList = convertDrawStackToNetwork(drawStack)
 
         val message = GameInitMessage(
             players = networkPlayers,
