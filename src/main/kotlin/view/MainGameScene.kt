@@ -1,5 +1,6 @@
 package view
 
+import entity.AxialPos
 import entity.Tile
 import service.RootService
 import tools.aqua.bgw.components.container.HexagonGrid
@@ -245,71 +246,94 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         coordinateSystem = HexagonGrid.CoordinateSystem.AXIAL
     ).apply {
         rotation = 30.0
-        // Radius of axial hexagon grid
-        val size = 4
-
-        // Initialize empty game board
-        for (q in -size..size) {
-            for (r in -size..size) {
-                if (q + r <= size && q + r >= -size) {
-                    val hexagon = HexagonView(
-                        size = 68,
-                        visual = CompoundVisual(
-                            ColorVisual(Color(235, 230, 188)),
-                            TextVisual(
-                                text = "($q, $r)",
-                                font = Font(15.0, fontStyle = Font.FontStyle.ITALIC, color = Color.BLACK)
-                            )
-                        )
-                    )
-                    this[q, r] = hexagon
-
-                    // TODO: Add View to tileMap
-
-                    this[0, 0] = HexagonView(
-                        size = 68,
-                        visual = ImageVisual("middleTreasureTile.png")
-                    )
-
-                    this[0, -4] = HexagonView(
-                        size = 68,
-                        visual = ImageVisual("treasureTile.png")
-                    ).apply { rotation = 240.0 }
-
-                    this[4, -4] = HexagonView(
-                        size = 68,
-                        visual = ImageVisual("treasureTile.png")
-                    ).apply { rotation = 300.0 }
-
-                    this[4, 0] = HexagonView(
-                        size = 68,
-                        visual = ImageVisual("treasureTile.png")
-                    )
-
-                    this[0, 4] = HexagonView(
-                        size = 68,
-                        visual = ImageVisual("treasureTile.png")
-                    ).apply { rotation = 60.0 }
-
-                    this[-4, 4] = HexagonView(
-                        size = 68,
-                        visual = ImageVisual("treasureTile.png")
-                    ).apply { rotation = 120.0 }
-
-                    this[-4, 0] = HexagonView(
-                        size = 68,
-                        visual = ImageVisual("treasureTile.png")
-                    ).apply { rotation = 180.0 }
-                }
-            }
-        }
-
-        // Place Treasure tiles
     }
 
     // background image with black overlay
     private val blackOverlay = ColorVisual(color = Color.black).apply { transparency = 0.7 }
     private val backgroundOverlay = CompoundVisual(children = listOf(ImageVisual("background.png"), blackOverlay))
+
+
+    /**
+     *  Updates the heldTileView to the current players held tile.
+     */
+    private fun updateHeldTile(){
+        val game = rootService.currentGame
+        checkNotNull(game)
+        val player = game.playerAtTurn
+        heldTileView.apply{
+            visual = ImageVisual("${player.heldTile?.tileType.toString().lowercase()}.png")
+        }
+        println("${player.heldTile?.tileType.toString().lowercase()}.png")
+    }
+
+    /**
+     *  Fills the game board when creating a new game
+     */
+    private fun initializeGameBoard() {
+        val game = rootService.currentGame
+        checkNotNull(game)
+
+        gameBoard.apply {
+            // Radius of axial hexagon grid
+            val size = 4
+
+            // Initialize empty game board
+            for (q in -size..size) {
+                for (r in -size..size) {
+                    if (q + r <= size && q + r >= -size) {
+                        val hexagon = HexagonView(
+                            size = 68,
+                            visual = CompoundVisual(
+                                ColorVisual(Color(235, 230, 188)),
+                                TextVisual(
+                                    text = "($q, $r)",
+                                    font = Font(15.0, fontStyle = Font.FontStyle.ITALIC, color = Color.BLACK)
+                                )
+                            )
+                        )
+
+                        this[q, r] = hexagon
+                        game.currentBoard[AxialPos(q,r)]?.let { this[q,r]?.let { it1 -> tileMap.add(it, it1) } }
+
+                        this[0, 0] = HexagonView(
+                            size = 68,
+                            visual = ImageVisual("middleTreasureTile.png")
+                        )
+
+                        this[0, -4] = HexagonView(
+                            size = 68,
+                            visual = ImageVisual("treasureTile.png")
+                        ).apply { rotation = 240.0 }
+
+                        this[4, -4] = HexagonView(
+                            size = 68,
+                            visual = ImageVisual("treasureTile.png")
+                        ).apply { rotation = 300.0 }
+
+                        this[4, 0] = HexagonView(
+                            size = 68,
+                            visual = ImageVisual("treasureTile.png")
+                        )
+
+                        this[0, 4] = HexagonView(
+                            size = 68,
+                            visual = ImageVisual("treasureTile.png")
+                        ).apply { rotation = 60.0 }
+
+                        this[-4, 4] = HexagonView(
+                            size = 68,
+                            visual = ImageVisual("treasureTile.png")
+                        ).apply { rotation = 120.0 }
+
+                        this[-4, 0] = HexagonView(
+                            size = 68,
+                            visual = ImageVisual("treasureTile.png")
+                        ).apply { rotation = 180.0 }
+                    }
+                }
+            }
+        }
+    }
 
     override fun refreshAfterNewGame() {
         val game = rootService.currentGame
@@ -331,7 +355,10 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
                 visual = ImageVisual("color_${(game.currentPlayers[3].color).toString().lowercase()}.png")
             }
         }
-
+        initializeGameBoard()
+        // TESTING
+        rootService.playerService.drawTile()
+        updateHeldTile()
     }
 
     init {
