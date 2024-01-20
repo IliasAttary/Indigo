@@ -513,8 +513,8 @@ class AIServices (private val rootService: RootService) : AbstractRefreshingServ
         checkNotNull(game) { "No game started yet." }
 
         var node=currentNode
-
-        while (node.parent != null) {
+        var count = 0
+        while (node.parent != null && count <=10) {
 
             //print(" the current valid positions  : ${findAllValidPositions().size}\n\n\n")
             // update the score of the current node
@@ -529,6 +529,7 @@ class AIServices (private val rootService: RootService) : AbstractRefreshingServ
 
             node = node.parent!!
             // set the game state to the new game state
+            count+=1
         }
 
         return  node
@@ -544,37 +545,29 @@ class AIServices (private val rootService: RootService) : AbstractRefreshingServ
      */
     fun trainMontiCarloAgent(numberOfSimulation: Int, depth: Int = 2, collected: Int): Pair<AxialPos, Tile>? {
         // Checks if a game is running
-
-
         val initialStateNode = MontiCarloNode()
         initialStateNode.currentGameState = getCurrentState()
         montiCarloExpansion(initialStateNode)
 
-        for(j in 0 until getAllPossibleNextStates().size) {
-            println("1")
+        repeat(getAllPossibleNextStates().size) {
             // select  next state
             val selectedNextState = selectNextState(initialStateNode)
             //println(" the current selected node : ${selectedNextState.action}  , Rotation  :${selectedNextState.action!!.second.rotation}")
             // number of repetition is the size of the number of possible state from the given state
-            for (i in 0 until numberOfSimulation-1) {
-                println("2")
+            for (i in 0 until numberOfSimulation - 1) {
 
-                val leafNode= montiCarloSimulation(selectedNextState, depth)
-                backPropagation(collected , leafNode )
-                println("3")
+                val leafNode = montiCarloSimulation(selectedNextState, depth)
+                backPropagation(collected, leafNode)
             }
-            println("4")
         }
-        println("yo")
         setCurrentState(initialStateNode.currentGameState!!)
-        val result  = selectNextState(initialStateNode)
+        val result = selectNextState(initialStateNode)
         println(result.action)
 
         //after training select the best action  from the given state
-        //
         return result.action
-
     }
+
 
 
     // min max algorithm
