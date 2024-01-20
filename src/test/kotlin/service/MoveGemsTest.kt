@@ -111,7 +111,7 @@ class MoveGemsTest {
 
         //check if the gem is at exit 5 of the placedTile
         if (placedTile != null) {
-            assertEquals(Gem.EMERALD, placedTile.gemPositions[5])
+            assertEquals(Gem.EMERALD, placedTile.gemPositions[1])
         }
 
         val middleTreasureTile = game.currentBoard[AxialPos(0,0)]
@@ -150,7 +150,7 @@ class MoveGemsTest {
         val secondPlacedTile = game.playerAtTurn.heldTile
 
         // place the second tile (second Player)
-        testRootService.playerService.placeTile(AxialPos(1,-2))
+        testRootService.playerService.placeTile(AxialPos(2,-2))
 
         //check if the gem got removed from the first placed Tile
         if (firstPlacedTile != null) {
@@ -164,7 +164,7 @@ class MoveGemsTest {
 
         // check if the gem is on exit 5
         if (secondPlacedTile != null) {
-            assertEquals(Gem.EMERALD, secondPlacedTile.gemPositions[5])
+            assertEquals(Gem.EMERALD, secondPlacedTile.gemPositions[1])
         }
 
     }
@@ -181,8 +181,8 @@ class MoveGemsTest {
         checkNotNull(game)
 
         //give both players the curved RouteTiles
-        game.currentPlayers[0].heldTile = RouteTile(TileType.TILE4)
-        game.currentPlayers[1].heldTile = RouteTile(TileType.TILE4)
+        game.currentPlayers[0].heldTile = RouteTile(TileType.TILE4).apply { rotation = 1 }
+        game.currentPlayers[1].heldTile = RouteTile(TileType.TILE4).apply { rotation = 1 }
 
         val firstPlacedTile = game.currentPlayers[0].heldTile
         val secondPlacedTile = game.currentPlayers[1].heldTile
@@ -192,7 +192,7 @@ class MoveGemsTest {
         //check if there is a gem on the tile and if it is on exit 4
         if (firstPlacedTile != null) {
             assertEquals(1, firstPlacedTile.gemPositions.size)
-            assertEquals(Gem.EMERALD, firstPlacedTile.gemPositions[4])
+            assertEquals(Gem.EMERALD, firstPlacedTile.gemPositions[5])
         }
 
         testRootService.playerService.placeTile(AxialPos(0,-1))
