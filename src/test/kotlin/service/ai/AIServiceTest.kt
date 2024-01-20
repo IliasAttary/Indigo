@@ -4,16 +4,6 @@ import entity.*
 import service.*
 import kotlin.test.*
 
-/**
- * The `AIServiceTest` class contains unit tests for the AI service functionalities.
- * It tests the behavior of both random and smart AI moves, validates possible positions on the game board,
- * sets and retrieves the current game state, checks all possible rotations of a tile, and examines possible next states.
- *
- * @property gameService An instance of the GameService used for setting up and managing game-related operations.
- * @property playerService An instance of the PlayerService responsible for player-related functionalities.
- * @property rootService An instance of the RootService managing the root-level game data and services.
- * @property aiServices An instance of the AIServices providing AI-related functionalities.
- */
 class AIServiceTest {
 
     private lateinit var gameService: GameService
@@ -84,10 +74,7 @@ class AIServiceTest {
         checkNotNull(game)
     }
 
-    /**
-     * Test the retrieval of valid positions on the game board.
-     * It checks if the valid positions are calculated correctly, considering existing tiles on the board.
-     */
+
     @Test
     fun testValidPositions() {
         gameService.startGame(
@@ -145,10 +132,6 @@ class AIServiceTest {
         assertEquals(axialPosCoordinates, newCoordinates)
     }
 
-    /**
-     * Test the setting and getting of the current game state in the AI service.
-     * It ensures that the state can be successfully set and retrieved.
-     */
 
     @Test
     fun testCurrentState() {
@@ -187,10 +170,6 @@ class AIServiceTest {
         assertEquals(newGameState, gottenState)
     }
 
-    /**
-     * Test the retrieval of all possible rotations for a given tile.
-     * It ensures that the AI service correctly calculates the possible rotations of a tile.
-     */
     @Test
     fun testAllTilePossibleRotations() {
         gameService.startGame(
@@ -218,9 +197,7 @@ class AIServiceTest {
 
     }
 
-    /**
-     * Tests obtaining all possible next states.
-     */
+
     @Test
     fun testGetAllPossibleNextStates() {
         gameService.startGame(
