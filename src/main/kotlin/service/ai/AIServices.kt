@@ -6,7 +6,13 @@ import service.RootService
 import kotlin.math.ln
 import kotlin.math.sqrt
 
-
+/**
+ * The `AIServices` class represents a set of services for implementing artificial intelligence (AI) agents
+ * in a game. It includes functionalities for Random Agent, Monte Carlo Tree Search (MCTS) and Minimax-based agents.
+ *
+ * @property rootService The `RootService` instance providing access to the game state and services.
+ * @constructor Creates an `AIServices` instance with the specified `RootService`.
+ */
 class AIServices (private val rootService: RootService ) : AbstractRefreshingService() {
 
 
@@ -433,9 +439,12 @@ class AIServices (private val rootService: RootService ) : AbstractRefreshingSer
     }
 
 
-    ///*********************Rami **************************
-
-
+    /**
+     * Assigns a reward based on the points of the player currently at turn in the ongoing game.
+     *
+     * @return The reward value as a Double.
+     * @throws IllegalStateException If no game is currently started.
+     */
     private fun assignReward(): Double{
         // Checks if a game is running
         val game = rootService.currentGame

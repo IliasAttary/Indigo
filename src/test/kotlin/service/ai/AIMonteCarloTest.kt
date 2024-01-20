@@ -9,6 +9,16 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+/**
+ * The `AIMonteCarloTest` class contains unit tests for the AI Monte Carlo functionalities.
+ * It tests the UCB (Upper Confidence Bound) calculation, generation of child nodes, selection of the next state,
+ * and overall Monte Carlo training of the AI agent.
+ *
+ * @property gameService An instance of the GameService used for setting up and managing game-related operations.
+ * @property playerService An instance of the PlayerService responsible for player-related functionalities.
+ * @property rootService An instance of the RootService managing the root-level game data and services.
+ * @property aiServices An instance of the AIServices providing AI-related functionalities.
+ */
 class AIMonteCarloTest {
     private lateinit var gameService: GameService
     private lateinit var playerService: PlayerService
@@ -26,6 +36,9 @@ class AIMonteCarloTest {
         aiServices = AIServices(rootService)
     }
 
+    /**
+     * Test the UCB (Upper Confidence Bound) calculation in the AI Monte Carlo algorithm.
+     */
     @Test
     fun testUCB() {
         val upperBound = Double.POSITIVE_INFINITY
@@ -45,6 +58,9 @@ class AIMonteCarloTest {
         assertEquals(upperBound, bound)
     }
 
+    /**
+     * Test the generation of child nodes in the AI Monte Carlo algorithm.
+     */
     @Test
     fun testGenerateChildNodes() {
         gameService.startGame(
@@ -85,6 +101,9 @@ class AIMonteCarloTest {
         assertEquals(RouteTile(TileType.TILE1), node1.children.first().action?.second)
     }
 
+    /**
+     * Test the selection of the next state in the AI Monte Carlo algorithm.
+     */
     @Test
     fun testSelectNextState() {
         gameService.startGame(
@@ -121,13 +140,11 @@ class AIMonteCarloTest {
 
     }
 
-
-
-
-
+    /**
+     * Test the overall Monte Carlo training of the AI agent.
+     */
     @Test
     fun testMonteCarloTraining() {
-        //assertFails { playerService.placeTile(AxialPos(1, -3)) }
 
         gameService.startGame(
             players = listOf(
