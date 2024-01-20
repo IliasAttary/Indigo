@@ -140,7 +140,7 @@ class StartNewJoinedGameTest {
         player.add(Player("Player A", Color.BLUE,false,false,null))
         player.add(Player("Player B", Color.PURPLE,false,false,null))
         player.add(Player("Player C", Color.RED,false,false,null))
-        player.add(Player("Player D", Color.RED,false,false,null))
+        player.add(Player("Player D", Color.WHITE,false,false,null))
 
         hostRootService.networkService.startNewHostedGame(player,false,1)
         clientRootService.waitForState(ConnectionState.WAITING_FOR_OPPONENTS_TURN)
