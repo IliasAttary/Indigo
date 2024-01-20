@@ -8,13 +8,14 @@ import kotlin.math.sqrt
 
 class AIServices (private val rootService: RootService) : AbstractRefreshingService() {
 
+
     /**
-     * Generates all positions on the game board and checks each position using the `checkPlacement` function
+     * Generates all positions on the game-board and checks each position using the `checkPlacement` function
      * from the `PlayerService` class. If the current position is valid, it is added to the list of valid positions.
      *
-     * @return A mutable list of valid Axial positions on the game board.
+     * @return A mutable list of valid Axial positions on the game-board.
      */
-    private fun generateAllGamePositions(): MutableList<AxialPos> {
+    fun generateAllGamePositions(): MutableList<AxialPos> {
 
         val game = rootService.currentGame
 
@@ -31,7 +32,7 @@ class AIServices (private val rootService: RootService) : AbstractRefreshingServ
         // First loop
         (minQ..0).forEach { index ->
             (startIndex..4).forEach { secondIndex ->
-                // add  only the valid positions to the result list
+                // add only the valid positions to the result list
                 //if (rootService.playerService.checkPlacement(AxialPos(index, secondIndex))) {
                 allPositions.add(AxialPos(index, secondIndex))
                 // }
@@ -56,6 +57,21 @@ class AIServices (private val rootService: RootService) : AbstractRefreshingServ
         return allPositions
     }
 
+    // checks if two states are equal or not
+    /**
+     * Checks if two game states are equal by comparing their board, draw stack, players, and gems.
+     *
+     * @param gameState1 The first game state to compare.
+     * @param gameState2 The second game state to compare.
+     * @return `true` if the game states are equal, `false` otherwise.
+     */
+    fun areGameStatesEqual(gameState1: GameState, gameState2: GameState): Boolean {
+        return (gameState1.board == gameState2.board
+                && gameState1.drawStack == gameState2.drawStack
+                && gameState1.players == gameState2.players
+                && gameState1.gems == gameState2.gems)
+    }
+
 
     fun findAllValidPositions(): MutableList<AxialPos> {
         // generate all  game  positions
@@ -64,7 +80,7 @@ class AIServices (private val rootService: RootService) : AbstractRefreshingServ
         val currentGameState  = getCurrentState()
 
         val result : MutableList<AxialPos> = mutableListOf()
-        // check if the current pos is valid
+        // check if  the current pos is valid
         gameAllBoardPositions.forEach { axialPos ->
             if (!currentGameState.board.containsKey(axialPos) ) {
                 result.add(axialPos)
@@ -73,6 +89,7 @@ class AIServices (private val rootService: RootService) : AbstractRefreshingServ
         return result
 
     }
+
 
 
     /**
@@ -89,10 +106,10 @@ class AIServices (private val rootService: RootService) : AbstractRefreshingServ
         val game = rootService.currentGame
         checkNotNull(game) { "No game started yet." }
 
-        game.currentBoard = gameState.board
-        game.currentDrawStack = gameState.drawStack
+        game.currentBoard = gameState.board.toMutableMap()
+        game.currentDrawStack = gameState.drawStack.toMutableList()
         game.currentPlayers = gameState.players
-        game.currentGems = gameState.gems
+        game.currentGems = gameState.gems.toMutableList()
     }
 
     /**
@@ -131,7 +148,8 @@ class AIServices (private val rootService: RootService) : AbstractRefreshingServ
      * @param tile The tile for which rotations are to be obtained.
      * @return A mutable list containing all possible rotations of the given tile.
      */
-    fun getAllTilePossibleRotations(tile:RouteTile): MutableList<RouteTile> {
+
+    fun getAllTilePossibleRotations(tile:RouteTile ): MutableList<RouteTile> {
         val game = rootService.currentGame
         checkNotNull(game){"No game started yet"}
         val result  : MutableList<RouteTile> = mutableListOf()
@@ -140,7 +158,9 @@ class AIServices (private val rootService: RootService) : AbstractRefreshingServ
             val newRoutTile = RouteTile(tile.tileType)
             newRoutTile.rotation =  i
             result.add(newRoutTile)
+
         }
+
         return result
     }
 
@@ -182,10 +202,16 @@ class AIServices (private val rootService: RootService) : AbstractRefreshingServ
 
         // Checks if the player has a tile to place
         val tile = game.playerAtTurn.heldTile
-        requireNotNull(tile) { "The current player has no tile" }
+        // print("the current chosen tile is $tile\n\n\n")
 
+        val result   : MutableList<Pair<Pair<AxialPos, Tile>,GameState> > = mutableListOf()
+
+        if ( tile == null ){
+            return result
+        }
+
+        // this will save the old state
         val oldGameState = getCurrentState()
-        // get all Possible Rotation of  a tile
 
         // pick a tile for next run
         rootService.playerService.drawTile()
@@ -196,68 +222,63 @@ class AIServices (private val rootService: RootService) : AbstractRefreshingServ
         //get all valid positions  where the tile can be place
         val allValidPositions = findAllValidPositions()
 
-
-        val newGameStateMap: MutableMap<Pair<AxialPos, Tile>, GameState> = mutableMapOf()
-
-        //get all valid positions  where the tile can be place
-        allValidPositions.remove(AxialPos(-1,-2))
-        allValidPositions.remove(AxialPos(3,-4))
-        allValidPositions.remove(AxialPos(4,-1))
-
         var count = 0
-        val result   : MutableList<Pair<Pair<AxialPos, Tile>,GameState> > = mutableListOf()
+
         for (i in 0 until allPossibleRotations.size) { // each tile which are 6
 
             // set the current held tile of the current player to  the current tile and remove it from
 
             for (j in 0 until allValidPositions.size) { // each valid  position
 
-                // Place tile
+
+
+
+
+                //print("index of tail : $i, type of style: ${allPossibleRotations[i]} ,rotation :${allPossibleRotations[i].rotation} , placed in position : ${allValidPositions[j]} , index j : ${j}  ,count :$count \n" )
+
+                //print( "the current game Board  size before placement   : ${getCurrentState().board.size} \n")
+
+
+
+                // place a tile  and get the new state and set it to the current game state
                 game.currentBoard[allValidPositions[j]] = allPossibleRotations[i]
 
-                // Move Gems
-                rootService.playerService.moveGems(allValidPositions[j])
-                result.add(Pair(Pair(allValidPositions[j], allPossibleRotations[i]) ,getCurrentState()))
-                // save the new Game state
-                newGameStateMap[Pair(allValidPositions[j], allPossibleRotations[i])] = getCurrentState()
 
-                // restart the state to the previous state
+                // Move Gems
+                if (rootService.playerService.checkPlacement(allValidPositions[j])) {
+                    rootService.playerService.moveGems(allValidPositions[j])
+                }
+
+                //print( "the current game Board  size after placement   : ${getCurrentState().board.size} \n")
+
+
+                //print("the current result List is  : $result \n\n")
+
+                result.add(Pair(Pair(allValidPositions[j], allPossibleRotations[i]) ,getCurrentState()))
+
+                // reset the game state to the previous state
+
                 setCurrentState(oldGameState)
+
+                //print( "the current game Board  size after restart   : ${getCurrentState().board.size} \n")
+
                 count+=1
             }
+            // this need to be removed add it  for tracking
+            count  = 0
+
+
+
         }
+
         return result
+
+
     }
 
-
-    /**
-     * Calculates the Upper Confidence Bound (UCB) for a given Monte Carlo Tree Search (MCTS) node.
-     *
-     * @param node The node for which the UCB is calculated.
-     * @param explorationWeight The weight given to exploration in the UCB formula (default is 1.0).
-     * @return The calculated Upper Confidence Bound for the specified node.
-     *
-     * UCB is a combination of exploitation (average score of node's children) and exploration terms.
-     * If the node is the root or unvisited, returns positive infinity to prioritize exploration.
-     * The UCB formula balances exploitation and exploration to guide MCTS in selecting promising nodes.
-     */
-    fun calculateUpperConfidenceBound(node: MontiCarloNode, explorationWeight: Double = 1.0): Double {
-        // Handling the case when the node is the root (no parent) or unvisited.
-        if (node.parent == null || node.visits == 0) {
-            return Double.POSITIVE_INFINITY
-        }
-
-        // Exploitation term: average score of the node's children
-        val exploitationTerm = node.totalScore / node.visits.toDouble()
-
-        // Exploration term: encourages exploration based on the number of visits and the parent's visits
-        val explorationTerm = explorationWeight * sqrt(ln(node.parent!!.visits.toDouble()) / node.visits.toDouble())
-
-        // The sum of exploitation and exploration terms represents the Upper Confidence Bound
-        return exploitationTerm + explorationTerm
-    }
 
     fun playRandomly(): Pair<AxialPos, Tile> {  // Rotation is considered here
+
         // Checks if a game is running
         val game = rootService.currentGame
         checkNotNull(game) { "No game started yet." }
@@ -266,6 +287,7 @@ class AIServices (private val rootService: RootService) : AbstractRefreshingServ
         val tile = game.playerAtTurn.heldTile
         requireNotNull(tile) { "The current player has no tile" }
 
+        print("the current tile is the Following  : $tile\n\n\n")
         // pick a tile for next run
         rootService.playerService.drawTile()
 
@@ -283,20 +305,46 @@ class AIServices (private val rootService: RootService) : AbstractRefreshingServ
         // return the given action
 
         return Pair(tilePosition, tileRotation)
+
+
+    }
+
+
+    /**
+     * Calculates the Upper Confidence Bound (UCB) for a given Monte Carlo Tree Search (MCTS) node.
+     *
+     * @param node The node for which the UCB is calculated.
+     * @param explorationWeight The weight given to exploration in the UCB formula (default is 1.0).
+     * @return The calculated Upper Confidence Bound for the specified node.
+     *
+     * UCB is a combination of exploitation (average score of node's children) and exploration terms.
+     * If the node is the root or unvisited, returns positive infinity to prioritize exploration.
+     * The UCB formula balances exploitation and exploration to guide MCTS in selecting promising nodes.
+     */
+
+    fun calculateUpperConfidenceBound(node: MontiCarloNode, explorationWeight: Double = 1.0): Double {
+        // Handling the case when the node is the root (no parent) or unvisited.
+        if (node.parent == null || node.visits == 0) {
+            return Double.POSITIVE_INFINITY
+        }
+
+        // Exploitation term: average score of the node's children
+        val exploitationTerm = node.totalScore / node.visits.toDouble()
+
+        // Exploration term: encourages exploration based on the number of visits and the parent's visits
+        val explorationTerm = explorationWeight * sqrt(ln(node.parent!!.visits.toDouble()) / node.visits.toDouble())
+
+        // The sum of exploitation and exploration terms represents the Upper Confidence Bound
+        return exploitationTerm + explorationTerm
     }
 
 
     /**
      * Selects the next state in the Monte Carlo Tree Search (MCTS) based on the Upper Confidence Bound (UCB).
      *
-     * @param currentNode The current node from which to select the next state.
      * @return The next state node selected using the UCB criterion.
+     * @throws IllegalStateException if the current node is null or has no children.
      */
-
-    fun selectRandomly(currentNode: MontiCarloNode): MontiCarloNode {
-        return currentNode.children.random()
-    }
-
     /**
      * Selects the next state in the Monte Carlo Tree Search (MCTS) using the Upper Confidence Bound (UCB) criterion.
      *
@@ -304,11 +352,21 @@ class AIServices (private val rootService: RootService) : AbstractRefreshingServ
      * @return The selected next state node.
      * @throws IllegalStateException if the next state cannot be determined unexpectedly.
      */
-    private fun selectNextState(currentNode: MontiCarloNode): MontiCarloNode {
+    fun selectNextState(currentNode: MontiCarloNode): MontiCarloNode {
+
+        // checks the current game
+
+        val game = rootService.currentGame
+        checkNotNull(game) { "No game started yet." }
+
         // Select the child node with the highest UCB value
+
         val nextState = currentNode.children.maxByOrNull {
             calculateUpperConfidenceBound(it)
-        } ?: throw IllegalStateException("Unexpected state: Unable to determine next state.")
+        } ?: throw IllegalStateException("the current child has no  children § ")
+
+        // this ensures moving to the new state
+        setCurrentState(nextState.currentGameState!!)
 
         return nextState
     }
@@ -335,20 +393,25 @@ class AIServices (private val rootService: RootService) : AbstractRefreshingServ
         // set the parent of the child to the current parent
         currentChildNode.parent = parentNode
     }
-
     /**
      * Performs the expansion step in the Monte Carlo Tree Search (MCTS) from a given node.
      *
      * @param currentNode The current node in the Monte Carlo Tree.
      */
     fun montiCarloExpansion (currentNode : MontiCarloNode){
+
+
         // get all possible  moves and their next states
         val allFutureStates :  MutableList<Pair<Pair<AxialPos, Tile>,GameState> >  = getAllPossibleNextStates()
+
         for ((action, nextState) in allFutureStates) {
-            // for all states
+
             generateChildNodes(currentNode, nextState, action)
+
         }
+
     }
+
 
     // end condition --> no more valid positions  , no more cards in the draw stuck , or reached certain depth
     /**
@@ -358,74 +421,80 @@ class AIServices (private val rootService: RootService) : AbstractRefreshingServ
      * @param maxDepth The maximum depth to consider during the search.
      * @return `true` if the search should terminate, otherwise `false`.
      */
-    fun isTerminate (currentNode: MontiCarloNode , maxDepth : Int): Boolean{
+    fun isTerminate ( currentNode: MontiCarloNode , maxDepth : Int): Boolean{
         val  currentState  = currentNode.currentGameState
         // check if no more valid positions to play
         var booleanResult = false
         if (currentState != null) {
-            booleanResult =  findAllValidPositions().size ==0 || currentState.drawStack.isEmpty() ||
-                    currentNode.currentDepth == maxDepth || maxDepth==0
+            booleanResult=  findAllValidPositions().size ==0 || currentState.drawStack.isEmpty() || currentNode.currentDepth ==maxDepth
         }
         return booleanResult
     }
-
     /**
      * Performs the Monte Carlo Tree Search (MCTS) simulation from a given node.
      *
-     * @param node The current node in the Monte Carlo Tree.
+     * @param currentNode The current node in the Monte Carlo Tree.
      * @param maxDepth The maximum depth to consider during the search.
      * @return The resulting node after the simulation.
      */
-    fun montiCarloSimulation(node : MontiCarloNode, maxDepth: Int):  MontiCarloNode {
 
-        var currentNode = node
+    fun montiCarloSimulation(currentNode : MontiCarloNode ,maxDepth: Int):  MontiCarloNode {
 
-        while (!isTerminate(currentNode, maxDepth)){
-            if (currentNode.children.isEmpty()) {
-                // expansion
-                montiCarloExpansion(currentNode)
+        var node = currentNode
+
+        while (true ){
+            if (isTerminate(node , maxDepth))   {
+                //print("the current valid positions before selection : ${findAllValidPositions()} ,
+                // then number of states : ${currentNode.children.size} , currentDepth:${currentNode.currentDepth} ,
+                // DrawStackSize:${getCurrentState().drawStack.size} \n\n")
+                return node
+            }
+
+            if (node.children.isEmpty()) {
+                // has no children expend
+                montiCarloExpansion(node)
             }else{
-                //select randomly
-                currentNode = selectRandomly(currentNode)
-                break
+                //print("the current valid positions before selection : ${findAllValidPositions().size} ,
+                // then number of states : ${currentNode.children.size} ,
+                // drawStack size ${getCurrentState().drawStack.size}\n\n")
+                node = selectNextState(node)
+                //print("the current valid positions after selection : ${findAllValidPositions().size} ,
+            // then number of states : ${currentNode.children.size} ,
+            // drawStack size ${getCurrentState().drawStack.size}\n\n")
+
             }
         }
-        return currentNode
+
     }
 
     /**
-     * Assigns a reward to a Monte Carlo Tree Search (MCTS) node based on the given gem's threshold.
+     * Assigns a reward to a Monte Carlo Tree Search (MCTS) node based on the given gems' threshold.
      *
      * @param gemsThreshold The threshold of gems to consider for the reward.
      * @return A reward value: -1.0 if the player's points are below the threshold, 1.0 otherwise.
      */
-    fun assignReward(gemsThreshold: Int): Double {
+    fun assignReward (gemsThreshold: Int): Double{
         // Checks if a game is running
         val game = rootService.currentGame
         checkNotNull(game) { "No game started yet." }
+        return if (  game.playerAtTurn.points.toDouble()  < gemsThreshold ){
+            // assign negative value
+            -1.0
+        }else {
+            1.0
+        }
+    }
 
-        val currentPlayer = game.playerAtTurn
 
-        if (currentPlayer.points.toDouble() < gemsThreshold) {
-            // Check if player's gems are less than any other player's gems
-            val hasLessGemsThanOthers = game.currentPlayers.any { it != currentPlayer && currentPlayer.points < it.points }
-            return if (hasLessGemsThanOthers) {
-                // assign a negative value
-                -10.0
-            } else {
-                // assign a big negative value if player has the least gems
-                -100.0
-            }
-        } else {
-            // Check if player has more gems than all other players
-            val hasMoreGemsThanOthers = game.currentPlayers.all { it != currentPlayer && currentPlayer.points > it.points }
-            return if (hasMoreGemsThanOthers) {
-                // assign a big positive value
-                100.0
-            } else {
-                // assign a moderate positive value
-                10.0
-            }
+    fun assignRewardMinMax (gemsThreshold: Int): Double{
+        // Checks if a game is running
+        val game = rootService.currentGame
+        checkNotNull(game) { "No game started yet." }
+        return if (  game.playerAtTurn.points.toDouble()  < gemsThreshold ){
+            // assign negative value
+            -1.0
+        }else {
+            1.0
         }
     }
 
@@ -433,28 +502,37 @@ class AIServices (private val rootService: RootService) : AbstractRefreshingServ
     /**
      * Backpropagates the results of Monte Carlo Tree Search (MCTS) from a leaf node to the root.
      *
-     * @param currentNode The current node in the Monte Carlo Tree.
      * @param threshold The threshold parameter for assigning rewards during backpropagation.
+     * @param currentNode The current node in the Monte Carlo Tree.
      */
-    fun backPropagation(currentNode: MontiCarloNode, threshold: Int) {
+    fun backPropagation (threshold: Int ,currentNode: MontiCarloNode) : MontiCarloNode{
+
         // Checks if a game is running
+
         val game = rootService.currentGame
         checkNotNull(game) { "No game started yet." }
-        var node: MontiCarloNode = currentNode
-        if (node.parent != null) {
-            do {
-                // maximum reached value
-                node.totalScore = assignReward(threshold)
-                node.visits += 1
 
-                node.parent!!.visits += node.visits
-                node.parent!!.totalScore += node.totalScore
+        var node=currentNode
 
-                node = node.parent!!
-            } while (node.parent != null && node.parent!!.parent != null)
+        while (node.parent != null) {
+
+            //print(" the current valid positions  : ${findAllValidPositions().size}\n\n\n")
+            // update the score of the current node
+            node.totalScore = assignReward(threshold)
+            // update the score of the parent node
+            node.parent!!.totalScore  += node.totalScore
+            // increment the number of visits
+            node.parent!!.visits += 1
+            //print(" the current node visits  : ${currentNode.visits}\n\n\n")
+            // move to the parent node
+            setCurrentState(node.parent!!.currentGameState!!)
+
+            node = node.parent!!
+            // set the game state to the new game state
         }
-    }
 
+        return  node
+    }
 
     /**
      * Train the agent using Monte Carlo Tree Search (MCTS) and return the best action after training.
@@ -464,36 +542,136 @@ class AIServices (private val rootService: RootService) : AbstractRefreshingServ
      * @param collected The parameter for the backpropagation function.
      * @return The best action determined by the MCTS after training, or null if no action is selected.
      */
-    fun trainAgent(numberOfSimulation: Int, depth: Int = 32, collected: Int): Pair<AxialPos, Tile>? {
+    fun trainMontiCarloAgent(numberOfSimulation: Int, depth: Int = 2, collected: Int): Pair<AxialPos, Tile>? {
         // Checks if a game is running
 
+
         val initialStateNode = MontiCarloNode()
-        repeat( getAllPossibleNextStates().size) {
-            // set the current state to the initial state
+        initialStateNode.currentGameState = getCurrentState()
+        montiCarloExpansion(initialStateNode)
 
-
-            initialStateNode.currentGameState = getCurrentState()
-
-            // do an expansion to the current state
-
-            montiCarloExpansion(initialStateNode)
-
+        for(j in 0 until getAllPossibleNextStates().size) {
+            println("1")
             // select  next state
-
             val selectedNextState = selectNextState(initialStateNode)
-
+            //println(" the current selected node : ${selectedNextState.action}  , Rotation  :${selectedNextState.action!!.second.rotation}")
             // number of repetition is the size of the number of possible state from the given state
-            for (i in 0..numberOfSimulation) {
+            for (i in 0 until numberOfSimulation-1) {
+                println("2")
 
                 val leafNode= montiCarloSimulation(selectedNextState, depth)
-                backPropagation(leafNode, collected)
+                backPropagation(collected , leafNode )
+                println("3")
             }
+            println("4")
         }
+        println("yo")
+        setCurrentState(initialStateNode.currentGameState!!)
+        val result  = selectNextState(initialStateNode)
+        println(result.action)
 
         //after training select the best action  from the given state
-        return selectNextState(initialStateNode).action
+        //
+        return result.action
 
     }
 
+
+    // min max algorithm
+
+
+
+    private fun minMaxExpansion(currentNode  : MinMaxNode) {
+
+        currentNode.currentGameState = getCurrentState()
+        currentNode.playerType = "Maximizer"
+
+        // get all possible  moves and their next states
+        val allFutureStates: MutableList<Pair<Pair<AxialPos, Tile>, GameState>> = getAllPossibleNextStates()
+        for ((action, nextState) in allFutureStates) {
+
+            // generate a Child Node
+            val currentChildNode = MinMaxNode()
+            // set it current state to new state
+            currentChildNode.currentGameState = nextState
+            // save the taken action
+            currentChildNode.action = action
+
+            // add the current child to children of the parent node
+            currentNode.children.add(currentChildNode)
+            // set the parent of the child to the current parent
+            currentChildNode.parent = currentNode
+            // set  also the type of the new node
+            if (currentNode.parent != null) {
+                if (currentNode.parent!!.playerType == "Maximizer") {
+                    currentNode.playerType == "Minimizer"
+
+                } else {
+                    currentNode.playerType == "Maximizer"
+                }
+            }
+
+        }
+
+    }
+
+    fun minMaxSimulation (currentNode: MinMaxNode, threshold: Int ) : MutableList<MinMaxNode>{
+        // save the leaf nodes
+        val leafNode   = mutableListOf<MinMaxNode>()
+
+        if (currentNode.children.size == 0 ){ // leaf node
+            currentNode.score  = assignRewardMinMax(threshold)
+            currentNode.parent?.let { leafNode.add(it) }
+        }
+
+        var node = currentNode
+        for (child  in node.children  ){
+            node = child
+            minMaxExpansion(node)
+            minMaxSimulation ( node ,threshold )
+        }
+        return leafNode
+    }
+
+    fun  minMaxBackpropagation (nodeList : MutableList<MinMaxNode>){
+
+        var currentNode: MinMaxNode
+        for( node in nodeList){
+            currentNode = node
+            while ( currentNode.parent!!.parent != null ) {
+
+                if (currentNode.playerType == "Maximizer") {
+                    val selectedChild: MinMaxNode = node.children.minBy { child -> child.score }
+                    currentNode.score  = selectedChild.score
+                    currentNode = currentNode.parent!!
+
+                }else{
+                    val selectedChild: MinMaxNode = node.children.maxBy { child -> child.score }
+                    currentNode.score  = selectedChild.score
+                    currentNode = currentNode.parent!!
+                }
+            }
+        }
+    }
+
+
+    fun trainMinMax ( ): Pair<AxialPos, Tile>? {
+
+        val threshold  =  2
+        // here the train min max
+        val currentState  =  MinMaxNode()
+        currentState.currentGameState = getCurrentState()
+        currentState.playerType = "Maximizer"
+        //  simulation
+        val resultList  = minMaxSimulation(currentState  , threshold  )
+        // backpropagation
+        minMaxBackpropagation(resultList)
+        // choose the best action
+
+        val chosenNextState : MinMaxNode  = currentState.children.maxBy { child -> child.score }
+
+        return chosenNextState.action
+
+    }
 
 }

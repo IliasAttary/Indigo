@@ -28,7 +28,6 @@ class AIServiceTest {
      */
     @Test
     fun testRandomAIMoves() {
-
         gameService.startGame(
             players = listOf(
                 Player("P1", Color.RED, heldTile = RouteTile(TileType.TILE0), isAI = false, smartAI = false),
@@ -129,6 +128,7 @@ class AIServiceTest {
         axialPosCoordinates.remove(AxialPos(1,-1))
         val newCoordinates = aiServices.findAllValidPositions()
 
+        println(aiServices.findAllValidPositions().size)
         assertEquals(axialPosCoordinates, newCoordinates)
     }
 
@@ -236,5 +236,4 @@ class AIServiceTest {
 
         println(size)
     }
-
 }

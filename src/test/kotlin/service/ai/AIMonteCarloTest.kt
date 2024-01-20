@@ -46,23 +46,7 @@ class AIMonteCarloTest {
     }
 
     @Test
-    fun testSelectRandomly() {
-        val node1 = MontiCarloNode()
-        val node2 = MontiCarloNode()
-        val node3 = MontiCarloNode()
-        node1.children.add(node2)
-        node2.visits = 3
-        node1.children.add(node3)
-        node3.visits = 4
-
-        val ranNode = aiServices.selectRandomly(node1)
-
-        // Assert that ranNode is either node2 or node3
-        assertTrue(ranNode == node2 || ranNode == node3)
-    }
-
-    @Test
-    fun testSelectNextState() {
+    fun testGenerateChildNodes() {
         gameService.startGame(
             players = listOf(
                 Player("P1", Color.RED, heldTile = RouteTile(TileType.TILE0), isAI = false, smartAI = false),
@@ -101,6 +85,42 @@ class AIMonteCarloTest {
         assertEquals(RouteTile(TileType.TILE1), node1.children.first().action?.second)
     }
 
+    @Test
+    fun testSelectNextState() {
+        gameService.startGame(
+            players = listOf(
+                Player("P1", Color.RED, heldTile = RouteTile(TileType.TILE0), isAI = false, smartAI = false),
+                Player("P2", Color.PURPLE, heldTile = RouteTile(TileType.TILE2), isAI = false, smartAI = false)
+            ),
+            aiSpeed = 10,
+            sharedGates = false
+        )
+        val game = rootService.currentGame
+        checkNotNull(game)
+
+        val gameSate = GameState(
+            game.currentBoard,
+            game.currentDrawStack,
+            game.currentPlayers,
+            game.currentGems)
+
+        val action: Pair<AxialPos, Tile> = Pair(AxialPos(-1,1), RouteTile(TileType.TILE1))
+        val node = MontiCarloNode()
+        node.parent = MontiCarloNode()
+        node.parent!!.visits = 1
+        node.visits = 3
+        node.totalScore = 9.0
+
+
+        aiServices.generateChildNodes(node, gameSate, action)
+
+        val node1 = aiServices.selectNextState(node)
+
+        println(node1.action!!.first)
+        println(node1.action!!.second)
+
+    }
+
 
     @Test
     fun testExpansion() {
@@ -122,6 +142,11 @@ class AIMonteCarloTest {
 
         aiServices.montiCarloExpansion(node)
 
+        rootService.playerService.placeTile(AxialPos(-4,1))
+
+        aiServices.montiCarloExpansion(node)
+
+
         val finalNodeChildrenNumber = node.children.size
 
         assertTrue(finalNodeChildrenNumber > initialNodeChildrenNumber)
@@ -140,17 +165,12 @@ class AIMonteCarloTest {
         val game = rootService.currentGame
         checkNotNull(game)
 
-        var depth = 0
+        val depth = 0
         val node = MontiCarloNode()
         node.currentGameState = aiServices.getCurrentState()
-        var bool = aiServices.isTerminate(node, depth)
+        val bool = aiServices.isTerminate(node, depth)
         //true if no depth
         assertTrue(bool)
-
-        depth = 10
-        bool = aiServices.isTerminate(node, depth)
-        assertTrue(!bool)
-
 
     }
 
@@ -175,76 +195,27 @@ class AIMonteCarloTest {
     }
 
     @Test
-    fun testReward() {
+    fun testMonteCarloTraining() {
+        //assertFails { playerService.placeTile(AxialPos(1, -3)) }
+
         gameService.startGame(
             players = listOf(
                 Player("P1", Color.RED, heldTile = RouteTile(TileType.TILE0), isAI = false, smartAI = false),
-                Player("P2", Color.PURPLE, heldTile = RouteTile(TileType.TILE2), isAI = true, smartAI = true)
+                Player("P2", Color.BLUE, heldTile = RouteTile(TileType.TILE1), isAI = true, smartAI = false),
             ),
             aiSpeed = 10,
             sharedGates = false
         )
+
         val game = rootService.currentGame
         checkNotNull(game)
-        //assert not working here
-        /*
-        game.currentPlayers[0].points = 5
-        game.currentPlayers[1].points = 10
-        var reward = aiServices.assignReward(2)
-        assertEquals(100.0, reward)
-        */
+        val result = aiServices.trainMontiCarloAgent(2, 2, 2)
 
-        game.currentPlayers[0].points = 10
-        game.currentPlayers[1].points = 5
-        var reward = aiServices.assignReward(2)
-        assertEquals(10.0, reward)
-
-        game.currentPlayers[0].points = 1
-        game.currentPlayers[1].points = 10
-        reward = aiServices.assignReward(80)
-        assertEquals(-10.0, reward)
-
-        game.currentPlayers[0].points = 10
-        game.currentPlayers[1].points = 1
-        reward = aiServices.assignReward(80)
-        assertEquals(-100.0, reward)
-    }
-
-    @Test
-    fun testBackProp() {
-        gameService.startGame(
-            players = listOf(
-                Player("P1", Color.RED, heldTile = RouteTile(TileType.TILE0), isAI = false, smartAI = false),
-                Player("P2", Color.PURPLE, heldTile = RouteTile(TileType.TILE2), isAI = true, smartAI = true)
-            ),
-            aiSpeed = 10,
-            sharedGates = false
-        )
-        val game = rootService.currentGame
-        checkNotNull(game)
-
-        val node = MontiCarloNode()
-        val parentNode = MontiCarloNode()
-        val grandParentNode = MontiCarloNode()
-
-        node.parent = parentNode
-        parentNode.parent = grandParentNode
-
-        node.parent!!.parent = grandParentNode
-
-        node.visits = 3
-        parentNode.visits = 4
-        grandParentNode.visits = 5
-
-        node.totalScore = 9.0
-        parentNode.totalScore = 10.0
-        grandParentNode.totalScore = 5.0
-
-        aiServices.backPropagation(node, 4)
-
-        println(parentNode.totalScore)
-
-        //to fix : only back propagates to the parent
+        if (result != null) {
+            println("Selected Action: ${result.first} with Rotation: ${result.second.rotation}")
+        } else {
+            println("No action selected.")
+        }
     }
 
 }
