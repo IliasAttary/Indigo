@@ -16,6 +16,9 @@ class StartNewHostedGameTest {
 
     private var clientRootService = RootService()
 
+    private var clientRootService1 = RootService()
+
+    private var clientRootService2 = RootService()
     /**
      * Connects two clients before every test
      */
@@ -37,10 +40,10 @@ class StartNewHostedGameTest {
     }
 
     /**
-     * Tests if the state changes correctly
+     * Tests if the state changes correctly when host is the first player
      */
     @Test
-    fun testState(){
+    fun testStateInFirst(){
         val player = mutableListOf<Player>()
         player.add(Player("Player A", Color.BLUE,false,false,null))
         player.add(Player("Player B", Color.PURPLE,false,false,null))
@@ -51,11 +54,116 @@ class StartNewHostedGameTest {
         val game = hostRootService.currentGame
         checkNotNull(game)
 
-        if (game.currentPlayers.first().name == "Player A") {
-            assertEquals(hostRootService.networkService.connectionState, ConnectionState.PLAYING_MY_TURN)
-        } else {
-            assertEquals(hostRootService.networkService.connectionState, ConnectionState.WAITING_FOR_OPPONENTS_TURN)
-        }
+        assertEquals(hostRootService.networkService.connectionState, ConnectionState.PLAYING_MY_TURN)
+    }
+
+    /**
+     * Tests if the state changes correctly when host is the second player
+     */
+    @Test
+    fun testStateInSecond(){
+        val player = mutableListOf<Player>()
+        player.add(Player("Player B", Color.BLUE,false,false,null))
+        player.add(Player("Player A", Color.PURPLE,false,false,null))
+
+        hostRootService.networkService.startNewHostedGame(player,false,1)
+        clientRootService.waitForState(ConnectionState.PLAYING_MY_TURN)
+
+        val game = hostRootService.currentGame
+        checkNotNull(game)
+
+        assertEquals(hostRootService.networkService.connectionState, ConnectionState.WAITING_FOR_OPPONENTS_TURN)
+    }
+
+    /**
+     * Tests if the state changes correctly with 3 Player mode
+     */
+    @Test
+    fun testState3PLayer(){
+        clientRootService1 = RootService()
+        clientRootService1.networkService.useAI = false
+        clientRootService1.networkService.useSmartAI = false
+        clientRootService1.networkService.aiMoveMilliseconds = 1
+
+        clientRootService1.networkService.joinGame(secret,"Player C", sessionID)
+        clientRootService1.waitForState(ConnectionState.WAITING_FOR_INIT)
+
+        val player = mutableListOf<Player>()
+        player.add(Player("Player A", Color.BLUE,false,false,null))
+        player.add(Player("Player B", Color.PURPLE,false,false,null))
+        player.add(Player("Player C", Color.RED,false,false,null))
+
+        hostRootService.networkService.startNewHostedGame(player,false,1)
+        clientRootService.waitForState(ConnectionState.WAITING_FOR_OPPONENTS_TURN)
+
+        val game = hostRootService.currentGame
+        checkNotNull(game)
+
+        assertEquals(hostRootService.networkService.connectionState, ConnectionState.PLAYING_MY_TURN)
+    }
+
+    /**
+     * Tests if the state changes correctly with 3 Player SharedGateways mode
+     */
+    @Test
+    fun testState3PLayerSharedGateways(){
+        clientRootService1 = RootService()
+        clientRootService1.networkService.useAI = false
+        clientRootService1.networkService.useSmartAI = false
+        clientRootService1.networkService.aiMoveMilliseconds = 1
+
+        clientRootService1.networkService.joinGame(secret,"Player C", sessionID)
+        clientRootService1.waitForState(ConnectionState.WAITING_FOR_INIT)
+
+        val player = mutableListOf<Player>()
+        player.add(Player("Player A", Color.BLUE,false,false,null))
+        player.add(Player("Player B", Color.PURPLE,false,false,null))
+        player.add(Player("Player C", Color.RED,false,false,null))
+
+        hostRootService.networkService.startNewHostedGame(player,true,1)
+        clientRootService.waitForState(ConnectionState.WAITING_FOR_OPPONENTS_TURN)
+
+        val game = hostRootService.currentGame
+        checkNotNull(game)
+
+        assertEquals(hostRootService.networkService.connectionState, ConnectionState.PLAYING_MY_TURN)
+    }
+
+    /**
+     * Tests if the state changes correctly with 4 Player mode
+     */
+    @Test
+    fun testState4PLayer(){
+        clientRootService1 = RootService()
+        clientRootService1.networkService.useAI = false
+        clientRootService1.networkService.useSmartAI = false
+        clientRootService1.networkService.aiMoveMilliseconds = 1
+
+        clientRootService1.networkService.joinGame(secret,"Player C", sessionID)
+        clientRootService1.waitForState(ConnectionState.WAITING_FOR_INIT)
+
+        clientRootService2 = RootService()
+        clientRootService2.networkService.useAI = false
+        clientRootService2.networkService.useSmartAI = false
+        clientRootService2.networkService.aiMoveMilliseconds = 1
+
+        clientRootService2.networkService.joinGame(secret,"Player D", sessionID)
+        clientRootService2.waitForState(ConnectionState.WAITING_FOR_INIT)
+
+
+        val player = mutableListOf<Player>()
+        player.add(Player("Player A", Color.BLUE,false,false,null))
+        player.add(Player("Player B", Color.PURPLE,false,false,null))
+        player.add(Player("Player C", Color.RED,false,false,null))
+        player.add(Player("Player D", Color.RED,false,false,null))
+
+        hostRootService.networkService.startNewHostedGame(player,false,1)
+        clientRootService.waitForState(ConnectionState.WAITING_FOR_OPPONENTS_TURN)
+
+        val game = hostRootService.currentGame
+        checkNotNull(game)
+
+        assertEquals(hostRootService.networkService.connectionState, ConnectionState.PLAYING_MY_TURN)
     }
 
     /**
