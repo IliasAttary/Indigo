@@ -1,9 +1,16 @@
 package service.ai
 
 import entity.*
-import service.*
+import service.GameService
+import service.PlayerService
+import service.RootService
 import kotlin.test.*
 
+/**
+ * Test class for AIServices.
+ *
+ * It includes tests for AI behaviors, move validations, and state management.
+ */
 class AIServiceTest {
 
     private lateinit var gameService: GameService
@@ -91,30 +98,30 @@ class AIServiceTest {
 
         val axialPosCoordinates = mutableListOf(
             //-4
-            AxialPos(-4,1),AxialPos(-4,2),AxialPos(-4,3),
+            AxialPos(-4, 1), AxialPos(-4, 2), AxialPos(-4, 3),
             //-3
-            AxialPos(-3,-1),AxialPos(-3,0),AxialPos(-3,1),
-            AxialPos(-3,2),AxialPos(-3,3),AxialPos(-3,4),
+            AxialPos(-3, -1), AxialPos(-3, 0), AxialPos(-3, 1),
+            AxialPos(-3, 2), AxialPos(-3, 3), AxialPos(-3, 4),
             //-2
-            AxialPos(-2,-2),AxialPos(-2,-1),AxialPos(-2,0),AxialPos(-2,1),
-            AxialPos(-2,2),AxialPos(-2,3),AxialPos(-2,4),
+            AxialPos(-2, -2), AxialPos(-2, -1), AxialPos(-2, 0), AxialPos(-2, 1),
+            AxialPos(-2, 2), AxialPos(-2, 3), AxialPos(-2, 4),
             //-1
-            AxialPos(-1,-3),AxialPos(-1,-2),AxialPos(-1,-1),AxialPos(-1,0),
-            AxialPos(-1,1),AxialPos(-1,2),AxialPos(-1,3),AxialPos(-1,4),
+            AxialPos(-1, -3), AxialPos(-1, -2), AxialPos(-1, -1), AxialPos(-1, 0),
+            AxialPos(-1, 1), AxialPos(-1, 2), AxialPos(-1, 3), AxialPos(-1, 4),
             //0
-            AxialPos(0,-3),AxialPos(0,-2),AxialPos(0,-1),
-            AxialPos(0,1),AxialPos(0,2),AxialPos(0,3),
+            AxialPos(0, -3), AxialPos(0, -2), AxialPos(0, -1),
+            AxialPos(0, 1), AxialPos(0, 2), AxialPos(0, 3),
             //1
-            AxialPos(1,-4),AxialPos(1,-3),AxialPos(1,-2),AxialPos(1,-1),
-            AxialPos(1,0),AxialPos(1,1),AxialPos(1,2),AxialPos(1,3),
+            AxialPos(1, -4), AxialPos(1, -3), AxialPos(1, -2), AxialPos(1, -1),
+            AxialPos(1, 0), AxialPos(1, 1), AxialPos(1, 2), AxialPos(1, 3),
             //2
-            AxialPos(2,-4),AxialPos(2,-3),AxialPos(2,-2),AxialPos(2,-1),
-            AxialPos(2,0),AxialPos(2,1),AxialPos(2,2),
+            AxialPos(2, -4), AxialPos(2, -3), AxialPos(2, -2), AxialPos(2, -1),
+            AxialPos(2, 0), AxialPos(2, 1), AxialPos(2, 2),
             //3
-            AxialPos(3,-4),AxialPos(3,-3),AxialPos(3,-2),AxialPos(3,-1),
-            AxialPos(3,0),AxialPos(3,1),
+            AxialPos(3, -4), AxialPos(3, -3), AxialPos(3, -2), AxialPos(3, -1),
+            AxialPos(3, 0), AxialPos(3, 1),
             //4
-            AxialPos(4,-3),AxialPos(4,-2),AxialPos(4,-1)
+            AxialPos(4, -3), AxialPos(4, -2), AxialPos(4, -1)
         )
 
         //the valid coordinates are all the coordinates of the board minus the TreasureTiles and GateWayTiles.
@@ -125,7 +132,7 @@ class AIServiceTest {
         //check if the placedTile coordinates got removed.
         rootService.playerService.placeTile(AxialPos(1, -1))
 
-        axialPosCoordinates.remove(AxialPos(1,-1))
+        axialPosCoordinates.remove(AxialPos(1, -1))
         val newCoordinates = aiServices.findAllValidPositions()
 
         println(aiServices.findAllValidPositions().size)
@@ -160,7 +167,8 @@ class AIServiceTest {
             game.currentBoard,
             game.currentDrawStack,
             game.currentPlayers,
-            game.currentGems)
+            game.currentGems
+        )
 
         //assert setting the Game state
         assertEquals(newGameState, settedGameSate)

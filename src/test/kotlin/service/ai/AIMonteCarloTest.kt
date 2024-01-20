@@ -7,8 +7,12 @@ import service.RootService
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
+/**
+ * Test class for AI Monte Carlo methods within a game context.
+ * Includes tests for calculating upper confidence bounds, generating child nodes,
+ * and selecting the next state in the Monte Carlo tree.
+ */
 class AIMonteCarloTest {
     private lateinit var gameService: GameService
     private lateinit var playerService: PlayerService
@@ -26,6 +30,9 @@ class AIMonteCarloTest {
         aiServices = AIServices(rootService)
     }
 
+    /**
+     * Tests the calculation of the Upper Confidence Bound (UCB) for a node.
+     */
     @Test
     fun testUCB() {
         val upperBound = Double.POSITIVE_INFINITY
@@ -35,16 +42,19 @@ class AIMonteCarloTest {
         node.visits = 3
         node.totalScore = 9.0
 
-        var bound = aiServices.calculateUpperConfidenceBound(node,1.0)
+        var bound = aiServices.calculateUpperConfidenceBound(node, 1.0)
         assertEquals(3.0, bound)
 
         node.visits = 0
         node.totalScore = 3.0
 
-        bound = aiServices.calculateUpperConfidenceBound(node,1.0)
+        bound = aiServices.calculateUpperConfidenceBound(node, 1.0)
         assertEquals(upperBound, bound)
     }
 
+    /**
+     * Tests the generation of child nodes in the Monte Carlo tree based on a given game state and action.
+     */
     @Test
     fun testGenerateChildNodes() {
         gameService.startGame(
@@ -62,9 +72,10 @@ class AIMonteCarloTest {
             game.currentBoard,
             game.currentDrawStack,
             game.currentPlayers,
-            game.currentGems)
+            game.currentGems
+        )
 
-        val action: Pair<AxialPos, Tile> = Pair(AxialPos(-1,1), RouteTile(TileType.TILE1))
+        val action: Pair<AxialPos, Tile> = Pair(AxialPos(-1, 1), RouteTile(TileType.TILE1))
         val node1 = MontiCarloNode()
         node1.parent = MontiCarloNode()
         node1.parent!!.visits = 1
@@ -79,12 +90,15 @@ class AIMonteCarloTest {
         assertEquals(1, node1.children.size)
 
         //assert that action coordination was set correctly
-        assertEquals(AxialPos(-1,1), node1.children.first().action?.first)
+        assertEquals(AxialPos(-1, 1), node1.children.first().action?.first)
 
         //assert that action Tile was set correctly
         assertEquals(RouteTile(TileType.TILE1), node1.children.first().action?.second)
     }
 
+    /**
+     * Tests the selection of the next state from the Monte Carlo tree.
+     */
     @Test
     fun testSelectNextState() {
         gameService.startGame(
@@ -102,9 +116,10 @@ class AIMonteCarloTest {
             game.currentBoard,
             game.currentDrawStack,
             game.currentPlayers,
-            game.currentGems)
+            game.currentGems
+        )
 
-        val action: Pair<AxialPos, Tile> = Pair(AxialPos(-1,1), RouteTile(TileType.TILE1))
+        val action: Pair<AxialPos, Tile> = Pair(AxialPos(-1, 1), RouteTile(TileType.TILE1))
         val node = MontiCarloNode()
         node.parent = MontiCarloNode()
         node.parent!!.visits = 1
@@ -121,10 +136,9 @@ class AIMonteCarloTest {
 
     }
 
-
-
-
-
+    /**
+     * Tests the Monte Carlo training procedure by starting a game and training an AI agent.
+     */
     @Test
     fun testMonteCarloTraining() {
         //assertFails { playerService.placeTile(AxialPos(1, -3)) }

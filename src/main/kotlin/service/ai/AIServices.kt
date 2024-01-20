@@ -6,9 +6,15 @@ import service.RootService
 import kotlin.math.ln
 import kotlin.math.sqrt
 
+/**
+ * The `AIServices` class represents a set of services for implementing artificial intelligence (AI) agents
+ * in a game. It includes functionalities for Random Agent, Monte Carlo Tree Search (MCTS) and Minimax-based agents.
+ *
+ * @property rootService The `RootService` instance providing access to the game state and services.
+ * @constructor Creates an `AIServices` instance with the specified `RootService`.
+ **/
 
-class AIServices (private val rootService: RootService ) : AbstractRefreshingService() {
-
+class AIServices(private val rootService: RootService) : AbstractRefreshingService() {
 
 
     /**
@@ -76,7 +82,6 @@ class AIServices (private val rootService: RootService ) : AbstractRefreshingSer
     }
 
 
-
     /**
      * Finds all valid positions on the game board that are currently unoccupied.
      *
@@ -91,12 +96,12 @@ class AIServices (private val rootService: RootService ) : AbstractRefreshingSer
         // generate all  game  positions
         val gameAllBoardPositions = generateAllGamePositions()
         //get the current game state
-        val currentGameState  = getCurrentState()
+        val currentGameState = getCurrentState()
 
-        val result : MutableList<AxialPos> = mutableListOf()
+        val result: MutableList<AxialPos> = mutableListOf()
         // check if  the current pos is valid
         gameAllBoardPositions.forEach { axialPos ->
-            if (!currentGameState.board.containsKey(axialPos) ) {
+            if (!currentGameState.board.containsKey(axialPos)) {
                 result.add(axialPos)
             }
         }
@@ -164,14 +169,14 @@ class AIServices (private val rootService: RootService ) : AbstractRefreshingSer
      * @return A mutable list containing all possible rotations of the given tile.
      */
 
-    fun getAllTilePossibleRotations(tile:RouteTile ): MutableList<RouteTile> {
+    fun getAllTilePossibleRotations(tile: RouteTile): MutableList<RouteTile> {
         val game = rootService.currentGame
-        checkNotNull(game){"No game started yet"}
-        val result  : MutableList<RouteTile> = mutableListOf()
-        for ( i  in 0 ..5 ){
+        checkNotNull(game) { "No game started yet" }
+        val result: MutableList<RouteTile> = mutableListOf()
+        for (i in 0..5) {
             // create an object to save it
             val newRoutTile = RouteTile(tile.tileType)
-            newRoutTile.rotation =  i
+            newRoutTile.rotation = i
             result.add(newRoutTile)
 
         }
@@ -180,23 +185,22 @@ class AIServices (private val rootService: RootService ) : AbstractRefreshingSer
     }
 
 
-
     /**
      * Generates all possible next game states by considering all rotations of a given tile
      * and placing it in each valid position on the game board.
      *
      * @return A mutable list containing all possible next game states.
      */
-    fun getAllPossibleNextStates():  MutableList<Pair<Pair<AxialPos, Tile>,GameState> > {  // Rotation is considered here
+    fun getAllPossibleNextStates(): MutableList<Pair<Pair<AxialPos, Tile>, GameState>> {  // Rotation is considered here
 
         val game = rootService.currentGame
         checkNotNull(game) { "No game started yet." }
 
         val tile = game.playerAtTurn.heldTile
 
-        val result   : MutableList<Pair<Pair<AxialPos, Tile>,GameState> > = mutableListOf()
+        val result: MutableList<Pair<Pair<AxialPos, Tile>, GameState>> = mutableListOf()
 
-        if ( tile == null ){
+        if (tile == null) {
             return result
         }
 
@@ -222,13 +226,13 @@ class AIServices (private val rootService: RootService ) : AbstractRefreshingSer
                     rootService.playerService.moveGems(allValidPositions[j])
                 }
 
-                result.add(Pair(Pair(allValidPositions[j], allPossibleRotations[i]) ,getCurrentState()))
+                result.add(Pair(Pair(allValidPositions[j], allPossibleRotations[i]), getCurrentState()))
 
                 setCurrentState(oldGameState)
 
-                count+=1
+                count += 1
             }
-            count  = 0
+            count = 0
 
         }
         return result
@@ -345,7 +349,6 @@ class AIServices (private val rootService: RootService ) : AbstractRefreshingSer
     }
 
 
-
     /**
      * Generates a child node in the Monte Carlo Tree Search (MCTS).
      *
@@ -353,15 +356,15 @@ class AIServices (private val rootService: RootService ) : AbstractRefreshingSer
      * @param gameState The game state for the new child node.
      * @param action The action taken to reach the new state.
      */
-    fun generateChildNodes (parentNode : MontiCarloNode, gameState : GameState, action : Pair<AxialPos, Tile>){
+    fun generateChildNodes(parentNode: MontiCarloNode, gameState: GameState, action: Pair<AxialPos, Tile>) {
         // generate a Child Node
         val currentChildNode = MontiCarloNode()
         // set it current state to new state
-        currentChildNode.currentGameState  = gameState
+        currentChildNode.currentGameState = gameState
         // save the taken action
         currentChildNode.action = action
         // increment the depth
-        currentChildNode.currentDepth = parentNode.currentDepth+1
+        currentChildNode.currentDepth = parentNode.currentDepth + 1
         // add the current child to children of the parent node
         parentNode.children.add(currentChildNode)
         // set the parent of the child to the current parent
@@ -379,11 +382,11 @@ class AIServices (private val rootService: RootService ) : AbstractRefreshingSer
      *
      * @param currentNode The MonteCarloNode to expand.
      */
-    private fun montiCarloExpansion (currentNode : MontiCarloNode , butchSize : Int ){
+    private fun montiCarloExpansion(currentNode: MontiCarloNode, butchSize: Int) {
 
 
         // get all possible  moves and their next states
-        val allFutureStates :  MutableList<Pair<Pair<AxialPos, Tile>,GameState> >  = getAllPossibleNextStates()
+        val allFutureStates: MutableList<Pair<Pair<AxialPos, Tile>, GameState>> = getAllPossibleNextStates()
         // shuffle the list that contains all the next states
         // Shuffle the elements
         allFutureStates.shuffle()
@@ -409,21 +412,26 @@ class AIServices (private val rootService: RootService ) : AbstractRefreshingSer
      * @param currentNode The starting point for Monte Carlo Simulation.
      * @param batchSize The batch size representing the number of moves to consider in each step.
      */
-    private fun montiCarloSimulation(currentNode : MontiCarloNode, numberOfFutureSteps: Int ,batchSize: Int ):  MontiCarloNode {
+    private fun montiCarloSimulation(
+        currentNode: MontiCarloNode,
+        numberOfFutureSteps: Int,
+        batchSize: Int
+    ): MontiCarloNode {
 
         var startNode = currentNode
 
-        while (true ){
+        while (true) {
 
-            if((startNode.currentDepth == numberOfFutureSteps)
-                || findAllValidPositions().size==0 || startNode.currentGameState!!.drawStack.isEmpty()){
+            if ((startNode.currentDepth == numberOfFutureSteps)
+                || findAllValidPositions().size == 0 || startNode.currentGameState!!.drawStack.isEmpty()
+            ) {
                 return startNode
             }
 
             if (startNode.children.isEmpty()) {
-                montiCarloExpansion(startNode , batchSize )
+                montiCarloExpansion(startNode, batchSize)
 
-            }else{
+            } else {
                 startNode = selectNextState(startNode)
 
             }
@@ -436,15 +444,12 @@ class AIServices (private val rootService: RootService ) : AbstractRefreshingSer
     ///*********************Rami **************************
 
 
-    private fun assignReward(): Double{
+    private fun assignReward(): Double {
         // Checks if a game is running
         val game = rootService.currentGame
         checkNotNull(game) { "No game started yet." }
         return game.playerAtTurn.points.toDouble()
-        }
-
-
-
+    }
 
 
     /**
@@ -460,28 +465,28 @@ class AIServices (private val rootService: RootService ) : AbstractRefreshingSer
      * @return The root of the Monte Carlo Tree after backpropagation.
      * @throws IllegalStateException if no game is currently in progress.
      */
-    private fun backPropagation (currentNode: MontiCarloNode ) : MontiCarloNode{
+    private fun backPropagation(currentNode: MontiCarloNode): MontiCarloNode {
 
         val game = rootService.currentGame
         checkNotNull(game) { "No game started yet." }
-        var starting=currentNode
+        var starting = currentNode
 
         // the current leaf node visit is  not updated
         while (starting.parent != null) {
 
             // update the score
             starting.totalScore = assignReward()
-            starting.parent!!.totalScore  += starting.totalScore
+            starting.parent!!.totalScore += starting.totalScore
 
             // update visits
-            starting.visits+=1
+            starting.visits += 1
             starting.parent!!.visits += starting.visits
 
             // update the state
             setCurrentState(starting.parent!!.currentGameState!!)
             starting = starting.parent!!
         }
-        return  starting
+        return starting
 
     }
 
@@ -501,7 +506,7 @@ class AIServices (private val rootService: RootService ) : AbstractRefreshingSer
      * @return A Pair representing the selected action (position and rotated tile) for the trained agent.
      * @throws IllegalStateException if no game is currently in progress.
      */
-    fun trainMontiCarloAgent( simulationNumber :Int  , futureStepsNumber :Int , theBatchSize:Int): Pair<AxialPos, Tile>? {
+    fun trainMontiCarloAgent(simulationNumber: Int, futureStepsNumber: Int, theBatchSize: Int): Pair<AxialPos, Tile>? {
 
         // Checks if a game is running
         val game = rootService.currentGame
@@ -512,11 +517,11 @@ class AIServices (private val rootService: RootService ) : AbstractRefreshingSer
         initialStateNode.currentGameState = getCurrentState()
 
 
-        for (i in 0..simulationNumber){
+        for (i in 0..simulationNumber) {
 
-            val leafNode= montiCarloSimulation( initialStateNode, futureStepsNumber , theBatchSize   )
+            val leafNode = montiCarloSimulation(initialStateNode, futureStepsNumber, theBatchSize)
 
-            backPropagation(  leafNode )
+            backPropagation(leafNode)
 
         }
 
@@ -538,7 +543,7 @@ class AIServices (private val rootService: RootService ) : AbstractRefreshingSer
      *
      * @param currentNode The MinMaxNode to expand its children using the Minimax algorithm.
      */
-    private fun minMaxExpansion(currentNode  : MinMaxNode) {
+    private fun minMaxExpansion(currentNode: MinMaxNode) {
 
         currentNode.currentGameState = getCurrentState()
         currentNode.playerType = "Maximizer"
@@ -582,24 +587,22 @@ class AIServices (private val rootService: RootService ) : AbstractRefreshingSer
      * @param threshold The threshold for assigning scores to leaf nodes.
      * @return A MutableList containing the leaf nodes of the Minimax simulation.
      */
-    private fun minMaxSimulation (currentNode: MinMaxNode, threshold: Int ) : MutableList<MinMaxNode>{
-        val leafNode   = mutableListOf<MinMaxNode>()
+    private fun minMaxSimulation(currentNode: MinMaxNode, threshold: Int): MutableList<MinMaxNode> {
+        val leafNode = mutableListOf<MinMaxNode>()
 
-        if (currentNode.children.size == 0 ){ // leaf node
-            currentNode.score  = assignRewardMinMax( threshold )
+        if (currentNode.children.size == 0) { // leaf node
+            currentNode.score = assignRewardMinMax(threshold)
             currentNode.parent?.let { leafNode.add(it) }
         }
 
         var start = currentNode
-        for (child  in start.children  ){
+        for (child in start.children) {
             start = child
             minMaxExpansion(start)
-            minMaxSimulation ( start ,threshold )
+            minMaxSimulation(start, threshold)
         }
         return leafNode
     }
-
-
 
 
     /**
@@ -613,21 +616,21 @@ class AIServices (private val rootService: RootService ) : AbstractRefreshingSer
      * @param nodeList A MutableList containing the leaf nodes of the Minimax tree.
      */
 
-    private fun  minMaxBackpropagation (nodeList : MutableList<MinMaxNode>){
+    private fun minMaxBackpropagation(nodeList: MutableList<MinMaxNode>) {
 
         var currentNode: MinMaxNode
-        for( node in nodeList){
+        for (node in nodeList) {
             currentNode = node
-            while ( currentNode.parent!!.parent != null ) {
+            while (currentNode.parent!!.parent != null) {
 
                 if (currentNode.playerType == "Maximizer") {
                     val selectedChild: MinMaxNode = node.children.minBy { child -> child.score }
-                    currentNode.score  = selectedChild.score
+                    currentNode.score = selectedChild.score
                     currentNode = currentNode.parent!!
 
-                }else{
+                } else {
                     val selectedChild: MinMaxNode = node.children.maxBy { child -> child.score }
-                    currentNode.score  = selectedChild.score
+                    currentNode.score = selectedChild.score
                     currentNode = currentNode.parent!!
                 }
             }
@@ -646,14 +649,14 @@ class AIServices (private val rootService: RootService ) : AbstractRefreshingSer
      * @return A Double representing the assigned reward value based on the comparison.
      * @throws IllegalStateException if no game is currently in progress.
      */
-    private fun assignRewardMinMax (gemsThreshold: Int ): Double{
+    private fun assignRewardMinMax(gemsThreshold: Int): Double {
         // Checks if a game is running
         val game = rootService.currentGame
         checkNotNull(game) { "No game started yet." }
-        if (  game.playerAtTurn.points.toDouble()  < gemsThreshold ){
+        if (game.playerAtTurn.points.toDouble() < gemsThreshold) {
             // assign negative value
             return -1.0
-        }else {
+        } else {
             return 1.0
         }
 
@@ -670,19 +673,19 @@ class AIServices (private val rootService: RootService ) : AbstractRefreshingSer
      *
      * @return A Pair representing the chosen action (position and rotated tile) for the trained agent.
      */
-    fun trainMinMax ( ): Pair<AxialPos, Tile>? {
+    fun trainMinMax(): Pair<AxialPos, Tile>? {
 
-        val threshold  =  2
+        val threshold = 2
         // here the train min max
-        val currentState  =  MinMaxNode()
+        val currentState = MinMaxNode()
         currentState.currentGameState = getCurrentState()
         currentState.playerType = "Maximizer"
         //  simulation
-        val resultList  = minMaxSimulation(currentState  , threshold  )
+        val resultList = minMaxSimulation(currentState, threshold)
         // backpropagation
         minMaxBackpropagation(resultList)
         // choose the best action
-        val chosenNextState : MinMaxNode  = currentState.children.maxBy { child -> child.score }
+        val chosenNextState: MinMaxNode = currentState.children.maxBy { child -> child.score }
 
         return chosenNextState.action
 
