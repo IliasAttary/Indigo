@@ -11,16 +11,16 @@ import entity.*
  */
 class PlayerService(private val rootService:RootService) : AbstractRefreshingService() {
 
-    val neighborOffsetMap = mapOf(    0 to AxialPos(q=1,  r=-1),
-                                        1 to AxialPos(q=1,  r=0),
-                                        2 to  AxialPos(q=0,  r=1),
-                                        3 to  AxialPos(q=-1, r=1),
-                                        4 to  AxialPos(q=-1, r=0),
-                                        5 to  AxialPos(q=0,  r=-1))
+    val neighborOffsetMap = mapOf(      0 to AxialPos(q=0,  r=-1),
+                                        1 to AxialPos(q=1,  r=-1),
+                                        2 to  AxialPos(q=1,  r=0),
+                                        3 to  AxialPos(q=0, r=1),
+                                        4 to  AxialPos(q=-1, r=1),
+                                        5 to  AxialPos(q=-1,  r=0))
 
     val treasureTilePaths = mapOf(
-        0 to 2,
-        2 to 0,
+        1 to 5,
+        5 to 1,
     )
 
     /**
@@ -377,6 +377,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
                         owner.points += gem.points
 
                     }
+                    game.currentGems.remove(gem)
                     break
                 }
                     else{
@@ -403,6 +404,9 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
                 currentGemPos = nextGemPosition
 
             }
+        }
+        if(game.currentGems.size == 0){
+            rootService.gameService.endGame()
         }
     }
     private fun calculateNewGemPositions(placedTile:RouteTile,
@@ -441,8 +445,9 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
             // check for collision on path
             if (placedTile.gemPositions.containsKey(direction)) {
                 // remove other gem
-                placedTile.gemPositions.remove(direction)
                 newGemPositions.remove(direction)
+                game.currentGems.remove(placedTile.gemPositions.remove(direction)!!)
+                game.currentGems.remove(gem)
                 continue
             }
 
