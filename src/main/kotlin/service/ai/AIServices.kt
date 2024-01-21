@@ -244,9 +244,6 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
         val tile = game.playerAtTurn.heldTile
         requireNotNull(tile) { "The current player has no tile" }
 
-
-        rootService.playerService.drawTile()
-
         while (true) {
             // get all possible rotations for the current tile
             val allPossibleRotations = getAllTilePossibleRotations(tile)
