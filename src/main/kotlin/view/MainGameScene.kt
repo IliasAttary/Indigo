@@ -6,6 +6,7 @@ import tools.aqua.bgw.components.container.HexagonGrid
 import tools.aqua.bgw.components.gamecomponentviews.HexagonView
 import tools.aqua.bgw.components.uicomponents.Button
 import tools.aqua.bgw.components.uicomponents.Label
+import tools.aqua.bgw.core.Alignment
 import tools.aqua.bgw.core.BoardGameScene
 import tools.aqua.bgw.style.BackgroundRadius
 import tools.aqua.bgw.style.BorderRadius
@@ -127,6 +128,24 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
     )
 
     /**
+     *  Shows the name of the first player
+     */
+    private val firstPlayerNameLabel = Label(
+        posX = firstPlayerColor.posX + 50,
+        posY = firstPlayerColor.posY,
+        width = 300,
+        height = 60,
+        font = Font(
+            size = 30.0,
+            fontStyle = Font.FontStyle.ITALIC,
+            color = Color.WHITE,
+            fontWeight = Font.FontWeight.BOLD
+        )
+    ).apply {
+        isVisible = false
+    }
+
+    /**
      *  Shows the current player
      */
     private val currentPlayerIndicator = Label(
@@ -160,6 +179,24 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
     )
 
     /**
+     *  Shows the name of the second player
+     */
+    private val secondPlayerNameLabel = Label(
+        posX = secondPlayerColor.posX + 50,
+        posY = secondPlayerColor.posY,
+        width = 300,
+        height = 60,
+        font = Font(
+            size = 30.0,
+            fontStyle = Font.FontStyle.ITALIC,
+            color = Color.WHITE,
+            fontWeight = Font.FontWeight.BOLD
+        )
+    ).apply {
+        isVisible = false
+    }
+
+    /**
      *  shows the heldTile of the second player.
      */
     private var secondPlayerHeldTileView = HexagonView(
@@ -180,6 +217,24 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         width = 60,
         height = 60
     )
+
+    /**
+     *  Shows the name of the third player
+     */
+    private val thirdPlayerNameLabel = Label(
+        posX = thirdPlayerColor.posX + 50,
+        posY = thirdPlayerColor.posY,
+        width = 300,
+        height = 60,
+        font = Font(
+            size = 30.0,
+            fontStyle = Font.FontStyle.ITALIC,
+            color = Color.WHITE,
+            fontWeight = Font.FontWeight.BOLD
+        )
+    ).apply {
+        isVisible = false
+    }
 
     /**
      *  shows the heldTile of the third player.
@@ -203,6 +258,24 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         width = 60,
         height = 60
     )
+
+    /**
+     *  Shows the name of the fourth player
+     */
+    private val fourthPlayerNameLabel = Label(
+        posX = fourthPlayerColor.posX + 50,
+        posY = fourthPlayerColor.posY,
+        width = 300,
+        height = 60,
+        font = Font(
+            size = 30.0,
+            fontStyle = Font.FontStyle.ITALIC,
+            color = Color.WHITE,
+            fontWeight = Font.FontWeight.BOLD
+        )
+    ).apply {
+        isVisible = false
+    }
 
     /**
      *  shows the heldTile of the fourth player.
@@ -477,6 +550,8 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             checkNotNull(currenTile)
             currenTile.rotation = (currenTile.rotation + 1) % 6
             updateHeldTiles()
+            checkTiles()
+            markForbiddenTiles = true
         }
     }
 
@@ -504,6 +579,8 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
                 5 -> currenTile.rotation = 4
             }
             updateHeldTiles()
+            checkTiles()
+            markForbiddenTiles = true
         }
     }
 
@@ -522,6 +599,18 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
     ).apply {
         rotation = 30.0
     }
+
+    /**
+     *  Background Image for the board
+     */
+    private var boardBackground = Label(
+        posX = firstPlayerHeldTileView.posX + 120,
+        posY = firstPlayerHeldTileView.posY - 120,
+        width = 1110,
+        height = 1090,
+        visual = ImageVisual("board_background.png"),
+        alignment = Alignment.CENTER
+    )
 
     // background image with black overlay
     private val blackOverlay = ColorVisual(color = Color.black).apply { transparency = 0.7 }
@@ -544,6 +633,26 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
      *  Variable for storing whether the illegal Tiles should be shown or not.
      */
     private var markForbiddenTiles = false
+
+    /**
+     *  Variable for storing whether the first players name or gem count should be shown
+     */
+    private var showFirstPlayerName = false
+
+    /**
+     *  Variable for storing whether the second players name or gem count should be shown
+     */
+    private var showSecondPlayerName = false
+
+    /**
+     *  Variable for storing whether the third players name or gem count should be shown
+     */
+    private var showThirdPlayerName = false
+
+    /**
+     *  Variable for storing whether the fourth players name or gem count should be shown
+     */
+    private var showFourthPlayerName = false
 
     /**
      *  List of the all the player gem labels
@@ -773,13 +882,16 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         firstPlayerColor.apply {
             visual = ImageVisual("color_${(game.currentPlayers[0].color).toString().lowercase()}.png")
         }
+        firstPlayerNameLabel.text = game.currentPlayers[0].name
         secondPlayerColor.apply {
             visual = ImageVisual("color_${(game.currentPlayers[1].color).toString().lowercase()}.png")
         }
+        secondPlayerNameLabel.text = game.currentPlayers[1].name
         if (game.currentPlayers.size > 2) {
             thirdPlayerColor.apply {
                 visual = ImageVisual("color_${(game.currentPlayers[2].color).toString().lowercase()}.png")
             }
+            thirdPlayerNameLabel.text = game.currentPlayers[2].name
             thirdPlayerSapphires.isVisible = true
             thirdPlayerEmeralds.isVisible = true
             thirdPlayerAmbers.isVisible = true
@@ -789,6 +901,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             fourthPlayerColor.apply {
                 visual = ImageVisual("color_${(game.currentPlayers[3].color).toString().lowercase()}.png")
             }
+            fourthPlayerNameLabel.text = game.currentPlayers[3].name
             fourthPlayerSapphires.isVisible = true
             fourthPlayerEmeralds.isVisible = true
             fourthPlayerAmbers.isVisible = true
@@ -854,6 +967,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         background = backgroundOverlay
 
         addComponents(
+            boardBackground,
             gameBoard,
             undoButton,
             redoButton,
@@ -886,8 +1000,84 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             firstPlayerHeldTileView,
             secondPlayerHeldTileView,
             thirdPlayerHeldTileView,
-            fourthPlayerHeldTileView
+            fourthPlayerHeldTileView,
+            firstPlayerNameLabel,
+            secondPlayerNameLabel,
+            thirdPlayerNameLabel,
+            fourthPlayerNameLabel
         )
+
+        firstPlayerColor.apply {
+            onMouseClicked = {
+                showFirstPlayerName = !showFirstPlayerName
+                if (showFirstPlayerName) {
+                    firstPlayerNameLabel.isVisible = true
+                    firstPlayerSapphires.isVisible = false
+                    firstPlayerEmeralds.isVisible = false
+                    firstPlayerAmbers.isVisible = false
+                } else {
+                    firstPlayerNameLabel.isVisible = false
+                    firstPlayerSapphires.isVisible = true
+                    firstPlayerEmeralds.isVisible = true
+                    firstPlayerAmbers.isVisible = true
+                }
+
+            }
+        }
+
+        secondPlayerColor.apply {
+            onMouseClicked = {
+                showSecondPlayerName = !showSecondPlayerName
+                if (showSecondPlayerName) {
+                    secondPlayerNameLabel.isVisible = true
+                    secondPlayerSapphires.isVisible = false
+                    secondPlayerEmeralds.isVisible = false
+                    secondPlayerAmbers.isVisible = false
+                } else {
+                    secondPlayerNameLabel.isVisible = false
+                    secondPlayerSapphires.isVisible = true
+                    secondPlayerEmeralds.isVisible = true
+                    secondPlayerAmbers.isVisible = true
+                }
+
+            }
+        }
+
+        thirdPlayerColor.apply {
+            onMouseClicked = {
+                showThirdPlayerName = !showThirdPlayerName
+                if (showThirdPlayerName) {
+                    thirdPlayerNameLabel.isVisible = true
+                    thirdPlayerSapphires.isVisible = false
+                    thirdPlayerEmeralds.isVisible = false
+                    thirdPlayerAmbers.isVisible = false
+                } else {
+                    thirdPlayerNameLabel.isVisible = false
+                    thirdPlayerSapphires.isVisible = true
+                    thirdPlayerEmeralds.isVisible = true
+                    thirdPlayerAmbers.isVisible = true
+                }
+
+            }
+        }
+
+        fourthPlayerColor.apply {
+            onMouseClicked = {
+                showFourthPlayerName = !showFourthPlayerName
+                if (showFourthPlayerName) {
+                    fourthPlayerNameLabel.isVisible = true
+                    fourthPlayerSapphires.isVisible = false
+                    fourthPlayerEmeralds.isVisible = false
+                    fourthPlayerAmbers.isVisible = false
+                } else {
+                    fourthPlayerNameLabel.isVisible = false
+                    fourthPlayerSapphires.isVisible = true
+                    fourthPlayerEmeralds.isVisible = true
+                    fourthPlayerAmbers.isVisible = true
+                }
+
+            }
+        }
 
         currentPlayerHeldTileView.apply {
             onMouseClicked = {
