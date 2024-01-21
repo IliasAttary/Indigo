@@ -65,24 +65,6 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
 
 
     /**
-     * Checks whether two game states are equal by comparing their individual components.
-     *used this function just for  the verification of the backpropagation
-     * This function compares the board, draw stack, players, and gems of two given game states
-     * to determine if they are identical.
-     *
-     * @param gameState1 The first GameState to compare.
-     * @param gameState2 The second GameState to compare.
-     * @return `true` if the specified game states are equal, `false` otherwise.
-     */
-    fun areGameStatesEqual(gameState1: GameState, gameState2: GameState): Boolean {
-        return (gameState1.board == gameState2.board
-                && gameState1.drawStack == gameState2.drawStack
-                && gameState1.players == gameState2.players
-                && gameState1.gems == gameState2.gems)
-    }
-
-
-    /**
      * Finds all valid positions on the game board that are currently unoccupied.
      *
      * This function generates all possible game positions using the `generateAllGamePositions` method,
@@ -265,21 +247,27 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
 
         rootService.playerService.drawTile()
 
-        // get all possible rotations for the current tile
-        val allPossibleRotations = getAllTilePossibleRotations(tile)
+        while (true) {
+            // get all possible rotations for the current tile
+            val allPossibleRotations = getAllTilePossibleRotations(tile)
 
-        //get all valid positions  where the tile can be place
-        val allValidPositions = findAllValidPositions()
+            //get all valid positions where the tile can be place
+            val allValidPositions = findAllValidPositions()
 
-        // choose randomly a  rotation of the tile
-        val tileRotation = allPossibleRotations.random()
+            // choose randomly a rotation of the tile
+            val tileRotation = allPossibleRotations.random()
 
-        // choose random positions to place the tile
-        val tilePosition = allValidPositions.random()
+            // choose random positions to place the tile
+            val tilePosition = allValidPositions.random()
 
-        return Pair(tilePosition, tileRotation)
-
+            // Check if the chosen position and rotation result in a valid placement
+            if (rootService.playerService.checkPlacement(tilePosition)) {
+                return Pair(tilePosition, tileRotation)
+            }
+        }
     }
+
+
 
 
     /**
@@ -566,9 +554,9 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
             // set  also the type of the new node
             if (currentNode.parent != null) {
                 if (currentNode.parent!!.playerType == "Maximizer") {
-                    currentNode.playerType == "Minimizer"
+                    currentNode.playerType = "Minimizer"
                 } else {
-                    currentNode.playerType == "Maximizer"
+                    currentNode.playerType = "Maximizer"
                 }
             }
 
@@ -653,11 +641,11 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
         // Checks if a game is running
         val game = rootService.currentGame
         checkNotNull(game) { "No game started yet." }
-        if (game.playerAtTurn.points.toDouble() < gemsThreshold) {
+        return if (game.playerAtTurn.points.toDouble() < gemsThreshold) {
             // assign negative value
-            return -1.0
+            -1.0
         } else {
-            return 1.0
+            1.0
         }
 
     }

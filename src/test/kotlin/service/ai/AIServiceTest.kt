@@ -51,10 +51,13 @@ class AIServiceTest {
 
         assertTrue { rootService.playerService.checkPlacement(move.first) }
 
-        rootService.playerService.placeTile(AxialPos(1, -1))
+        if (rootService.playerService.checkPlacement(AxialPos(1,-1))) {
+            rootService.playerService.placeTile(AxialPos(1, -1))
+        }
 
-        rootService.playerService.placeTile(AxialPos(-1, 4))
-
+        if (rootService.playerService.checkPlacement(AxialPos(-1,4))) {
+            rootService.playerService.placeTile(AxialPos(-1, 4))
+        }
         move = aiServices.playRandomly()
 
         assertTrue { rootService.playerService.checkPlacement(move.first) }
