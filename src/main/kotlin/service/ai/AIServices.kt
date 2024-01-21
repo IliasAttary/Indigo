@@ -426,9 +426,6 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
     }
 
 
-    ///*********************Rami **************************
-
-
     private fun assignReward(): Double {
         // Checks if a game is running
         val game = rootService.currentGame
@@ -510,7 +507,9 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
 
         }
 
-        return selectNextState(initialStateNode).action
+        game.currentBoard.remove(selectFinalState(initialStateNode).action!!.first)
+
+        return selectFinalState(initialStateNode).action
 
     }
 

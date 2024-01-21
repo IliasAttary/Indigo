@@ -154,13 +154,17 @@ class AIMonteCarloTest {
 
         val game = rootService.currentGame
         checkNotNull(game)
-        val result = aiServices.trainMontiCarloAgent(2, 2, 2)
+        val result = aiServices.trainMontiCarloAgent(5, 5, 10)
 
         if (result != null) {
             println("Selected Action: ${result.first} with Rotation: ${result.second.rotation}")
-        } else {
-            println("No action selected.")
         }
+        println(game.currentDrawStack.size)
+        println(game.currentBoard.size)
+
+        rootService.playerService.checkPlacement(result!!.first)
+
+        rootService.playerService.placeTile(result.first)
     }
 
 }
