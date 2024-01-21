@@ -282,8 +282,12 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         // Refresh GUI
         onAllRefreshables { refreshAfterPlaceTile(coordinates) }
 
-        // Swap current player
-        changePlayer()
+        if (game.currentGems.isEmpty()) {
+            rootService.gameService.endGame()
+        } else {
+            // Swap current player
+            changePlayer()
+        }
     }
 
     /**
@@ -404,9 +408,6 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
                 currentGemPos = nextGemPosition
 
             }
-        }
-        if(game.currentGems.size == 0){
-            rootService.gameService.endGame()
         }
     }
     private fun calculateNewGemPositions(placedTile:RouteTile,
