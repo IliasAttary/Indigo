@@ -11,16 +11,16 @@ import entity.*
  */
 class PlayerService(private val rootService:RootService) : AbstractRefreshingService() {
 
-    val neighborOffsetMap = mapOf(    0 to AxialPos(q=1,  r=-1),
-                                        1 to AxialPos(q=1,  r=0),
-                                        2 to  AxialPos(q=0,  r=1),
-                                        3 to  AxialPos(q=-1, r=1),
-                                        4 to  AxialPos(q=-1, r=0),
-                                        5 to  AxialPos(q=0,  r=-1))
+    val neighborOffsetMap = mapOf(      0 to AxialPos(q=0,  r=-1),
+                                        1 to AxialPos(q=1,  r=-1),
+                                        2 to  AxialPos(q=1,  r=0),
+                                        3 to  AxialPos(q=0, r=1),
+                                        4 to  AxialPos(q=-1, r=1),
+                                        5 to  AxialPos(q=-1,  r=0))
 
     val treasureTilePaths = mapOf(
-        0 to 2,
-        2 to 0,
+        1 to 5,
+        5 to 1,
     )
 
     /**
@@ -63,6 +63,8 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         else{
             game.playerAtTurn = game.currentPlayers[indexOfCurrentPlayer + 1]
         }
+
+        onAllRefreshables { refreshAfterChangePlayer() }
     }
     /**
      * change the current player to the previous player if undo was called
@@ -80,6 +82,8 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         else{
             game.playerAtTurn = game.currentPlayers[indexOfCurrentPlayer - 1]
         }
+
+        onAllRefreshables { refreshAfterChangePlayer() }
     }
     /**
      * undo enables the player to go back to the last step
@@ -201,61 +205,25 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
      * @param atGate The gate number to determine which specific paths to check.
      * @return Returns true if the paths at the specified gate is not in the list, otherwise false.
      */
-    private fun checkPathsAtEdge(paths : MutableList<Pair<Int,Int>>, atGate : Int) : Boolean{
-        when(atGate){
-            1 -> {
-                for(path in paths){
-                    if(path.first == 0 && path.second == 1){
-                        return false
-                    }
-                }
-            }
-
-            2 -> {
-                for(path in paths){
-                    if(path.first == 1 && path.second == 2){
-                        return false
-                    }
-                }
-            }
-
-            3 -> {
-                for(path in paths){
-                    if(path.first == 2 && path.second == 3){
-                        return false
-                    }
-                }
-            }
-
-            4 -> {
-                for(path in paths){
-                    if(path.first == 3 && path.second == 4){
-                        return false
-                    }
-                }
-            }
-
-            5 -> {
-                for(path in paths){
-                    if(path.first == 4 && path.second == 5){
-                        return false
-                    }
-                }
-            }
-
-            6 -> {
-                for(path in paths){
-                    if(path.first == 5 && path.second == 0){
-                        return false
-                    }
-                }
-            }
-
-            else -> {return true}
+    private fun checkPathsAtEdge(paths: MutableList<Pair<Int, Int>>, atGate: Int): Boolean {
+        if (atGate == 0) {
+            return true
         }
 
-        return true
+        val edgeConditions = listOf(
+            0 to 1,
+            1 to 2,
+            2 to 3,
+            3 to 4,
+            4 to 5,
+            5 to 0
+        )
+
+        return paths.none { path ->
+            path.first == edgeConditions[atGate - 1].first && path.second == edgeConditions[atGate - 1].second
+        }
     }
+
 
     /**
      * Places a tile on the game board at the specified coordinates.
@@ -302,6 +270,11 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
 
         // Place tile
         game.currentBoard[coordinates] = tile
+
+        // If network game, notify others of placed tile
+        if (rootService.networkService.connectionState == ConnectionState.PLAYING_MY_TURN) {
+            rootService.networkService.sendPlacedTile(coordinates)
+        }
 
         // Move Gems
         moveGems(coordinates)
@@ -370,49 +343,8 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         require(placedTile != null && placedTile is RouteTile ){"placedTile is null or not RouteTile"}
 
         val placedTilePaths = tilePathsWithRotation(placedTile.tileType.paths, placedTile.rotation)
-        val newGemPositions = mutableListOf<Int>() // the positions of the gems that have been moved to the placed tile
-
-        for ((direction, neighborOffset) in neighborOffsetMap){
-            val neighborPos = coordinates + neighborOffset
-            val neighbor = game.currentBoard[neighborPos]
-
-            if (neighbor == null ) {
-                continue
-            }
-
-            val oppositeDirection = (direction + 3) % 6
-
-            val gem = if (neighbor is RouteTile) {
-                neighbor.gemPositions.remove(oppositeDirection)
-            } else if (neighbor is TreasureTile) {
-                if (neighbor.gems != null) {
-                    neighbor.gems.removeLastOrNull()
-                } else {
-                    neighbor.gemPositions?.remove(oppositeDirection)
-                }
-            } else {
-                continue
-            }
-
-            if (gem == null) {
-                continue
-            }
-
-            // check for collision on path
-            if (placedTile.gemPositions.containsKey(direction)) {
-                // remove other gem
-                placedTile.gemPositions.remove(direction)
-                newGemPositions.remove(direction)
-                continue
-            }
-
-            // move gem over to the current tile, to the end of the path
-            val endPosition = placedTilePaths[direction]
-            if(endPosition != null) {
-                placedTile.gemPositions[endPosition] = gem
-                newGemPositions.add(endPosition)
-            }
-        }
+        // the positions of the gems that have been moved to the placed tile
+        val newGemPositions = calculateNewGemPositions(placedTile,placedTilePaths,coordinates)
 
         // move gems to their final destination
 
@@ -445,6 +377,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
                         owner.points += gem.points
 
                     }
+                    game.currentGems.remove(gem)
                     break
                 }
                     else{
@@ -472,5 +405,60 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
 
             }
         }
+        if(game.currentGems.size == 0){
+            rootService.gameService.endGame()
+        }
+    }
+    private fun calculateNewGemPositions(placedTile:RouteTile,
+                                 placedTilePaths:Map<Int,Int> ,
+                                 coordinates : AxialPos):MutableList<Int>{
+        val game = rootService.currentGame
+        checkNotNull(game)
+        val newGemPositions = mutableListOf<Int>()
+
+        for ((direction, neighborOffset) in neighborOffsetMap){
+            val neighborPos = coordinates + neighborOffset
+            val neighbor = game.currentBoard[neighborPos]
+
+            if (neighbor == null ) {
+                continue
+            }
+
+            val oppositeDirection = (direction + 3) % 6
+
+            val gem = if (neighbor is RouteTile) {
+                neighbor.gemPositions.remove(oppositeDirection)
+            } else if (neighbor is TreasureTile) {
+                if (neighbor.gems != null) {
+                    neighbor.gems.removeLastOrNull()
+                } else {
+                    neighbor.gemPositions?.remove(oppositeDirection)
+                }
+            } else {
+                continue
+            }
+
+            if (gem == null) {
+                continue
+            }
+
+            // check for collision on path
+            if (placedTile.gemPositions.containsKey(direction)) {
+                // remove other gem
+                newGemPositions.remove(direction)
+                game.currentGems.remove(placedTile.gemPositions.remove(direction)!!)
+                game.currentGems.remove(gem)
+                continue
+            }
+
+            // move gem over to the current tile, to the end of the path
+            val endPosition = placedTilePaths[direction]
+            if(endPosition != null) {
+                placedTile.gemPositions[endPosition] = gem
+                newGemPositions.add(endPosition)
+            }
+        }
+
+        return newGemPositions
     }
 }

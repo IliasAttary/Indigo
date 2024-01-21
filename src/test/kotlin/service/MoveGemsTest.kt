@@ -99,6 +99,8 @@ class MoveGemsTest {
         val game = testRootService.currentGame
         checkNotNull(game)
 
+        game.playerAtTurn.heldTile = RouteTile(TileType.TILE0)
+
         val placedTile = game.playerAtTurn.heldTile
         testRootService.playerService.placeTile(AxialPos(1,-1))
 
@@ -132,6 +134,8 @@ class MoveGemsTest {
         val game = testRootService.currentGame
         checkNotNull(game)
 
+        game.playerAtTurn.heldTile = RouteTile(TileType.TILE0)
+
         val firstPlacedTile = game.playerAtTurn.heldTile
 
         //same move as in the test before
@@ -142,6 +146,7 @@ class MoveGemsTest {
             assertEquals(1, firstPlacedTile.gemPositions.size)
         }
 
+        game.playerAtTurn.heldTile = RouteTile(TileType.TILE1)
         val secondPlacedTile = game.playerAtTurn.heldTile
 
         // place the second tile (second Player)

@@ -52,6 +52,11 @@ class CheckPlacementTest {
             sharedGates = false
         )
 
+        val game = rootService.currentGame
+        checkNotNull(game)
+
+        game.currentPlayers[0].heldTile = null
+
         assertFailsWith<IllegalArgumentException> {
             playerService.checkPlacement(AxialPos(1, 2))
         }
