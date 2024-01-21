@@ -1,6 +1,7 @@
 package service
 
-import entity.*
+import entity.Game
+import service.ai.AIServices
 import view.Refreshable
 
 /**
@@ -13,7 +14,7 @@ class RootService {
     val gameService = GameService(this)
     val playerService = PlayerService(this)
     val networkService = NetworkService(this)
-
+    val aiServices = AIServices(this )
     /**
      * The currently active game. Can be `null`, if no game has started yet.
      */
