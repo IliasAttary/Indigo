@@ -128,6 +128,17 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
     )
 
     /**
+     *  Shows the current player
+     */
+    private val currentPlayerIndicator = Label(
+        posX = (firstPlayerColor.posX - 10),
+        posY = (firstPlayerColor.posY - 10),
+        width = 600,
+        height = 80,
+        visual = ImageVisual("currentPlayerIndicator.png")
+    )
+
+    /**
      *  Shows the first players color
      */
     private val secondPlayerColor = Label(
@@ -417,7 +428,12 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         visual = ImageVisual("arrow-right.png")
     ).apply {
         onMouseClicked = {
-            heldTileView.rotation = (heldTileView.rotation + 60) % 60
+            val game = rootService.currentGame
+            checkNotNull(game)
+            heldTileView.rotation += 60
+            val currenTile = game.playerAtTurn.heldTile
+            checkNotNull(currenTile)
+            currenTile.rotation = (currenTile.rotation + 1) % 6
         }
     }
 
@@ -432,21 +448,13 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         visual = ImageVisual("arrow-left.png")
     ).apply {
         onMouseClicked = {
-            heldTileView.rotation = (heldTileView.rotation - 60) % 60
+            val game = rootService.currentGame
+            checkNotNull(game)
+            heldTileView.rotation -= 60
+            val currenTile = game.playerAtTurn.heldTile
+            checkNotNull(currenTile)
+            currenTile.rotation = (currenTile.rotation - 1) % 6
         }
-    }
-
-    /**
-     *  shows the heldTile of the current player.
-     */
-    private var heldTileView = HexagonView(
-        posX = 160,
-        posY = 700,
-        size = 120,
-        visual = ColorVisual(Color(235, 230, 188))
-    ).apply {
-        rotation = 30.0
-        isDraggable = true
     }
 
     /**
@@ -467,28 +475,22 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
 
     // background image with black overlay
     private val blackOverlay = ColorVisual(color = Color.black).apply { transparency = 0.7 }
+
     private val backgroundOverlay = CompoundVisual(children = listOf(ImageVisual("background.png"), blackOverlay))
 
-
     /**
-     *  Updates the heldTileView to the current players held tile.
+     *  shows the heldTile of the current player.
      */
-    private fun updateHeldTile() {
-        val game = rootService.currentGame
-        checkNotNull(game)
-        val player = game.playerAtTurn
-        heldTileView = HexagonView(
-            posX = 160,
-            posY = 700,
-            size = 120,
-            visual = ImageVisual("${player.heldTile?.tileType.toString().lowercase()}.png")
-        ).apply {
-            rotation = 30.0
-            isDraggable = true
-        }
-        println("${player.heldTile?.tileType.toString().lowercase()}.png")
-        println("heldTileView visual = ${heldTileView.visual}")
+    private var heldTileView = HexagonView(
+        posX = 160,
+        posY = 700,
+        size = 120,
+        visual = ColorVisual(Color(235, 230, 188))
+    ).apply {
+        rotation = 30.0
+        isDraggable = true
     }
+
 
     /**
      *  Determines the Tile on the specified coordinates is a Treasure tile and returns the corresponding View for it,
@@ -539,22 +541,49 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
                     ColorVisual(Color(235, 230, 188)),
                     TextVisual(
                         text = "($q, $r)",
-                        font = Font(15.0, fontStyle = Font.FontStyle.ITALIC, color = Color.BLACK)
+                        font = Font(15.0, fontStyle = Font.FontStyle.ITALIC, color = Color.BLACK),
                     )
                 )
-            )
+            ).apply {
+                onMouseClicked = {
+                    refreshAfterPlaceTile(AxialPos(q, r))
+                }
+
+                onMouseEntered = {
+                    scale = 1.2
+                }
+
+                onMouseExited = {
+                    scale = 1.0
+                }
+            }
         }
         return hexagon
     }
 
     /**
-     *  Marks all Tiles that are not available for placement by making them opaque and
-     *  defines the drag & drop to be able to place the heldTile on all other tiles
+     *  Updates the heldTileView to the current players held tile.
      */
-    private fun checkTiles() {
+    private fun updateHeldTile() {
         val game = rootService.currentGame
         checkNotNull(game)
-        var currentBoardTile: Tile?
+        val player = game.playerAtTurn
+        println("before: ${player.heldTile?.tileType.toString().lowercase()}.png")
+        heldTileView.visual = ImageVisual("${player.heldTile?.tileType.toString().lowercase()}.png")
+        println("after: ${player.heldTile?.tileType.toString().lowercase()}.png")
+    }
+
+    /**
+     *  Updates the counters for all player gems
+     */
+    private fun updatePlayerGems() {
+
+    }
+
+    /**
+     *  Marks all Tiles that are not available for placement by making them opaque.
+     */
+    private fun checkTiles() {
         val size = 4
         for (q in -size..size) {
             for (r in -size..size) {
@@ -562,28 +591,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
                     if (!rootService.playerService.checkPlacement(AxialPos(q, r))) {
                         gameBoard[q, r].apply {
                             opacity = 0.5
-                        }
-                    } else {
-                        gameBoard[q, r]?.apply {
-                            dropAcceptor = { dragEvent ->
-                                when (dragEvent.draggedComponent) {
-                                    is HexagonView -> true
-                                    else -> false
-                                }
-                            }
-                            onDragDropped = {
-                                visual = heldTileView.visual
-                                rootService.playerService.placeTile(AxialPos(q, r))
-                                currentBoardTile = game.currentBoard[AxialPos(q, r)]
-                                checkNotNull(currentBoardTile)
-                                tileMap.add(currentBoardTile!!, this)
-                                // TESTING
-                                rootService.playerService.drawTile()
-                                updateHeldTile()
-                                heldTileView.scale = 1.0
-                                unmarkTiles()
-                                println("heldTileView PosX after: ${heldTileView.posX}")
-                            }
                         }
                     }
                 }
@@ -671,6 +678,54 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         updateHeldTile()
     }
 
+    override fun refreshAfterPlaceTile(position: AxialPos) {
+        val game = rootService.currentGame
+        checkNotNull(game)
+        val heldTileVisual = heldTileView.visual
+        var placedTile: Tile?
+        // TODO: DRAW TILE ENTFERNEN NACH MERGE
+        rootService.playerService.drawTile()
+        updateHeldTile()
+        if (rootService.playerService.checkPlacement(position)) {
+            // Place the tile on the service layer game board
+            rootService.playerService.placeTile(position)
+
+            // Get the GUI gameBoard and update the Tiles visual there
+            val gameBoardTile = gameBoard[position.q, position.r]
+            checkNotNull(gameBoardTile)
+            gameBoardTile.visual = heldTileVisual
+            placedTile = game.currentBoard[position]
+            checkNotNull(placedTile)
+            // Add the newly placed tile to the tileMap with its corresponding View Element
+            tileMap.add(placedTile, gameBoardTile)
+            rootService.playerService.drawTile()
+            updateHeldTile()
+        }
+    }
+
+    override fun refreshAfterChangePlayer() {
+        val game = rootService.currentGame
+        checkNotNull(game)
+        // list of Y positions
+        val posYList =
+            listOf(
+                firstPlayerColor.posY - 10,
+                secondPlayerColor.posY - 10,
+                thirdPlayerColor.posY - 10,
+                fourthPlayerColor.posY - 10
+            )
+        // find current pos
+        val playerCount = game.currentPlayers.size
+        var currentPlayerPos = 0
+        for (i in 0 until playerCount) {
+            if (posYList[i] == currentPlayerIndicator.posY)
+                currentPlayerPos = i
+        }
+        // Update the indicators position
+        currentPlayerIndicator.posY = posYList[(currentPlayerPos + 1) % playerCount]
+    }
+
+
     init {
         background = backgroundOverlay
 
@@ -687,6 +742,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             blueGemIndicator,
             greenGemIndicator,
             yellowGemIndicator,
+            currentPlayerIndicator,
             firstPlayerColor,
             secondPlayerColor,
             thirdPlayerColor,
@@ -706,11 +762,11 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         )
 
         heldTileView.apply {
-
-            onDragGestureStarted = {
-                println("heldTileView PosX before: $posX")
-                scale = 0.57
+            onMouseEntered = {
                 checkTiles()
+            }
+            onMouseExited = {
+                unmarkTiles()
             }
         }
     }
