@@ -1,7 +1,6 @@
 package view
 
-import entity.AxialPos
-import entity.Tile
+import entity.*
 import service.RootService
 import tools.aqua.bgw.components.container.HexagonGrid
 import tools.aqua.bgw.components.gamecomponentviews.HexagonView
@@ -139,6 +138,18 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
     )
 
     /**
+     *  shows the heldTile of the first player.
+     */
+    private var firstPlayerHeldTileView = HexagonView(
+        posX = firstPlayerColor.posX + 500,
+        posY = firstPlayerColor.posY - 10,
+        size = 40,
+        visual = ColorVisual(Color(235, 230, 188))
+    ).apply {
+        rotation = 30.0
+    }
+
+    /**
      *  Shows the first players color
      */
     private val secondPlayerColor = Label(
@@ -147,6 +158,18 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         width = 60,
         height = 60
     )
+
+    /**
+     *  shows the heldTile of the second player.
+     */
+    private var secondPlayerHeldTileView = HexagonView(
+        posX = firstPlayerHeldTileView.posX,
+        posY = secondPlayerColor.posY - 10,
+        size = firstPlayerHeldTileView.size,
+        visual = ColorVisual(Color(235, 230, 188))
+    ).apply {
+        rotation = 30.0
+    }
 
     /**
      *  Shows the first players color
@@ -159,6 +182,19 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
     )
 
     /**
+     *  shows the heldTile of the third player.
+     */
+    private var thirdPlayerHeldTileView = HexagonView(
+        posX = secondPlayerHeldTileView.posX,
+        posY = thirdPlayerColor.posY - 10,
+        size = firstPlayerHeldTileView.size,
+        visual = ColorVisual(Color(235, 230, 188))
+    ).apply {
+        rotation = 30.0
+        isVisible = false
+    }
+
+    /**
      *  Shows the first players color
      */
     private val fourthPlayerColor = Label(
@@ -167,6 +203,25 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         width = 60,
         height = 60
     )
+
+    /**
+     *  shows the heldTile of the fourth player.
+     */
+    private var fourthPlayerHeldTileView = HexagonView(
+        posX = thirdPlayerHeldTileView.posX,
+        posY = fourthPlayerColor.posY - 10,
+        size = firstPlayerHeldTileView.size,
+        visual = ColorVisual(Color(235, 230, 188))
+    ).apply {
+        rotation = 30.0
+        isVisible = false
+    }
+
+    /**
+     *  List of all the players HeldTileView elements
+     */
+    private val playerHeldTileList =
+        listOf(firstPlayerHeldTileView, secondPlayerHeldTileView, thirdPlayerHeldTileView, fourthPlayerHeldTileView)
 
     /**
      *  Blue Gem indicates how many sapphires the players collected
@@ -209,9 +264,8 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         posY = firstPlayerColor.posY,
         width = 60,
         height = 60,
-        text = "1",
         font = Font(
-            size = 20.0,
+            size = 30.0,
             fontStyle = Font.FontStyle.ITALIC,
             color = Color.WHITE,
             fontWeight = Font.FontWeight.BOLD
@@ -226,9 +280,8 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         posY = firstPlayerColor.posY,
         width = 60,
         height = 60,
-        text = "2",
         font = Font(
-            size = 20.0,
+            size = 30.0,
             fontStyle = Font.FontStyle.ITALIC,
             color = Color.WHITE,
             fontWeight = Font.FontWeight.BOLD
@@ -243,9 +296,8 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         posY = firstPlayerColor.posY,
         width = 60,
         height = 60,
-        text = "3",
         font = Font(
-            size = 20.0,
+            size = 30.0,
             fontStyle = Font.FontStyle.ITALIC,
             color = Color.WHITE,
             fontWeight = Font.FontWeight.BOLD
@@ -260,9 +312,8 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         posY = secondPlayerColor.posY,
         width = 60,
         height = 60,
-        text = "1",
         font = Font(
-            size = 20.0,
+            size = 30.0,
             fontStyle = Font.FontStyle.ITALIC,
             color = Color.WHITE,
             fontWeight = Font.FontWeight.BOLD
@@ -277,9 +328,8 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         posY = secondPlayerColor.posY,
         width = 60,
         height = 60,
-        text = "2",
         font = Font(
-            size = 20.0,
+            size = 30.0,
             fontStyle = Font.FontStyle.ITALIC,
             color = Color.WHITE,
             fontWeight = Font.FontWeight.BOLD
@@ -294,9 +344,8 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         posY = secondPlayerColor.posY,
         width = 60,
         height = 60,
-        text = "3",
         font = Font(
-            size = 20.0,
+            size = 30.0,
             fontStyle = Font.FontStyle.ITALIC,
             color = Color.WHITE,
             fontWeight = Font.FontWeight.BOLD
@@ -311,9 +360,8 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         posY = thirdPlayerColor.posY,
         width = 60,
         height = 60,
-        text = "1",
         font = Font(
-            size = 20.0,
+            size = 30.0,
             fontStyle = Font.FontStyle.ITALIC,
             color = Color.WHITE,
             fontWeight = Font.FontWeight.BOLD
@@ -330,9 +378,8 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         posY = thirdPlayerColor.posY,
         width = 60,
         height = 60,
-        text = "2",
         font = Font(
-            size = 20.0,
+            size = 30.0,
             fontStyle = Font.FontStyle.ITALIC,
             color = Color.WHITE,
             fontWeight = Font.FontWeight.BOLD
@@ -349,9 +396,8 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         posY = thirdPlayerColor.posY,
         width = 60,
         height = 60,
-        text = "3",
         font = Font(
-            size = 20.0,
+            size = 30.0,
             fontStyle = Font.FontStyle.ITALIC,
             color = Color.WHITE,
             fontWeight = Font.FontWeight.BOLD
@@ -368,9 +414,8 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         posY = fourthPlayerColor.posY,
         width = 60,
         height = 60,
-        text = "1",
         font = Font(
-            size = 20.0,
+            size = 30.0,
             fontStyle = Font.FontStyle.ITALIC,
             color = Color.WHITE,
             fontWeight = Font.FontWeight.BOLD
@@ -387,9 +432,8 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         posY = fourthPlayerColor.posY,
         width = 60,
         height = 60,
-        text = "2",
         font = Font(
-            size = 20.0,
+            size = 30.0,
             fontStyle = Font.FontStyle.ITALIC,
             color = Color.WHITE,
             fontWeight = Font.FontWeight.BOLD
@@ -406,9 +450,8 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         posY = fourthPlayerColor.posY,
         width = 60,
         height = 60,
-        text = "3",
         font = Font(
-            size = 20.0,
+            size = 30.0,
             fontStyle = Font.FontStyle.ITALIC,
             color = Color.WHITE,
             fontWeight = Font.FontWeight.BOLD
@@ -418,7 +461,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
     }
 
     /**
-     *  Rotates the heldTileView 60 Degrees to the right.
+     *  Rotates the currentPlayerHeldTileView 60 Degrees to the right.
      */
     private val rightTurnButton = Button(
         width = 150,
@@ -430,15 +473,15 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         onMouseClicked = {
             val game = rootService.currentGame
             checkNotNull(game)
-            heldTileView.rotation += 60
             val currenTile = game.playerAtTurn.heldTile
             checkNotNull(currenTile)
             currenTile.rotation = (currenTile.rotation + 1) % 6
+            updateHeldTiles()
         }
     }
 
     /**
-     *  Rotates the heldTileView 60 Degrees to the left.
+     *  Rotates the currentPlayerHeldTileView 60 Degrees to the left.
      */
     private val leftTurnButton = Button(
         width = 150,
@@ -450,10 +493,17 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         onMouseClicked = {
             val game = rootService.currentGame
             checkNotNull(game)
-            heldTileView.rotation -= 60
             val currenTile = game.playerAtTurn.heldTile
             checkNotNull(currenTile)
-            currenTile.rotation = (currenTile.rotation - 1) % 6
+            when (currenTile.rotation) {
+                0 -> currenTile.rotation = 5
+                1 -> currenTile.rotation = 0
+                2 -> currenTile.rotation = 1
+                3 -> currenTile.rotation = 2
+                4 -> currenTile.rotation = 3
+                5 -> currenTile.rotation = 4
+            }
+            updateHeldTiles()
         }
     }
 
@@ -466,7 +516,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
      *  View element representing the game board.
      */
     private val gameBoard: HexagonGrid<HexagonView> = HexagonGrid<HexagonView>(
-        posX = 2160 / 2,
+        posX = 1180,
         posY = 450,
         coordinateSystem = HexagonGrid.CoordinateSystem.AXIAL
     ).apply {
@@ -481,16 +531,29 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
     /**
      *  shows the heldTile of the current player.
      */
-    private var heldTileView = HexagonView(
+    private var currentPlayerHeldTileView = HexagonView(
         posX = 160,
         posY = 700,
         size = 120,
         visual = ColorVisual(Color(235, 230, 188))
     ).apply {
         rotation = 30.0
-        isDraggable = true
     }
 
+    /**
+     *  Variable for storing whether the illegal Tiles should be shown or not.
+     */
+    private var markForbiddenTiles = false
+
+    /**
+     *  List of the all the player gem labels
+     */
+    private val playerGemLabels = listOf(
+        listOf(firstPlayerSapphires, firstPlayerEmeralds, firstPlayerAmbers),
+        listOf(secondPlayerSapphires, secondPlayerEmeralds, secondPlayerAmbers),
+        listOf(thirdPlayerSapphires, thirdPlayerEmeralds, thirdPlayerAmbers),
+        listOf(fourthPlayerSapphires, fourthPlayerEmeralds, fourthPlayerAmbers),
+    )
 
     /**
      *  Determines the Tile on the specified coordinates is a Treasure tile and returns the corresponding View for it,
@@ -550,7 +613,8 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
                 }
 
                 onMouseEntered = {
-                    scale = 1.2
+                    if (rootService.playerService.checkPlacement(AxialPos(q, r)))
+                        scale = 1.2
                 }
 
                 onMouseExited = {
@@ -562,15 +626,38 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
     }
 
     /**
-     *  Updates the heldTileView to the current players held tile.
+     *  Updates the heldTileViews for all players to the currently held Tile.
      */
-    private fun updateHeldTile() {
+    private fun updateHeldTiles() {
         val game = rootService.currentGame
         checkNotNull(game)
-        val player = game.playerAtTurn
-        println("before: ${player.heldTile?.tileType.toString().lowercase()}.png")
-        heldTileView.visual = ImageVisual("${player.heldTile?.tileType.toString().lowercase()}.png")
-        println("after: ${player.heldTile?.tileType.toString().lowercase()}.png")
+        var player: Player
+        var heldTile: RouteTile?
+        var imagePath: String
+
+        // Get current player count
+        val playerCount = game.currentPlayers.size
+
+        // Update the heldTileView for all players in the List
+        for (i in 0 until playerCount) {
+            player = game.currentPlayers[i]
+            heldTile = game.currentPlayers[i].heldTile
+            if (heldTile != null) {
+                imagePath = "${heldTile.tileType.toString().lowercase()}_${heldTile.rotation}.png"
+                playerHeldTileList[i].visual = ImageVisual(imagePath)
+            } else {
+                playerHeldTileList[i].visual = ColorVisual(Color.BLACK)
+            }
+
+            // Update the heldTileView for the currently active player
+            if (player == game.playerAtTurn) {
+                if (heldTile != null) {
+                    imagePath = "${heldTile.tileType.toString().lowercase()}_${heldTile.rotation}.png"
+                    currentPlayerHeldTileView.visual = ImageVisual(imagePath)
+                } else
+                    currentPlayerHeldTileView.visual = ColorVisual(Color.BLACK)
+            }
+        }
     }
 
     /**
@@ -578,6 +665,30 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
      */
     private fun updatePlayerGems() {
 
+        // Variables for storing the gems and their counts
+        var collectedGems: MutableMap<Gem, Int>
+        var collectedSapphires: Int?
+        var collectedEmeralds: Int?
+        var collectedAmbers: Int?
+
+        val game = rootService.currentGame
+        checkNotNull(game)
+        val playerCount = game.currentPlayers.size
+        for (i in 0 until playerCount) {
+            // Get the currently inspected Players collectedGems
+            collectedGems = game.currentPlayers[i].collectedGems
+            // Get the distinct gem Types and ensure they are not null
+            collectedSapphires = collectedGems[Gem.SAPPHIRE]
+            collectedEmeralds = collectedGems[Gem.EMERALD]
+            collectedAmbers = collectedGems[Gem.AMBER]
+            checkNotNull(collectedSapphires)
+            checkNotNull(collectedEmeralds)
+            checkNotNull(collectedAmbers)
+            // Update the players gem counts
+            playerGemLabels[i][0].text = collectedSapphires.toString()
+            playerGemLabels[i][1].text = collectedEmeralds.toString()
+            playerGemLabels[i][2].text = collectedAmbers.toString()
+        }
     }
 
     /**
@@ -588,11 +699,16 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         for (q in -size..size) {
             for (r in -size..size) {
                 if (q + r <= size && q + r >= -size) {
+                    // Mark all tiles where the currently held tile can not be placed
                     if (!rootService.playerService.checkPlacement(AxialPos(q, r))) {
-                        gameBoard[q, r].apply {
+                        gameBoard[q, r]?.apply {
                             opacity = 0.5
                         }
-                    }
+                    } else
+                    // Unmark all other tiles
+                        gameBoard[q, r]?.apply {
+                            opacity = 1.0
+                        }
                 }
             }
         }
@@ -606,7 +722,8 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         for (q in -size..size) {
             for (r in -size..size) {
                 if (q + r <= size && q + r >= -size) {
-                    gameBoard[q, r].apply {
+                    // unmark all tiles
+                    gameBoard[q, r]?.apply {
                         opacity = 1.0
                     }
                 }
@@ -631,10 +748,14 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             for (q in -size..size) {
                 for (r in -size..size) {
                     if (q + r <= size && q + r >= -size) {
+                        // Set the hexagon view element with the right attributes
                         hexagon = getInitialTileView(q, r)
+                        // Overwrite the current View in the grid
                         this[q, r] = hexagon
+                        // Get the current Board tile and View Element
                         currentBoardTile = game.currentBoard[AxialPos(q, r)]
                         currentHexagonView = this[q, r]
+                        // update the tileMap with the Tile and View Element if a tile exists on AxialPos(q,r)
                         checkNotNull(currentHexagonView)
                         if (currentBoardTile != null)
                             tileMap.add(currentBoardTile, currentHexagonView)
@@ -648,6 +769,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         val game = rootService.currentGame
         checkNotNull(game)
 
+        // Set the player Colors and if playerCount = 3/4 show the third/fourth player colors and heldTileView
         firstPlayerColor.apply {
             visual = ImageVisual("color_${(game.currentPlayers[0].color).toString().lowercase()}.png")
         }
@@ -661,6 +783,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             thirdPlayerSapphires.isVisible = true
             thirdPlayerEmeralds.isVisible = true
             thirdPlayerAmbers.isVisible = true
+            thirdPlayerHeldTileView.isVisible = true
         }
         if (game.currentPlayers.size == 4) {
             fourthPlayerColor.apply {
@@ -669,23 +792,20 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             fourthPlayerSapphires.isVisible = true
             fourthPlayerEmeralds.isVisible = true
             fourthPlayerAmbers.isVisible = true
+            fourthPlayerHeldTileView.isVisible = true
         }
-
-
+        // Initialize the board, show the heldTiles of all players and set the gem count to 0
         initializeGameBoard()
-        // TESTING
-        rootService.playerService.drawTile()
-        updateHeldTile()
+        updateHeldTiles()
+        updatePlayerGems()
     }
 
     override fun refreshAfterPlaceTile(position: AxialPos) {
         val game = rootService.currentGame
         checkNotNull(game)
-        val heldTileVisual = heldTileView.visual
+        val heldTileVisual = currentPlayerHeldTileView.visual
         var placedTile: Tile?
-        // TODO: DRAW TILE ENTFERNEN NACH MERGE
-        rootService.playerService.drawTile()
-        updateHeldTile()
+        updateHeldTiles()
         if (rootService.playerService.checkPlacement(position)) {
             // Place the tile on the service layer game board
             rootService.playerService.placeTile(position)
@@ -698,8 +818,9 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             checkNotNull(placedTile)
             // Add the newly placed tile to the tileMap with its corresponding View Element
             tileMap.add(placedTile, gameBoardTile)
-            rootService.playerService.drawTile()
-            updateHeldTile()
+            updateHeldTiles()
+            updatePlayerGems()
+            unmarkTiles()
         }
     }
 
@@ -723,6 +844,9 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         }
         // Update the indicators position
         currentPlayerIndicator.posY = posYList[(currentPlayerPos + 1) % playerCount]
+
+        // Set the currentPlayerHeldTile rotation back to 30
+        currentPlayerHeldTileView.rotation = 30.0
     }
 
 
@@ -738,7 +862,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             quitButton,
             rightTurnButton,
             leftTurnButton,
-            heldTileView,
+            currentPlayerHeldTileView,
             blueGemIndicator,
             greenGemIndicator,
             yellowGemIndicator,
@@ -758,15 +882,20 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             thirdPlayerAmbers,
             fourthPlayerSapphires,
             fourthPlayerEmeralds,
-            fourthPlayerAmbers
+            fourthPlayerAmbers,
+            firstPlayerHeldTileView,
+            secondPlayerHeldTileView,
+            thirdPlayerHeldTileView,
+            fourthPlayerHeldTileView
         )
 
-        heldTileView.apply {
-            onMouseEntered = {
-                checkTiles()
-            }
-            onMouseExited = {
-                unmarkTiles()
+        currentPlayerHeldTileView.apply {
+            onMouseClicked = {
+                markForbiddenTiles = !markForbiddenTiles
+                if (markForbiddenTiles)
+                    checkTiles()
+                else
+                    unmarkTiles()
             }
         }
     }

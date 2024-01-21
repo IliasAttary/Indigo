@@ -57,10 +57,14 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
 
         preGameMenuScene.startButton.onMouseClicked = {
             if (preGameMenuScene.gameMode == "host") {
-                // NETWORK
+                // TODO: ADD HOST NAME AND SESSION ID FIELD
+                rootService.networkService.hostGame("?", "panda", "session1")
             }
 
             if (preGameMenuScene.gameMode == "join") {
+                val gameID = preGameMenuScene.gameIDField.text.trim()
+                val playerName = preGameMenuScene.playerNameField.text.trim()
+                rootService.networkService.joinGame("?", playerName, gameID)
                 refreshAfterJoiningGame(newGameMenuScene.actualPlayerNames)
             }
 
@@ -118,7 +122,7 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
 
         rules.returnButton.onMouseClicked = { this.hideMenuScene() }
 
-        endGameMenuScene.quitButton.onMouseClicked = { exit()}
+        endGameMenuScene.quitButton.onMouseClicked = { exit() }
         endGameMenuScene.startButton.onMouseClicked = { this.showMenuScene(preGameMenuScene) }
     }
 
@@ -126,6 +130,7 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
         this.hideMenuScene()
         this.showGameScene(mainGameScene)
     }
+
     override fun refreshAfterEndGame(players: List<Player>) {
         this.showMenuScene(endGameMenuScene)
     }

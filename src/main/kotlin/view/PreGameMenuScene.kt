@@ -78,7 +78,7 @@ class PreGameMenuScene : MenuScene(1920, 1080), Refreshable {
     /**
      *  Text field for the player to enter their name.
      */
-    private var playerNameField = TextField(
+    var playerNameField = TextField(
         posX = (1920 - 300) / 2,
         posY = 520,
         width = 300,
@@ -104,7 +104,7 @@ class PreGameMenuScene : MenuScene(1920, 1080), Refreshable {
     /**
      *  Text field for the player to enter the GameID.
      */
-    private var gameIDField = TextField(
+    var gameIDField = TextField(
         posX = (1920 - 300) / 2,
         posY = 680,
         width = 300,
