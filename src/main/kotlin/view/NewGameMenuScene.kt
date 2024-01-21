@@ -690,7 +690,7 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
         height = 40,
         posX = playerColorLabel.posX + 10,
         posY = fourthPlayerNameField.posY + 120,
-        items = listOf("50 ms", "100 ms", "150 ms", "200 ms", "500 ms"),
+        items = listOf("3000 ms", "5000 ms", "7000 ms", "10000 ms"),
         prompt = "  Select AI Speed:",
         font = Font(size = 20, fontWeight = Font.FontWeight.SEMI_BOLD)
     ).apply {

@@ -604,13 +604,13 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
      *  Background Image for the board
      */
     private var boardBackground = Label(
-        posX = firstPlayerHeldTileView.posX + 120,
-        posY = firstPlayerHeldTileView.posY - 120,
+        posX = firstPlayerHeldTileView.posX + 123,
+        posY = firstPlayerHeldTileView.posY - 122,
         width = 1110,
         height = 1090,
         visual = ImageVisual("board_background.png"),
         alignment = Alignment.CENTER
-    )
+    )//.apply { isVisible = false }
 
     // background image with black overlay
     private val blackOverlay = ColorVisual(color = Color.black).apply { transparency = 0.7 }
@@ -628,6 +628,151 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
     ).apply {
         rotation = 30.0
     }
+
+    /**
+     *  Displays the first gates color one
+     */
+    private var gateOneOne = Label(
+        posX = 1375,
+        posY = 45,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_white.png"),
+        text = "1_1"
+    )
+
+    /**
+     *  Displays the first gates color two
+     */
+    private var gateOneTwo = Label(
+        posX = 1480,
+        posY = 104,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_white.png"),
+        text = "1_2"
+    )
+
+    /**
+     *  Displays the second gates color one
+     */
+    private var gateTwoOne = Label(
+        posX = 1678,
+        posY = 452,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_white.png"),
+        text = "2_1"
+    )
+
+    /**
+     *  Displays the second gates color two
+     */
+    private var gateTwoTwo = Label(
+        posX = 1678,
+        posY = 570,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_white.png"),
+        text = "2_2"
+    )
+
+    /**
+     *  Displays the third gates color one
+     */
+    private var gateThreeOne = Label(
+        posX = 1477,
+        posY = 920,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_white.png"),
+        text = "3_1"
+    )
+
+    /**
+     *  Displays the third gates color two
+     */
+    private var gateThreeTwo = Label(
+        posX = 1374,
+        posY = 979,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_white.png"),
+        text = "3_2"
+    )
+
+    /**
+     *  Displays the fourth gates color one
+     */
+    private var gateFourOne = Label(
+        posX = 975,
+        posY = 980,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_white.png"),
+        text = "4_1"
+    )
+
+    /**
+     *  Displays the fourth gates color two
+     */
+    private var gateFourTwo = Label(
+        posX = 870,
+        posY = 921,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_white.png"),
+        text = "4_2"
+    )
+
+    /**
+     *  Displays the fifth gates color one
+     */
+    private var gateFiveOne = Label(
+        posX = 675,
+        posY = gateTwoOne.posY,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_white.png"),
+        text = "5_1"
+    )
+
+    /**
+     *  Displays the fifth gates color two
+     */
+    private var gateFiveTwo = Label(
+        posX = 675,
+        posY = gateTwoTwo.posY,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_white.png"),
+        text = "5_2"
+    )
+
+    /**
+     *  Displays the sixth gates color one
+     */
+    private var gateSixOne = Label(
+        posX = gateFourTwo.posX + 2,
+        posY = gateOneTwo.posY + 2,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_white.png"),
+        text = "6_1"
+    )
+
+    /**
+     *  Displays the sixth gates color two
+     */
+    private var gateSixTwo = Label(
+        posX = gateFourOne.posX,
+        posY = gateOneOne.posY,
+        width = 60,
+        height = 60,
+        visual = ImageVisual("color_white.png"),
+        text = "6_2"
+    )
+
 
     /**
      *  Variable for storing whether the illegal Tiles should be shown or not.
@@ -1004,7 +1149,19 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             firstPlayerNameLabel,
             secondPlayerNameLabel,
             thirdPlayerNameLabel,
-            fourthPlayerNameLabel
+            fourthPlayerNameLabel,
+            gateOneOne,
+            gateOneTwo,
+            gateTwoOne,
+            gateTwoTwo,
+            gateThreeOne,
+            gateThreeTwo,
+            gateFourOne,
+            gateFourTwo,
+            gateFiveOne,
+            gateFiveTwo,
+            gateSixOne,
+            gateSixTwo
         )
 
         firstPlayerColor.apply {
