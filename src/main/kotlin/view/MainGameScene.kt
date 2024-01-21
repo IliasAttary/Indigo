@@ -1019,6 +1019,100 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         }
     }
 
+    /**
+     *  Sets the corresponding gate colors for each game mode.
+     */
+    private fun initializeGateColors() {
+        val game = rootService.currentGame
+        checkNotNull(game)
+
+        val playerCount = game.currentPlayers.size
+
+        if (playerCount == 2) {
+            // Set the first gate colors
+            gateOneOne.visual = ImageVisual("color_${game.currentPlayers[0].color.toString().lowercase()}.png")
+            gateOneTwo.visual = ImageVisual("color_${game.currentPlayers[0].color.toString().lowercase()}.png")
+            // Set the Second gate colors
+            gateTwoOne.visual = ImageVisual("color_${game.currentPlayers[1].color.toString().lowercase()}.png")
+            gateTwoTwo.visual = ImageVisual("color_${game.currentPlayers[1].color.toString().lowercase()}.png")
+            // Set the third gate colors
+            gateThreeOne.visual = ImageVisual("color_${game.currentPlayers[0].color.toString().lowercase()}.png")
+            gateThreeTwo.visual = ImageVisual("color_${game.currentPlayers[0].color.toString().lowercase()}.png")
+            // Set the fourth gate colors
+            gateFourOne.visual = ImageVisual("color_${game.currentPlayers[1].color.toString().lowercase()}.png")
+            gateFourTwo.visual = ImageVisual("color_${game.currentPlayers[1].color.toString().lowercase()}.png")
+            // Set the fifth gate colors
+            gateFiveOne.visual = ImageVisual("color_${game.currentPlayers[0].color.toString().lowercase()}.png")
+            gateFiveTwo.visual = ImageVisual("color_${game.currentPlayers[0].color.toString().lowercase()}.png")
+            // Set the sixth gate colors
+            gateSixOne.visual = ImageVisual("color_${game.currentPlayers[1].color.toString().lowercase()}.png")
+            gateSixTwo.visual = ImageVisual("color_${game.currentPlayers[1].color.toString().lowercase()}.png")
+        }
+        if (playerCount == 3 && game.sharedGates) {
+            // Set the first gate colors
+            gateOneOne.visual = ImageVisual("color_${game.currentPlayers[0].color.toString().lowercase()}.png")
+            gateOneTwo.visual = ImageVisual("color_${game.currentPlayers[0].color.toString().lowercase()}.png")
+            // Set the Second gate colors
+            gateTwoOne.visual = ImageVisual("color_${game.currentPlayers[0].color.toString().lowercase()}.png")
+            gateTwoTwo.visual = ImageVisual("color_${game.currentPlayers[1].color.toString().lowercase()}.png")
+            // Set the third gate colors
+            gateThreeOne.visual = ImageVisual("color_${game.currentPlayers[2].color.toString().lowercase()}.png")
+            gateThreeTwo.visual = ImageVisual("color_${game.currentPlayers[2].color.toString().lowercase()}.png")
+            // Set the fourth gate colors
+            gateFourOne.visual = ImageVisual("color_${game.currentPlayers[2].color.toString().lowercase()}.png")
+            gateFourTwo.visual = ImageVisual("color_${game.currentPlayers[0].color.toString().lowercase()}.png")
+            // Set the fifth gate colors
+            gateFiveOne.visual = ImageVisual("color_${game.currentPlayers[1].color.toString().lowercase()}.png")
+            gateFiveTwo.visual = ImageVisual("color_${game.currentPlayers[1].color.toString().lowercase()}.png")
+            // Set the sixth gate colors
+            gateSixOne.visual = ImageVisual("color_${game.currentPlayers[1].color.toString().lowercase()}.png")
+            gateSixTwo.visual = ImageVisual("color_${game.currentPlayers[2].color.toString().lowercase()}.png")
+
+        }
+        if (playerCount == 3 && !game.sharedGates) {
+            // Set the first gate colors
+            gateOneOne.visual = ImageVisual("color_${game.currentPlayers[0].color.toString().lowercase()}.png")
+            gateOneTwo.visual = ImageVisual("color_${game.currentPlayers[1].color.toString().lowercase()}.png")
+            // Set the Second gate colors
+            gateTwoOne.visual = ImageVisual("color_${game.currentPlayers[2].color.toString().lowercase()}.png")
+            gateTwoTwo.visual = ImageVisual("color_${game.currentPlayers[0].color.toString().lowercase()}.png")
+            // Set the third gate colors
+            gateThreeOne.visual = ImageVisual("color_${game.currentPlayers[1].color.toString().lowercase()}.png")
+            gateThreeTwo.visual = ImageVisual("color_${game.currentPlayers[2].color.toString().lowercase()}.png")
+            // Set the fourth gate colors
+            gateFourOne.visual = ImageVisual("color_${game.currentPlayers[0].color.toString().lowercase()}.png")
+            gateFourTwo.visual = ImageVisual("color_${game.currentPlayers[1].color.toString().lowercase()}.png")
+            // Set the fifth gate colors
+            gateFiveOne.visual = ImageVisual("color_${game.currentPlayers[2].color.toString().lowercase()}.png")
+            gateFiveTwo.visual = ImageVisual("color_${game.currentPlayers[0].color.toString().lowercase()}.png")
+            // Set the sixth gate colors
+            gateSixOne.visual = ImageVisual("color_${game.currentPlayers[1].color.toString().lowercase()}.png")
+            gateSixTwo.visual = ImageVisual("color_${game.currentPlayers[2].color.toString().lowercase()}.png")
+
+        }
+        if (playerCount == 4) {
+            // Set the first gate colors
+            gateOneOne.visual = ImageVisual("color_${game.currentPlayers[0].color.toString().lowercase()}.png")
+            gateOneTwo.visual = ImageVisual("color_${game.currentPlayers[1].color.toString().lowercase()}.png")
+            // Set the Second gate colors
+            gateTwoOne.visual = ImageVisual("color_${game.currentPlayers[1].color.toString().lowercase()}.png")
+            gateTwoTwo.visual = ImageVisual("color_${game.currentPlayers[2].color.toString().lowercase()}.png")
+            // Set the third gate colors
+            gateThreeOne.visual = ImageVisual("color_${game.currentPlayers[0].color.toString().lowercase()}.png")
+            gateThreeTwo.visual = ImageVisual("color_${game.currentPlayers[3].color.toString().lowercase()}.png")
+            // Set the fourth gate colors
+            gateFourOne.visual = ImageVisual("color_${game.currentPlayers[3].color.toString().lowercase()}.png")
+            gateFourTwo.visual = ImageVisual("color_${game.currentPlayers[1].color.toString().lowercase()}.png")
+            // Set the fifth gate colors
+            gateFiveOne.visual = ImageVisual("color_${game.currentPlayers[2].color.toString().lowercase()}.png")
+            gateFiveTwo.visual = ImageVisual("color_${game.currentPlayers[1].color.toString().lowercase()}.png")
+            // Set the sixth gate colors
+            gateSixOne.visual = ImageVisual("color_${game.currentPlayers[2].color.toString().lowercase()}.png")
+            gateSixTwo.visual = ImageVisual("color_${game.currentPlayers[3].color.toString().lowercase()}.png")
+
+        }
+    }
+
     override fun refreshAfterNewGame() {
         val game = rootService.currentGame
         checkNotNull(game)
@@ -1054,6 +1148,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         }
         // Initialize the board, show the heldTiles of all players and set the gem count to 0
         initializeGameBoard()
+        initializeGateColors()
         updateHeldTiles()
         updatePlayerGems()
     }
