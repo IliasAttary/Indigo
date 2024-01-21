@@ -328,7 +328,7 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
         } ?: throw IllegalStateException("the current child has no  children § ")
 
         // this ensures moving to the new state
-        setCurrentState(nextState.currentGameState!!)
+        //setCurrentState(nextState.currentGameState!!)
 
         return nextState
     }
@@ -507,9 +507,9 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
 
         }
 
-        game.currentBoard.remove(selectFinalState(initialStateNode).action!!.first)
+        game.currentBoard.remove(selectNextState(initialStateNode).action!!.first)
 
-        return selectFinalState(initialStateNode).action
+        return selectNextState(initialStateNode).action
 
     }
 
