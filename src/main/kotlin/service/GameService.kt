@@ -303,9 +303,6 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
      */
     fun save() {
         val file = File("saveGame.ser")
-        val json = Json {
-            allowStructuredMapKeys = true
-        }
         file.writeText(json.encodeToString(rootService.currentGame))
     }
 
@@ -314,10 +311,67 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
      */
     fun load() {
         val file = File("saveGame.ser")
-        val json = Json {
+        val game = json.decodeFromString<Game>(file.readText())
+        fixPlayerReferences(game)
+        rootService.currentGame = game
+        onAllRefreshables { refreshAfterLoadGame() }
+    }
+
+    /**
+     * Creates a clone of the current game state.
+     *
+     * @return cloned game state
+     *
+     * @throws IllegalStateException if no game has started yet
+     */
+    fun cloneGameState(): GameState {
+        val game = rootService.currentGame
+
+        checkNotNull(game) {
+            "No game started yet."
+        }
+
+        val clonedGame = json.decodeFromString<Game>(json.encodeToString(game))
+        fixPlayerReferences(clonedGame)
+
+        return GameState(
+            board = clonedGame.currentBoard,
+            drawStack = clonedGame.currentDrawStack,
+            players = clonedGame.currentPlayers,
+            playerAtTurn = clonedGame.playerAtTurn,
+            gems = clonedGame.currentGems,
+        )
+    }
+
+    companion object {
+        /**
+         * The json instance to encode/decode the Game object
+         */
+        private val json = Json {
             allowStructuredMapKeys = true
         }
-        rootService.currentGame = json.decodeFromString<Game>(file.readText())
-        onAllRefreshables { refreshAfterLoadGame() }
+
+        /**
+         * Fix the player references, so they are all the same instances for the same player name.
+         *
+         * @param game the game to fix
+         */
+        private fun fixPlayerReferences(game: Game) {
+            game.playerAtTurn = game.currentPlayers.first { originalPlayer ->
+                originalPlayer.name == game.playerAtTurn.name
+            }
+
+            for ((pos, tile) in game.currentBoard) {
+                if (tile !is GatewayTile) {
+                    continue
+                }
+
+                val originalOwners = tile.ownedBy.map { clonedPlayer ->
+                    game.currentPlayers.first { originalPlayer -> originalPlayer.name == clonedPlayer.name }
+                }
+
+                game.currentBoard[pos] = GatewayTile(originalOwners, tile.gate)
+            }
+        }
     }
 }

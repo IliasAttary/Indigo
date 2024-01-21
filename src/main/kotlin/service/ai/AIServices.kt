@@ -159,7 +159,7 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
         for (element in game.currentGems) {
             currentGems.add(element)
         }
-        return GameState(currentBoard, currentDrawStack, game.currentPlayers, currentGems)
+        return GameState(currentBoard, currentDrawStack, game.currentPlayers, game.playerAtTurn, currentGems)
     }
 
     /**
