@@ -66,6 +66,9 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
         //refresh view layer
         onAllRefreshables { refreshAfterNewGame() }
 
+        if (rootService.currentGame!!.playerAtTurn.isAI){
+            rootService.playerService.placeTileAi()
+        }
     }
 
     /**
