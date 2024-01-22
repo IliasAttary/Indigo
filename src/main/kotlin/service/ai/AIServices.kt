@@ -508,8 +508,11 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
         }
 
         game.currentBoard.remove(selectNextState(initialStateNode).action!!.first)
-
-        return selectNextState(initialStateNode).action
+        return if (rootService.playerService.checkPlacement(selectNextState(initialStateNode).action!!.first)) {
+            selectNextState(initialStateNode).action
+        }else{
+            trainMontiCarloAgent(simulationNumber, futureStepsNumber, theBatchSize)
+        }
 
     }
 
