@@ -80,6 +80,11 @@ interface Refreshable {
     fun refreshAfterJoiningGame(playerNames: List<String>) {}
 
     /**
+     * Updates the UI whenever a Gem is moved
+     */
+    fun refreshAfterMoveGems(){}
+
+    /**
      * Called when a player rotates his held tile.
      * This method should update the UI with the new rotation of the tile.
      */

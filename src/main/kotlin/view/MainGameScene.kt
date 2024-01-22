@@ -10,6 +10,7 @@ import tools.aqua.bgw.core.BoardGameScene
 import tools.aqua.bgw.style.BackgroundRadius
 import tools.aqua.bgw.style.BorderRadius
 import tools.aqua.bgw.util.BidirectionalMap
+import tools.aqua.bgw.util.Coordinate
 import tools.aqua.bgw.util.Font
 import tools.aqua.bgw.visual.ColorVisual
 import tools.aqua.bgw.visual.CompoundVisual
@@ -523,6 +524,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         rotation = 30.0
     }
 
+
     // background image with black overlay
     private val blackOverlay = ColorVisual(color = Color.black).apply { transparency = 0.7 }
 
@@ -763,7 +765,9 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
                 }
             }
         }
+
     }
+
 
     override fun refreshAfterNewGame() {
         val game = rootService.currentGame
@@ -798,6 +802,12 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         initializeGameBoard()
         updateHeldTiles()
         updatePlayerGems()
+        refreshAfterMoveGems()
+        // TESTING
+        rootService.playerService.drawTile()
+
+
+
     }
 
     override fun refreshAfterPlaceTile(position: AxialPos) {
@@ -847,6 +857,96 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
 
         // Set the currentPlayerHeldTile rotation back to 30
         currentPlayerHeldTileView.rotation = 30.0
+        refreshAfterMoveGems()
+    }
+
+    private fun setGem(mapEntry: Map.Entry<AxialPos,Tile>): List<Coordinate>{
+    var coordinates = mutableListOf<Coordinate>()
+    if (mapEntry.value is RouteTile) {
+        (mapEntry.value as RouteTile).gemPositions.keys.forEach { border ->
+            when (border) {
+                0 -> coordinates.add(Coordinate(mapEntry.key.q, mapEntry.key.r + 30))
+                1 -> coordinates.add(Coordinate(mapEntry.key.q + 15, mapEntry.key.r + 15))
+                2 -> coordinates.add(Coordinate(mapEntry.key.q + 15, mapEntry.key.r - 15))
+                3 -> coordinates.add(Coordinate(mapEntry.key.q, mapEntry.key.r - 30))
+                4 -> coordinates.add(Coordinate(mapEntry.key.q - 15, mapEntry.key.r - 15))
+                5 -> coordinates.add(Coordinate(mapEntry.key.q - 15, mapEntry.key.r + 15))
+            }
+        }
+    }
+    return coordinates
+    }
+
+    private var gem1 = Label()
+    private var gem2 = Label()
+    private var gem3 = Label()
+    private var gem4 = Label()
+    private var gem5 = Label()
+    private var gem6 = Label()
+    private var gem7 = Label()
+
+    override fun refreshAfterMoveGems() {
+        val game = rootService.currentGame
+        checkNotNull(game)
+
+        var gemList = mutableListOf<Label>()
+        for (i in 0..23){
+            gemList.add(gem1)
+        }
+
+        game.currentBoard.forEach { mapEntry ->
+            if (mapEntry.value is RouteTile) {
+                val coordinates = setGem(mapEntry)
+                for (i in 0 until (mapEntry.value as RouteTile).gemPositions.size) {
+                    when ((mapEntry.value as RouteTile).gemPositions.values.elementAt(i).ordinal) {
+
+                        0 -> gemList[i] = Label(
+                            posX = coordinates[i].xCoord,
+                            posY = coordinates[i].yCoord,
+                            width = 30, height = 30,
+                            visual = ImageVisual("gem_yellow.png")
+                        )
+
+                        1 -> gemList[i] = Label(
+                            posX = coordinates[i].xCoord,
+                            posY = coordinates[i].yCoord,
+                            width = 30, height = 30,
+                            visual = ImageVisual("gem_green.png")
+                        )
+
+                        2 -> gemList[i] = Label(
+                            posX = coordinates[i].xCoord,
+                            posY = coordinates[i].yCoord,
+                            width = 30, height = 30,
+                            visual = ImageVisual("gem_blue.png")
+                        )
+                    }
+                }
+
+             gem1 = gemList[0]
+             gem2 = gemList[1]
+             gem3 = gemList[2]
+             gem4 = gemList[3]
+             gem5 = gemList[4]
+             gem6 = gemList[5]
+             gem7 = gemList[6]
+
+            }
+            if (mapEntry.value is TreasureTile && mapEntry.key.q != 0 && mapEntry.key.r != 0){
+                Label(posX = mapEntry.key.q, posY = mapEntry.key.r,
+                                    visual = ImageVisual("gem_yellow.png"))
+            }
+
+            if(mapEntry.key.q == 0 && mapEntry.key.r == 0){
+                Label (posX = mapEntry.key.q, posY =  mapEntry.key.r , visual = ImageVisual("gem_blue.png"))
+                Label(posX = mapEntry.key.q, posY = mapEntry.key.r + 30, visual = ImageVisual("gem_green.png"))
+                Label(mapEntry.key.q + 15, mapEntry.key.r + 15, visual = ImageVisual("gem_green.png"))
+                Label(mapEntry.key.q + 15, mapEntry.key.r - 15, visual = ImageVisual("gem_green.png"))
+                Label(posX = mapEntry.key.q, mapEntry.key.r - 30, visual = ImageVisual("gem_green.png"))
+                Label(mapEntry.key.q - 15, mapEntry.key.r - 15,visual = ImageVisual("gem_green.png"))
+                Label(mapEntry.key.q - 15, mapEntry.key.r + 15,visual = ImageVisual("gem_green.png"))
+            }
+        }
     }
 
 
@@ -862,6 +962,13 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             quitButton,
             rightTurnButton,
             leftTurnButton,
+            gem1,
+            gem2,
+            gem3,
+            gem4,
+            gem5,
+            gem6,
+            gem7,
             currentPlayerHeldTileView,
             blueGemIndicator,
             greenGemIndicator,
@@ -886,7 +993,8 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             firstPlayerHeldTileView,
             secondPlayerHeldTileView,
             thirdPlayerHeldTileView,
-            fourthPlayerHeldTileView
+            fourthPlayerHeldTileView,
+
         )
 
         currentPlayerHeldTileView.apply {
