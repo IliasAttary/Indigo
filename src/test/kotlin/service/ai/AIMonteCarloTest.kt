@@ -72,6 +72,7 @@ class AIMonteCarloTest {
             game.currentBoard,
             game.currentDrawStack,
             game.currentPlayers,
+            game.playerAtTurn,
             game.currentGems
         )
 
@@ -116,6 +117,7 @@ class AIMonteCarloTest {
             game.currentBoard,
             game.currentDrawStack,
             game.currentPlayers,
+            game.playerAtTurn,
             game.currentGems
         )
 
