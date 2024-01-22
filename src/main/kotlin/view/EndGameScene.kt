@@ -30,6 +30,9 @@ class EndGameScene : MenuScene(1920, 1080), Refreshable {
         opacity = 0.8
     }
 
+
+
+
     /**
      * Button to start another Game
      */
