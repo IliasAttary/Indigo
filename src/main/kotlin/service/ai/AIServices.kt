@@ -328,7 +328,7 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
         } ?: throw IllegalStateException("the current child has no  children § ")
 
         // this ensures moving to the new state
-        setCurrentState(nextState.currentGameState!!)
+        //setCurrentState(nextState.currentGameState!!)
 
         return nextState
     }
@@ -426,9 +426,6 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
     }
 
 
-    ///*********************Rami **************************
-
-
     private fun assignReward(): Double {
         // Checks if a game is running
         val game = rootService.currentGame
@@ -510,7 +507,12 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
 
         }
 
-        return selectNextState(initialStateNode).action
+        game.currentBoard.remove(selectNextState(initialStateNode).action!!.first)
+        return if (rootService.playerService.checkPlacement(selectNextState(initialStateNode).action!!.first)) {
+            selectNextState(initialStateNode).action
+        }else{
+            trainMontiCarloAgent(simulationNumber, futureStepsNumber, theBatchSize)
+        }
 
     }
 

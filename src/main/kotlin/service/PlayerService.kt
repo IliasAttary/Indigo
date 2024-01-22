@@ -1,5 +1,8 @@
 package service
+
 import entity.*
+import tools.aqua.bgw.core.BoardGameApplication
+import kotlin.math.max
 
 /**
  * Service layer class which provides all the actions that the players can do.
@@ -65,7 +68,33 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         }
 
         onAllRefreshables { refreshAfterChangePlayer() }
+
+        if (playerAtTurn.isAI){
+            placeTileAi()
+        }
     }
+
+    fun placeTileAi() {
+        val game = rootService.currentGame
+        checkNotNull(game) { "No game started yet" }
+
+        Thread {
+            val timeStart = System.currentTimeMillis()
+            val aiMove = if (game.playerAtTurn.smartAI) {
+                rootService.aiServices.trainMontiCarloAgent(5, 5, 10)!!.first
+            } else {
+                rootService.aiServices.playRandomly().first
+            }
+            val timeEnd = System.currentTimeMillis()
+            val diffMillis = timeEnd - timeStart
+            val restMillis = max(0, game.aiMoveMilliseconds - diffMillis)
+            Thread.sleep(restMillis)
+            BoardGameApplication.runOnGUIThread {
+                placeTile(aiMove)
+            }
+        }.apply { isDaemon = true }.start()
+    }
+
     /**
      * change the current player to the previous player if undo was called
      * @throws IllegalStateException if no game is started
