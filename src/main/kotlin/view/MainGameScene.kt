@@ -11,7 +11,9 @@ import tools.aqua.bgw.core.Alignment
 import tools.aqua.bgw.core.BoardGameScene
 import tools.aqua.bgw.style.BackgroundRadius
 import tools.aqua.bgw.style.BorderRadius
-import tools.aqua.bgw.util.*
+import tools.aqua.bgw.util.BidirectionalMap
+import tools.aqua.bgw.util.Coordinate
+import tools.aqua.bgw.util.Font
 import tools.aqua.bgw.visual.ColorVisual
 import tools.aqua.bgw.visual.CompoundVisual
 import tools.aqua.bgw.visual.ImageVisual
@@ -38,9 +40,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         visual.borderRadius = BorderRadius(15)
         visual.backgroundRadius = BackgroundRadius(15)
         scale = 0.9
-        onMouseClicked = {
-            rootService.playerService.undo()
-        }
+        isDisabled = true
     }
 
     /**
@@ -58,9 +58,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         visual.borderRadius = BorderRadius(15)
         visual.backgroundRadius = BackgroundRadius(15)
         scale = 0.9
-        onMouseClicked = {
-            rootService.playerService.redo()
-        }
+        isDisabled = true
     }
 
     /**
@@ -1059,7 +1057,12 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
                 )
             )
 
-            fun edgeToPos(edge: Int, treasureTileCircle: Boolean, angle: Double = 60.0, angleOffset: Double = 0.0): Coordinate {
+            fun edgeToPos(
+                edge: Int,
+                treasureTileCircle: Boolean,
+                angle: Double = 60.0,
+                angleOffset: Double = 0.0
+            ): Coordinate {
                 val length = if (treasureTileCircle) tileSize / 2.0 - 5 else tileSize / 2.0 + 10
                 val edge0Vector = Coordinate(if (treasureTileCircle) 3 else 0, length)
                 val vector = edge0Vector.rotated(edge * angle + angleOffset)
@@ -1101,7 +1104,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
                     boardGems.add(firstBoardGem)
 
                     for (i in 1..gems.lastIndex) {
-                        val gemPosition = edgeToPos(i-1, false, angle = 360.0 / 5, angleOffset = 0.0) -
+                        val gemPosition = edgeToPos(i - 1, false, angle = 360.0 / 5, angleOffset = 0.0) -
                                 Coordinate(gemSize / 2, gemSize / 2)
                         val boardGem = TokenView(
                             posX = gemPosition.xCoord,
@@ -1258,6 +1261,21 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             fourthPlayerAmbers.isVisible = true
             fourthPlayerHeldTileView.isVisible = true
         }
+
+        undoButton.apply {
+            onMouseClicked = {
+                if (game.undoStack.isNotEmpty())
+                    rootService.playerService.undo()
+            }
+        }
+
+        redoButton.apply {
+            onMouseClicked = {
+                if (game.redoStack.isNotEmpty())
+                    rootService.playerService.redo()
+            }
+        }
+
         // Initialize the board, show the heldTiles of all players and set the gem count to 0
         initializeGameBoard()
         initializeGateColors()
@@ -1283,6 +1301,10 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             checkNotNull(placedTile)
             // Add the newly placed tile to the tileMap with its corresponding View Element
             tileMap.add(placedTile, gameBoardTile)
+
+            undoButton.isDisabled = game.undoStack.isEmpty()
+            redoButton.isDisabled = game.redoStack.isEmpty()
+
             updateBoardGems()
             updateHeldTiles()
             updatePlayerGems()
@@ -1315,6 +1337,23 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         currentPlayerHeldTileView.rotation = 30.0
     }
 
+    // TODO: ADD UPDATE BOARD
+    override fun refreshAfterUndo() {
+        val game = rootService.currentGame
+        checkNotNull(game)
+
+        undoButton.isDisabled = game.undoStack.isEmpty()
+        redoButton.isDisabled = game.redoStack.isEmpty()
+    }
+
+    // TODO: ADD UPDATE BOARD
+    override fun refreshAfterRedo() {
+        val game = rootService.currentGame
+        checkNotNull(game)
+
+        undoButton.isDisabled = game.undoStack.isEmpty()
+        redoButton.isDisabled = game.redoStack.isEmpty()
+    }
 
     init {
         background = backgroundOverlay
