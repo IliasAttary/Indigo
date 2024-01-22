@@ -69,7 +69,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
 
         onAllRefreshables { refreshAfterChangePlayer() }
 
-        if (playerAtTurn.isAI){
+        if (game.playerAtTurn.isAI){
             placeTileAi()
         }
     }
