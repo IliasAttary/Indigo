@@ -4,14 +4,14 @@ import entity.*
 import service.RootService
 import tools.aqua.bgw.components.container.HexagonGrid
 import tools.aqua.bgw.components.gamecomponentviews.HexagonView
+import tools.aqua.bgw.components.gamecomponentviews.TokenView
 import tools.aqua.bgw.components.uicomponents.Button
 import tools.aqua.bgw.components.uicomponents.Label
 import tools.aqua.bgw.core.Alignment
 import tools.aqua.bgw.core.BoardGameScene
 import tools.aqua.bgw.style.BackgroundRadius
 import tools.aqua.bgw.style.BorderRadius
-import tools.aqua.bgw.util.BidirectionalMap
-import tools.aqua.bgw.util.Font
+import tools.aqua.bgw.util.*
 import tools.aqua.bgw.visual.ColorVisual
 import tools.aqua.bgw.visual.CompoundVisual
 import tools.aqua.bgw.visual.ImageVisual
@@ -810,6 +810,11 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
     )
 
     /**
+     * List of gems on board
+     */
+    private val boardGems: MutableList<TokenView> = mutableListOf()
+
+    /**
      *  Determines the Tile on the specified coordinates is a Treasure tile and returns the corresponding View for it,
      *  if not returns a single colored HexagonView
      */
@@ -1017,6 +1022,113 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
                 }
             }
         }
+
+        updateBoardGems()
+    }
+
+    /**
+     * Updates the gems on the boards
+     */
+    private fun updateBoardGems() {
+        val gemSize = 30
+        val tileSize = 68
+
+        val game = rootService.currentGame
+        checkNotNull(game)
+
+        removeComponents(*boardGems.toTypedArray())
+        boardGems.clear()
+
+        fun gemToImageVisual(gem: Gem): ImageVisual {
+            return when (gem) {
+                Gem.AMBER -> ImageVisual("gem_yellow.png")
+                Gem.EMERALD -> ImageVisual("gem_green.png")
+                Gem.SAPPHIRE -> ImageVisual("gem_blue.png")
+            }
+        }
+
+        for ((pos, tile) in game.currentBoard) {
+            val boardTile = gameBoard[pos.q, pos.r] ?: continue
+            val tilePosX = gameBoard.actualPosX + boardTile.actualPosX + boardTile.actualWidth / 2
+            val tilePosY = gameBoard.actualPosY + boardTile.actualPosY + boardTile.actualHeight / 2
+            val tileCenterPos = Coordinate(tilePosX, tilePosY).rotated(
+                30.0,
+                Coordinate(
+                    gameBoard.actualPosX + gameBoard.actualWidth / 2,
+                    gameBoard.actualPosY + gameBoard.actualHeight / 2,
+                )
+            )
+
+            fun edgeToPos(edge: Int, treasureTileCircle: Boolean, angle: Double = 60.0, angleOffset: Double = 0.0): Coordinate {
+                val length = if (treasureTileCircle) tileSize / 2.0 - 5 else tileSize / 2.0 + 10
+                val edge0Vector = Coordinate(if (treasureTileCircle) 3 else 0, length)
+                val vector = edge0Vector.rotated(edge * angle + angleOffset)
+                return tileCenterPos - vector
+            }
+
+            if (tile is TreasureTile) {
+                val gems = tile.gems
+                val gemPositions = tile.gemPositions
+
+                if (gemPositions != null) {
+                    for ((edge, gem) in gemPositions) {
+                        val isCircle = (pos == AxialPos(0, -4) && edge == 3)
+                                || (pos == AxialPos(4, -4) && edge == 4)
+                                || (pos == AxialPos(4, 0) && edge == 5)
+                                || (pos == AxialPos(0, 4) && edge == 0)
+                                || (pos == AxialPos(-4, 4) && edge == 1)
+                                || (pos == AxialPos(-4, 0) && edge == 2)
+                        val gemPosition = edgeToPos(edge, isCircle) - Coordinate(gemSize / 2, gemSize / 2)
+                        val boardGem = TokenView(
+                            posX = gemPosition.xCoord,
+                            posY = gemPosition.yCoord,
+                            width = gemSize,
+                            height = gemSize,
+                            visual = gemToImageVisual(gem),
+                        )
+                        boardGems.add(boardGem)
+                    }
+                } else if (!gems.isNullOrEmpty()) {
+                    val firstGem = gems[0]
+                    val firstGemCoord = tileCenterPos - Coordinate(gemSize / 2, gemSize / 2)
+                    val firstBoardGem = TokenView(
+                        posX = firstGemCoord.xCoord,
+                        posY = firstGemCoord.yCoord,
+                        width = gemSize,
+                        height = gemSize,
+                        visual = gemToImageVisual(firstGem),
+                    )
+                    boardGems.add(firstBoardGem)
+
+                    for (i in 1..gems.lastIndex) {
+                        val gemPosition = edgeToPos(i-1, false, angle = 360.0 / 5, angleOffset = 0.0) -
+                                Coordinate(gemSize / 2, gemSize / 2)
+                        val boardGem = TokenView(
+                            posX = gemPosition.xCoord,
+                            posY = gemPosition.yCoord,
+                            width = gemSize,
+                            height = gemSize,
+                            visual = gemToImageVisual(gems[i]),
+                        )
+                        boardGems.add(boardGem)
+                    }
+                }
+            } else if (tile is RouteTile) {
+                for ((edge, gem) in tile.gemPositions) {
+                    val gemPosition = edgeToPos(edge, false) - Coordinate(gemSize / 2, gemSize / 2)
+                    val boardGem = TokenView(
+                        posX = gemPosition.xCoord,
+                        posY = gemPosition.yCoord,
+                        width = gemSize,
+                        height = gemSize,
+                        visual = gemToImageVisual(gem),
+                    )
+                    boardGems.add(boardGem)
+                }
+            }
+        }
+
+        addComponents(*boardGems.toTypedArray())
     }
 
     /**
@@ -1171,6 +1283,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             checkNotNull(placedTile)
             // Add the newly placed tile to the tileMap with its corresponding View Element
             tileMap.add(placedTile, gameBoardTile)
+            updateBoardGems()
             updateHeldTiles()
             updatePlayerGems()
             unmarkTiles()
