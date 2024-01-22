@@ -1,6 +1,7 @@
 package view
 
 import entity.*
+import service.ConnectionState
 import service.RootService
 import tools.aqua.bgw.components.container.HexagonGrid
 import tools.aqua.bgw.components.gamecomponentviews.HexagonView
@@ -543,11 +544,14 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         posY = 900,
         visual = ImageVisual("arrow-right.png")
     ).apply {
-        onMouseClicked = {
+        onMouseClicked = onMouseClicked@{
+            if (rootService.networkService.connectionState !in listOf(ConnectionState.DISCONNECTED, ConnectionState.PLAYING_MY_TURN)) {
+                return@onMouseClicked
+            }
+
             val game = rootService.currentGame
             checkNotNull(game)
-            val currenTile = game.playerAtTurn.heldTile
-            checkNotNull(currenTile)
+            val currenTile = game.playerAtTurn.heldTile ?: return@onMouseClicked
             currenTile.rotation = (currenTile.rotation + 1) % 6
             updateHeldTiles()
             checkTiles()
@@ -565,11 +569,14 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         posY = 900,
         visual = ImageVisual("arrow-left.png")
     ).apply {
-        onMouseClicked = {
+        onMouseClicked = onMouseClicked@{
+            if (rootService.networkService.connectionState !in listOf(ConnectionState.DISCONNECTED, ConnectionState.PLAYING_MY_TURN)) {
+                return@onMouseClicked
+            }
+
             val game = rootService.currentGame
             checkNotNull(game)
-            val currenTile = game.playerAtTurn.heldTile
-            checkNotNull(currenTile)
+            val currenTile = game.playerAtTurn.heldTile ?: return@onMouseClicked
             when (currenTile.rotation) {
                 0 -> currenTile.rotation = 5
                 1 -> currenTile.rotation = 0
@@ -868,12 +875,18 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
                 )
             ).apply {
                 onMouseClicked = {
-                    refreshAfterPlaceTile(AxialPos(q, r))
+                    if (rootService.networkService.connectionState in listOf(ConnectionState.DISCONNECTED, ConnectionState.PLAYING_MY_TURN)) {
+                        if (rootService.playerService.checkPlacement(AxialPos(q, r))) {
+                            rootService.playerService.placeTile(AxialPos(q, r))
+                        }
+                    }
                 }
 
                 onMouseEntered = {
-                    if (rootService.playerService.checkPlacement(AxialPos(q, r)))
-                        scale = 1.2
+                    if (rootService.networkService.connectionState in listOf(ConnectionState.DISCONNECTED, ConnectionState.PLAYING_MY_TURN)) {
+                        if (rootService.playerService.checkPlacement(AxialPos(q, r)))
+                            scale = 1.2
+                    }
                 }
 
                 onMouseExited = {
@@ -1268,26 +1281,18 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
     override fun refreshAfterPlaceTile(position: AxialPos) {
         val game = rootService.currentGame
         checkNotNull(game)
-        val heldTileVisual = currentPlayerHeldTileView.visual
-        var placedTile: Tile?
-        updateHeldTiles()
-        if (rootService.playerService.checkPlacement(position)) {
-            // Place the tile on the service layer game board
-            rootService.playerService.placeTile(position)
 
-            // Get the GUI gameBoard and update the Tiles visual there
-            val gameBoardTile = gameBoard[position.q, position.r]
-            checkNotNull(gameBoardTile)
-            gameBoardTile.visual = heldTileVisual
-            placedTile = game.currentBoard[position]
-            checkNotNull(placedTile)
-            // Add the newly placed tile to the tileMap with its corresponding View Element
-            tileMap.add(placedTile, gameBoardTile)
-            updateBoardGems()
-            updateHeldTiles()
-            updatePlayerGems()
-            unmarkTiles()
-        }
+        // Get the GUI gameBoard and update the Tiles visual there
+        val gameBoardTile = gameBoard[position.q, position.r]
+        checkNotNull(gameBoardTile)
+        val placedTile = game.currentBoard[position] as? RouteTile
+        checkNotNull(placedTile)
+        gameBoardTile.visual = ImageVisual("${placedTile.tileType.toString().lowercase()}_${placedTile.rotation}.png")
+        // Add the newly placed tile to the tileMap with its corresponding View Element
+        tileMap.add(placedTile, gameBoardTile)
+        updateBoardGems()
+        updatePlayerGems()
+        unmarkTiles()
     }
 
     override fun refreshAfterChangePlayer() {
@@ -1310,6 +1315,9 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         }
         // Update the indicators position
         currentPlayerIndicator.posY = posYList[(currentPlayerPos + 1) % playerCount]
+
+        // Update held tiles
+        updateHeldTiles()
 
         // Set the currentPlayerHeldTile rotation back to 30
         currentPlayerHeldTileView.rotation = 30.0
@@ -1371,6 +1379,22 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             gateSixOne,
             gateSixTwo
         )
+
+        onSceneShown = {
+            val isNetworkGame = rootService.networkService.connectionState != ConnectionState.DISCONNECTED
+            saveButton.apply {
+                isVisible = !isNetworkGame
+                isDisabled = isNetworkGame
+            }
+            undoButton.apply {
+                isVisible = !isNetworkGame
+                isDisabled = isNetworkGame
+            }
+            redoButton.apply {
+                isVisible = !isNetworkGame
+                isDisabled = isNetworkGame
+            }
+        }
 
         firstPlayerColor.apply {
             onMouseClicked = {

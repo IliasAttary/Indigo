@@ -30,12 +30,12 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
     /**
      * Menu Scene that gets displayed after the player clicks on New Game.
      */
-    private val preGameMenuScene = PreGameMenuScene()
+    private val preGameMenuScene = PreGameMenuScene(rootService)
 
     /**
      * Menu scene where the players can enter their name and configure the game mode, as well as AI Style.
      */
-    private val newGameMenuScene = NewGameMenuScene()
+    private val newGameMenuScene = NewGameMenuScene(rootService)
 
     /**
      * Menu scene where the players see their points and who won the game.
@@ -56,22 +56,26 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
         this.showMenuScene(launchMenuScene)
 
         preGameMenuScene.startButton.onMouseClicked = {
-            if (preGameMenuScene.gameMode == "host") {
-                // TODO: ADD HOST NAME AND SESSION ID FIELD
-                rootService.networkService.hostGame("?", "panda", "session1")
-            }
-
-            if (preGameMenuScene.gameMode == "join") {
+            if (preGameMenuScene.gameMode == GameMode.HOST) {
+                val gameID = preGameMenuScene.gameIDField.text.trim().ifEmpty { null }
+                val playerName = preGameMenuScene.playerNameField.text.trim()
+                rootService.networkService.hostGame("game23d", playerName, gameID)
+            } else if (preGameMenuScene.gameMode == GameMode.JOIN) {
                 val gameID = preGameMenuScene.gameIDField.text.trim()
                 val playerName = preGameMenuScene.playerNameField.text.trim()
-                rootService.networkService.joinGame("?", playerName, gameID)
-                refreshAfterJoiningGame(newGameMenuScene.actualPlayerNames)
+                rootService.networkService.joinGame("game23d", playerName, gameID)
             }
 
-
+            newGameMenuScene.gameMode = preGameMenuScene.gameMode
             this.showMenuScene(newGameMenuScene)
         }
-        newGameMenuScene.returnButton.onMouseClicked = { this.showMenuScene(preGameMenuScene) }
+        newGameMenuScene.returnButton.onMouseClicked = {
+            if (newGameMenuScene.gameMode != GameMode.LOCAL) {
+                rootService.networkService.disconnect()
+            }
+
+            this.showMenuScene(preGameMenuScene)
+        }
         newGameMenuScene.startRoundButton.onMouseClicked = {
             this.hideMenuScene()
 
@@ -108,7 +112,23 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
                     )
                 )
             }
-            rootService.gameService.startGame(playerList, aiSpeed, sharedGates = sharedGates)
+
+            when (newGameMenuScene.gameMode) {
+                GameMode.LOCAL -> {
+                    rootService.gameService.startGame(playerList, aiSpeed, sharedGates = sharedGates)
+                }
+                GameMode.HOST -> {
+                    rootService.networkService.startNewHostedGame(
+                        players = playerList,
+                        sharedGates = sharedGates,
+                        aiMoveMilliseconds = aiSpeed,
+                    )
+                }
+                else -> {
+                    error("Cannot start in Join mode")
+                }
+            }
+
             this.showGameScene(mainGameScene)
         }
         launchMenuScene.newGameButton.onMouseClicked = { this.showMenuScene(preGameMenuScene) }

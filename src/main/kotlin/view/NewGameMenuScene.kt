@@ -1,5 +1,6 @@
 package view
 
+import service.RootService
 import tools.aqua.bgw.components.uicomponents.Button
 import tools.aqua.bgw.components.uicomponents.ComboBox
 import tools.aqua.bgw.components.uicomponents.Label
@@ -14,7 +15,12 @@ import java.awt.Color
 /**
  *  Menu scene from where a game can be created.
  */
-class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
+class NewGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1080), Refreshable {
+
+    /**
+     * The game mode
+     */
+    var gameMode: GameMode = GameMode.LOCAL
 
     /**
      *  Contains the absolute Field positions for the first to fourth player name fields.
@@ -711,6 +717,11 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
         mutableListOf(firstPlayerTypeButton, secondPlayerTypeButton, thirdPlayerTypeButton, fourthPlayerRedColor)
 
     /**
+     * All the player labels in a list, from first to last
+     */
+    private var playerLabels = listOf(firstPlayerLabel, secondPlayerLabel, thirdPlayerLabel, fourthPlayerLabel)
+
+    /**
      *  List of the four player name input fields for getting the player order.
      */
     private val playerNameFields = listOf(
@@ -918,30 +929,80 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
      *  Disables all Buttons and name fields for a joining player so only the host can edit them
      */
     private fun disableAll() {
-        firstPlayerTypeButton.isDisabled = true
-        firstPlayerNameField.isDisabled = true
-        firstPlayerColors.forEach { button ->
-            button.isDisabled = true
+        playerLabels.forEach { label ->
+            label.isVisible = false
         }
-        secondPlayerTypeButton.isDisabled = true
-        secondPlayerNameField.isDisabled = true
-        secondPlayerColors.forEach { button ->
-            button.isDisabled = true
+        actualNameFieldsList.forEach { field ->
+            field.isDisabled = true
+            field.isVisible = false
         }
-        thirdPlayerTypeButton.isDisabled = true
-        thirdPlayerNameField.isDisabled = true
-        thirdPlayerColors.forEach { button ->
-            button.isDisabled = true
+        actualPlayerColorButtons.forEach { colorList ->
+            colorList.forEach { colorButton ->
+                colorButton.isDisabled = true
+                colorButton.isVisible = false
+            }
         }
-        fourthPlayerTypeButton.isDisabled = true
-        fourthPlayerNameField.isDisabled = true
-        fourthPlayerColors.forEach { button ->
+        actualPlayerTypeButtons.forEach { button ->
             button.isDisabled = true
+            button.isVisible = false
         }
-        gameModeSelector.isDisabled = true
+        addThirdPlayerButton.apply {
+            isDisabled = true
+            isVisible = false
+        }
+        addFourthPlayerButton.apply {
+            isDisabled = true
+            isVisible = false
+        }
+        gameModeSelector.apply {
+            isDisabled = true
+            isVisible = false
+        }
         aiSpeedSelector.isDisabled = true
-        startRoundButton.isDisabled = true
-        randomizePlayerOrderButton.isDisabled = true
+        startRoundButton.apply {
+            isDisabled = true
+            isVisible = false
+        }
+        randomizePlayerOrderButton.apply {
+            isDisabled = true
+            isVisible = false
+        }
+    }
+    /**
+     *  Disables some text fields and buttons if you are the host
+     */
+    private fun disableHost() {
+        playerLabels.drop(1).forEach { label ->
+            label.isVisible = false
+        }
+        actualNameFieldsList[0].apply {
+            text = rootService.networkService.playerName ?: "Ich"
+            isDisabled = true
+        }
+        actualNameFieldsList.drop(1).forEach { field ->
+            field.isDisabled = true
+            field.isVisible = false
+        }
+        actualPlayerColorButtons.drop(1).forEach { colorList ->
+            colorList.forEach { colorButton ->
+                colorButton.isVisible = false
+            }
+        }
+        actualPlayerTypeButtons.drop(1).forEach { button ->
+            button.isDisabled = true
+            button.isVisible = false
+        }
+        addThirdPlayerButton.apply {
+            isDisabled = true
+            isVisible = false
+        }
+        addFourthPlayerButton.apply {
+            isDisabled = true
+            isVisible = false
+        }
+        gameModeSelector.apply {
+            isVisible = false
+        }
     }
 
     /**
@@ -993,50 +1054,64 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
     }
 
     override fun refreshAfterJoiningGame(playerNames: List<String>) {
-        disableAll()
+        for ((i, name) in playerNames.withIndex()) {
+            actualNameFieldsList[i].apply {
+                text = name
+                isVisible = true
+            }
+            playerLabels[i].isVisible = true
+        }
+
+        playerLabels[playerNames.size].isVisible = true
+        actualNameFieldsList[playerNames.size].apply {
+            text = rootService.networkService.playerName ?: "Ich"
+            isVisible = true
+        }
+
+        actualPlayerTypeButtons[playerNames.size].apply {
+            if (rootService.networkService.useAI!!) {
+                if (rootService.networkService.useSmartAI!!) {
+                    visual = ImageVisual("smart_ai_icon.png")
+                    name = "smart"
+                    aiSpeedSelector.isVisible = true
+                } else {
+                    visual = ImageVisual("random_ai_icon.png")
+                    name = "random"
+                    aiSpeedSelector.isVisible = true
+                }
+            } else {
+                visual = ImageVisual("player_icon.png")
+                name = "player"
+                aiSpeedSelector.isVisible = false
+            }
+            isVisible = true
+        }
+
+        aiSpeedSelector.selectedItem = rootService.networkService.aiMoveMilliseconds?.let { "$it ms" }
+        playerCount = playerNames.size + 1
     }
 
     override fun refreshAfterJoinPlayer(playerName: String) {
-        if (playerCount < 4) {
-            // Inout the players name into the name field and show the colors and types if not already shown
-            actualNameFieldsList[playerCount].isVisible = true
-            actualNameFieldsList[playerCount].isDisabled = false
-            actualNameFieldsList[playerCount].text = playerName
-            actualPlayerTypeButtons[playerCount].isVisible = true
-            actualPlayerTypeButtons[playerCount].isDisabled = false
+        playerLabels[playerCount].isVisible = true
+        actualNameFieldsList[playerCount].apply {
+            text = playerName
+            isVisible = true
+        }
+
+        if (gameMode == GameMode.HOST) {
             actualPlayerColorButtons[playerCount].forEach { button ->
                 button.isVisible = true
                 button.isDisabled = false
             }
-            playerCount++
-            // Show playerCount specific buttons and selectors
-            if (playerCount == 3) {
-                thirdPlayerLabel.isVisible = true
-                gameModeSelector.isVisible = true
-                gameModeSelector.isDisabled = false
-                addThirdPlayerButton.isVisible = false
-                addThirdPlayerButton.isDisabled = true
-                addFourthPlayerButton.isVisible = true
-                addFourthPlayerButton.isDisabled = false
-                removeThirdPlayerButton.isVisible = true
-                removeThirdPlayerButton.isDisabled = false
-            }
-            if (playerCount == 4) {
-                fourthPlayerLabel.isVisible = true
-                gameModeSelector.isVisible = false
-                gameModeSelector.isDisabled = true
-                addThirdPlayerButton.isVisible = false
-                addThirdPlayerButton.isDisabled = true
-                addFourthPlayerButton.isVisible = false
-                addFourthPlayerButton.isDisabled = true
-                removeThirdPlayerButton.isVisible = false
-                removeThirdPlayerButton.isDisabled = true
-                removeFourthPlayerButton.isVisible = true
-                removeFourthPlayerButton.isDisabled = false
-            }
-            determineActualValues()
-            checkInputs()
         }
+
+        playerCount++
+
+        gameModeSelector.isVisible = playerCount == 3
+        gameModeSelector.isDisabled = playerCount != 3
+
+        determineActualValues()
+        checkInputs()
     }
 
     init {
@@ -1086,6 +1161,16 @@ class NewGameMenuScene : MenuScene(1920, 1080), Refreshable {
 
         background = ImageVisual("background.png")
         opacity = 0.4
+
+        onSceneShown = {
+            if (gameMode == GameMode.JOIN) {
+                playerCount = 0
+                disableAll()
+            } else if (gameMode == GameMode.HOST) {
+                playerCount = 1
+                disableHost()
+            }
+        }
 
         // Check player names while writing them
         firstPlayerNameField.onKeyTyped = {
