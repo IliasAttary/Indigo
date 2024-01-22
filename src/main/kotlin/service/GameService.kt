@@ -139,30 +139,6 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
     }
 
     /**
-     * Searches for players with specified colors in the given list of players.
-     *
-     * @param players List of players to search through.
-     * @param color1 First color to search for.
-     * @param color2 Second color to search for.
-     * @return MutableList<Player> containing players with the specified colors.
-     */
-    private fun searchPlayerWithColor(players : List<Player>, color1:Color, color2:Color) : MutableList<Player>{
-
-        var color1Player = players.first()
-        var color2Player = players.first()
-
-        for(player in players){
-            if(player.color == color1){
-                color1Player = player
-            }
-            if(player.color == color2){
-                color2Player = player
-            }
-        }
-        return mutableListOf(color1Player,color2Player)
-    }
-
-    /**
      * Places a treasure tile on the game board at the specified axial position (q, r).
      *
      * @param board The mutable map representing the game board.
@@ -191,66 +167,106 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
         gate: Int,
         players: List<Player>,
         sharedGates: Boolean
-    ) {
-        var gatePlayers = determineGatePlayers(gate, players, sharedGates)
-
-        // Remove duplicate player if both assigned players are the same
-        if (gatePlayers.size > 1 && gatePlayers.first() == gatePlayers.last()) {
-            gatePlayers = mutableListOf(gatePlayers.first())
-        }
-
+    ){
+        val gatePlayers = determineGatePlayers(gate, players, sharedGates)
         board[coordinates] = GatewayTile(gatePlayers, gate)
     }
 
     private fun determineGatePlayers(gate: Int, players: List<Player>, sharedGates: Boolean): MutableList<Player> {
-        val colorMapping = getColorMappingForPlayers(players.size, sharedGates)
-        val playerColors = colorMapping[gate] ?: return mutableListOf(players[0])
-        return searchPlayerWithColor(players, playerColors.first, playerColors.second)
-    }
 
-    private fun getColorMappingForPlayers(playerCount: Int, sharedGates: Boolean): Map<Int, Pair<Color, Color>> {
-        return when (playerCount) {
-            2 -> mapOf(
-                1 to Pair(Color.RED, Color.RED),
-                2 to Pair(Color.BLUE, Color.BLUE),
-                3 to Pair(Color.RED, Color.RED),
-                4 to Pair(Color.BLUE, Color.BLUE),
-                5 to Pair(Color.RED, Color.RED),
-                6 to Pair(Color.BLUE, Color.BLUE),
-            )
+        val gatePlayers = mutableListOf<Player>()
 
-            3 -> if (sharedGates) {
-                mapOf(
-                    1 to Pair(Color.RED, Color.RED),
-                    2 to Pair(Color.RED, Color.BLUE),
-                    3 to Pair(Color.WHITE, Color.WHITE),
-                    4 to Pair(Color.WHITE, Color.RED),
-                    5 to Pair(Color.BLUE, Color.BLUE),
-                    6 to Pair(Color.BLUE, Color.WHITE)
-                )
-            } else {
-                mapOf(
-                    1 to Pair(Color.RED, Color.RED),
-                    2 to Pair(Color.BLUE, Color.BLUE),
-                    3 to Pair(Color.WHITE, Color.WHITE),
-                    4 to Pair(Color.RED, Color.RED),
-                    5 to Pair(Color.BLUE, Color.BLUE),
-                    6 to Pair(Color.WHITE, Color.WHITE)
-                )
+        when(players.size){
+            2 -> {
+
+                if(gate % 2 == 1){
+                   gatePlayers.add(players[0])
+                }
+                else{
+                    gatePlayers.add(players[1])
+                }
             }
 
-            4 -> mapOf(
-                1 to Pair(Color.RED, Color.BLUE),
-                2 to Pair(Color.BLUE, Color.WHITE),
-                3 to Pair(Color.RED, Color.PURPLE),
-                4 to Pair(Color.PURPLE, Color.BLUE),
-                5 to Pair(Color.WHITE, Color.RED),
-                6 to Pair(Color.WHITE, Color.PURPLE)
-            )
+            3 -> {
+                when(gate){
 
-            else -> emptyMap()
+                    1 -> gatePlayers.add(players[0])
+
+                    2 -> {
+                        if(sharedGates){
+                            gatePlayers.add(players[0])
+                            gatePlayers.add(players[1])
+                        }
+                        else{
+                            gatePlayers.add(players[1])
+                        }
+                    }
+
+                    3 -> gatePlayers.add(players[2])
+
+                    4 -> {
+                        if(sharedGates){
+                            gatePlayers.add(players[2])
+                            gatePlayers.add(players[0])
+                        }
+                        else{
+                            gatePlayers.add(players[0])
+                        }
+                    }
+
+                    5 -> gatePlayers.add(players[1])
+
+                    6 -> {
+                        if(sharedGates){
+                            gatePlayers.add(players[1])
+                            gatePlayers.add(players[2])
+                        }
+                        else{
+                            gatePlayers.add(players[2])
+                        }
+                    }
+                }
+            }
+
+            4 -> {
+                when(gate){
+                    1 -> {
+                        gatePlayers.add(players[0])
+                        gatePlayers.add(players[1])
+                    }
+
+                    2 -> {
+                        gatePlayers.add(players[1])
+                        gatePlayers.add(players[2])
+                    }
+
+                    3 -> {
+                        gatePlayers.add(players[0])
+                        gatePlayers.add(players[3])
+                    }
+
+                    4 -> {
+                        gatePlayers.add(players[3])
+                        gatePlayers.add(players[1])
+                    }
+
+                    5 -> {
+                        gatePlayers.add(players[2])
+                        gatePlayers.add(players[0])
+                    }
+
+                    6 -> {
+                        gatePlayers.add(players[2])
+                        gatePlayers.add(players[3])
+                    }
+                }
+            }
         }
+
+        return gatePlayers
     }
+
+
 
     /**
      * Initializes the draw stack for the game, consisting of a shuffled collection of route tiles.
@@ -306,9 +322,6 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
      */
     fun save() {
         val file = File("saveGame.ser")
-        val json = Json {
-            allowStructuredMapKeys = true
-        }
         file.writeText(json.encodeToString(rootService.currentGame))
     }
 
@@ -317,10 +330,67 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
      */
     fun load() {
         val file = File("saveGame.ser")
-        val json = Json {
+        val game = json.decodeFromString<Game>(file.readText())
+        fixPlayerReferences(game)
+        rootService.currentGame = game
+        onAllRefreshables { refreshAfterLoadGame() }
+    }
+
+    /**
+     * Creates a clone of the current game state.
+     *
+     * @return cloned game state
+     *
+     * @throws IllegalStateException if no game has started yet
+     */
+    fun cloneGameState(): GameState {
+        val game = rootService.currentGame
+
+        checkNotNull(game) {
+            "No game started yet."
+        }
+
+        val clonedGame = json.decodeFromString<Game>(json.encodeToString(game))
+        fixPlayerReferences(clonedGame)
+
+        return GameState(
+            board = clonedGame.currentBoard,
+            drawStack = clonedGame.currentDrawStack,
+            players = clonedGame.currentPlayers,
+            playerAtTurn = clonedGame.playerAtTurn,
+            gems = clonedGame.currentGems,
+        )
+    }
+
+    companion object {
+        /**
+         * The json instance to encode/decode the Game object
+         */
+        private val json = Json {
             allowStructuredMapKeys = true
         }
-        rootService.currentGame = json.decodeFromString<Game>(file.readText())
-        onAllRefreshables { refreshAfterLoadGame() }
+
+        /**
+         * Fix the player references, so they are all the same instances for the same player name.
+         *
+         * @param game the game to fix
+         */
+        private fun fixPlayerReferences(game: Game) {
+            game.playerAtTurn = game.currentPlayers.first { originalPlayer ->
+                originalPlayer.name == game.playerAtTurn.name
+            }
+
+            for ((pos, tile) in game.currentBoard) {
+                if (tile !is GatewayTile) {
+                    continue
+                }
+
+                val originalOwners = tile.ownedBy.map { clonedPlayer ->
+                    game.currentPlayers.first { originalPlayer -> originalPlayer.name == clonedPlayer.name }
+                }
+
+                game.currentBoard[pos] = GatewayTile(originalOwners, tile.gate)
+            }
+        }
     }
 }

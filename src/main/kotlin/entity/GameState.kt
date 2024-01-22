@@ -14,5 +14,9 @@ data class GameState(
     val board: MutableMap<AxialPos, Tile>,
     val drawStack: MutableList<RouteTile>,
     val players: List<Player>,
+    val playerAtTurn: Player,
     val gems: MutableList<Gem>
 )
+{
+
+}
