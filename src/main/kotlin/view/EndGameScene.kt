@@ -8,7 +8,7 @@ import tools.aqua.bgw.style.BorderRadius
 import tools.aqua.bgw.util.Font
 import tools.aqua.bgw.visual.ImageVisual
 import tools.aqua.bgw.components.uicomponents.Label
-
+import java.awt.Color
 
 
 /**
@@ -62,15 +62,20 @@ class EndGameScene : MenuScene(1920, 1080), Refreshable {
         visual.backgroundRadius = BackgroundRadius(15)
     }
 
-    val score = mutableListOf<String>()
-    val p1Score = Label(width = 400, height = 80, posX = 1080/2, posY = 1920/2)
-    val p2Score = Label(width = 400, height = 80, posX = 1080/2, posY = 1920/3)
-    val p3Score = Label(width = 400, height = 200, posX = 1080/2, posY = 1920/4)
-    val p4Score = Label(width = 400, height = 100, posX = 1080/2, posY = 1920/5)
+    private val p1Score = Label(width = 1080/2, height = 150, posX = 1080/2, posY = 200)
+    private val p2Score = Label(width = 1080/2, height = 150, posX = 1080/2, posY = 200 + 150 * 1)
+    private val p3Score = Label(width = 1080/2, height = 150, posX = 1080/2, posY = 200 + 150 * 2)
+    private val p4Score = Label(width = 1080/2, height = 150, posX = 1080/2, posY = 200 + 150 * 3)
+    private val scores = listOf(p1Score, p2Score, p3Score, p4Score)
 
     init {
         background = ImageVisual("background.png")
         opacity = 0.4
+
+        for (score in scores) {
+            score.isVisible = false
+            score.font = Font(size = 35, color = Color.WHITE)
+        }
 
         addComponents(
             backgroundBox,
@@ -81,19 +86,36 @@ class EndGameScene : MenuScene(1920, 1080), Refreshable {
             p3Score,
             p4Score
         )
+
+        onSceneHid = {
+            for (score in scores) {
+                score.isVisible = false
+            }
+        }
     }
 
     override fun refreshAfterEndGame(players: List<Player>) {
-        players.sortedBy {it.points}
-        for (i in 0..players.size)
-            score.add("${players[i]} ${players[i].points} PT")
+        val playerPoints = players.map {
+            Triple(it, it.points, it.collectedGems.values.sum())
+        }
+        val sortedPlayers = playerPoints.sortedWith(
+            compareBy<Triple<Player, Int, Int>>({ it.second }, { it.third }).reversed()
+        )
 
-        p1Score.text = score[0]
-        p2Score.text = score[1]
-        p3Score.text = score[2]
+        var rank = 1
+        for ((i, currentPlayer) in sortedPlayers.withIndex()) {
+            if (i > 0) {
+                val previousPlayer = sortedPlayers[i - 1]
 
-        if (players.size > 3) {
-            p4Score.text = score[3]
+                if (previousPlayer.second != currentPlayer.second || previousPlayer.third != currentPlayer.third) {
+                    rank += 1
+                }
+            }
+
+            scores[i].apply {
+                text = "$rank. ${currentPlayer.first.name} (${currentPlayer.second}P) (${currentPlayer.third}G)"
+                isVisible = true
+            }
         }
     }
 }
