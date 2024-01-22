@@ -72,8 +72,8 @@ class AIMonteCarloTest {
             game.currentBoard,
             game.currentDrawStack,
             game.currentPlayers,
-            game.currentGems
-        )
+            game.playerAtTurn,
+            game.currentGems)
 
         val action: Pair<AxialPos, Tile> = Pair(AxialPos(-1, 1), RouteTile(TileType.TILE1))
         val node1 = MontiCarloNode()
@@ -116,8 +116,8 @@ class AIMonteCarloTest {
             game.currentBoard,
             game.currentDrawStack,
             game.currentPlayers,
-            game.currentGems
-        )
+            game.playerAtTurn,
+            game.currentGems)
 
         val action: Pair<AxialPos, Tile> = Pair(AxialPos(-1, 1), RouteTile(TileType.TILE1))
         val node = MontiCarloNode()

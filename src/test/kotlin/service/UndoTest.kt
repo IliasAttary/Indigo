@@ -71,7 +71,8 @@ class UndoTest {
         checkNotNull(game)
 
         //test if the player changes
-        val currentPlayerAtTurn = game.playerAtTurn
+        val clonedGameState = testRootService.gameService.cloneGameState()
+        val currentPlayerAtTurn = clonedGameState.playerAtTurn
 
         //make a move with the first player to set the GameState
         testRootService.playerService.placeTile(AxialPos(2, 1))

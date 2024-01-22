@@ -66,25 +66,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
 
         onAllRefreshables { refreshAfterChangePlayer() }
     }
-    /**
-     * change the current player to the previous player if undo was called
-     * @throws IllegalStateException if no game is started
-     */
-    private fun changePlayerBack(){
-        val game = rootService.currentGame
-        checkNotNull(game){"No game started yet"}
-        val playerAtTurn = game.playerAtTurn
-        val currentPlayers = game.currentPlayers
-        val indexOfCurrentPlayer = currentPlayers.indexOf(playerAtTurn)
-        if(indexOfCurrentPlayer == 0){
-            game.playerAtTurn = game.currentPlayers[currentPlayers.size-1]
-        }
-        else{
-            game.playerAtTurn = game.currentPlayers[indexOfCurrentPlayer - 1]
-        }
 
-        onAllRefreshables { refreshAfterChangePlayer() }
-    }
     /**
      * undo enables the player to go back to the last step
      * @throws IllegalStateException if no game is started or if the list is empty.
@@ -95,17 +77,16 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
 
         require(game.undoStack.isNotEmpty()){ "The undo list is empty" }
 
-        val redo = GameState(game.currentBoard, game.currentDrawStack, game.currentPlayers, game.currentGems)
-
+        val redo = rootService.gameService.cloneGameState()
         game.redoStack.add(redo)
 
         val gameState = game.undoStack.removeLast()
         game.currentBoard = gameState.board
         game.currentDrawStack = gameState.drawStack
         game.currentPlayers = gameState.players
+        game.playerAtTurn = gameState.playerAtTurn
         game.currentGems = gameState.gems
 
-        changePlayerBack()
         onAllRefreshables { refreshAfterUndo() }
     }
 
@@ -121,19 +102,17 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
             "The redo list is empty"
         }
 
-        val undo = GameState(game.currentBoard, game.currentDrawStack, game.currentPlayers, game.currentGems)
-
+        val undo = rootService.gameService.cloneGameState()
         game.undoStack.add(undo)
-        val gameState =  game.redoStack.removeLast()
 
+        val gameState = game.redoStack.removeLast()
         game.currentBoard = gameState.board
         game.currentDrawStack = gameState.drawStack
         game.currentPlayers = gameState.players
+        game.playerAtTurn = gameState.playerAtTurn
         game.currentGems = gameState.gems
 
-        changePlayer()
         onAllRefreshables { refreshAfterRedo() }
-
     }
 
     /**
@@ -246,24 +225,10 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         val tile = game.playerAtTurn.heldTile
         requireNotNull(tile) { "The current player has no tile" }
 
-        // Create the current GameState
-        val currentBoard : MutableMap<AxialPos,Tile> = mutableMapOf()
-        for(element in game.currentBoard){
-            currentBoard[element.key] = element.value
-        }
-
-        val currentDrawStack : MutableList<RouteTile> = mutableListOf()
-        for(element in game.currentDrawStack){
-            currentDrawStack.add(element)
-        }
-
-        val currentGems : MutableList<Gem> = mutableListOf()
-        for(element in game.currentGems){
-            currentGems.add(element)
-        }
-
-        // Add the gameState to the undoStack
-       game.undoStack.add(GameState(currentBoard,currentDrawStack,game.currentPlayers,currentGems))
+        // Clone the current game state, and add it to the undo stack
+        val clonedGameState = rootService.gameService.cloneGameState()
+        game.undoStack.add(clonedGameState)
+        game.redoStack.clear() // clear redoStack, as we might have diverged
 
         // Draw a tile
         drawTile()

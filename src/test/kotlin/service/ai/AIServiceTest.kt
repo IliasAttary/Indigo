@@ -160,7 +160,7 @@ class AIServiceTest {
         val newGems: MutableList<Gem> =
             mutableListOf(Gem.AMBER, Gem.EMERALD, Gem.EMERALD)
 
-        val newGameState = GameState(newBoard, newDrawStack, newPlayers, newGems)
+        val newGameState = GameState(newBoard, newDrawStack, newPlayers, rootService.currentGame!!.playerAtTurn, newGems)
 
         aiServices.setCurrentState(newGameState)
         val game = rootService.currentGame
@@ -170,8 +170,8 @@ class AIServiceTest {
             game.currentBoard,
             game.currentDrawStack,
             game.currentPlayers,
-            game.currentGems
-        )
+            game.playerAtTurn,
+            game.currentGems)
 
         //assert setting the Game state
         assertEquals(newGameState, settedGameSate)
