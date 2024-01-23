@@ -1349,6 +1349,11 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
 
         undoButton.isDisabled = game.undoStack.isEmpty()
         redoButton.isDisabled = game.redoStack.isEmpty()
+
+        game.currentBoard.forEach { (axialPos, tile) ->
+            
+        }
+
     }
 
     // TODO: ADD UPDATE BOARD
