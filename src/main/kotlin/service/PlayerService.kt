@@ -94,10 +94,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         }.apply { isDaemon = true }.start()
     }
 
-    /**
-     * change the current player to the previous player if undo was called
-     * @throws IllegalStateException if no game is started
-     */
+    /*
     private fun changePlayerBack(){
         val game = rootService.currentGame
         checkNotNull(game){"No game started yet"}
@@ -113,6 +110,8 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
 
         onAllRefreshables { refreshAfterChangePlayer() }
     }
+    */
+
     /**
      * undo enables the player to go back to the last step
      * @throws IllegalStateException if no game is started or if the list is empty.
