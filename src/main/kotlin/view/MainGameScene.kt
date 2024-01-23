@@ -553,6 +553,11 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
 
             val game = rootService.currentGame
             checkNotNull(game)
+
+            if (game.playerAtTurn.isAI) {
+                return@onMouseClicked
+            }
+
             val currenTile = game.playerAtTurn.heldTile ?: return@onMouseClicked
             currenTile.rotation = (currenTile.rotation + 1) % 6
             updateHeldTiles()
@@ -582,6 +587,11 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
 
             val game = rootService.currentGame
             checkNotNull(game)
+
+            if (game.playerAtTurn.isAI) {
+                return@onMouseClicked
+            }
+
             val currenTile = game.playerAtTurn.heldTile ?: return@onMouseClicked
             when (currenTile.rotation) {
                 0 -> currenTile.rotation = 5
@@ -886,7 +896,10 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
                             ConnectionState.PLAYING_MY_TURN
                         )
                     ) {
-                        if (rootService.playerService.checkPlacement(AxialPos(q, r))) {
+                        val game = rootService.currentGame
+                        checkNotNull(game)
+
+                        if (rootService.playerService.checkPlacement(AxialPos(q, r)) && !game.playerAtTurn.isAI) {
                             rootService.playerService.placeTile(AxialPos(q, r))
                         }
                     }
@@ -898,7 +911,10 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
                             ConnectionState.PLAYING_MY_TURN
                         )
                     ) {
-                        if (rootService.playerService.checkPlacement(AxialPos(q, r)))
+                        val game = rootService.currentGame
+                        checkNotNull(game)
+
+                        if (rootService.playerService.checkPlacement(AxialPos(q, r)) && !game.playerAtTurn.isAI)
                             scale = 1.2
                     }
                 }
