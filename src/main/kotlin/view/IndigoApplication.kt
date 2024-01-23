@@ -5,6 +5,22 @@ import entity.Player
 import service.RootService
 import tools.aqua.bgw.core.BoardGameApplication
 
+/**
+ * The main application class for the Indigo board game.
+ *
+ * This class manages various scenes, including the main game scene, launch menu scene,
+ * rules scene, pre-game menu scene,new game menu scene, and end game menu scene.
+ * It also handles the initialization and interactions between these scenes.
+ *
+ * @property rootService The root service for accessing the current game and other logic.
+ * @property mainGameScene Main scene where the game is played.
+ * @property launchMenuScene Menu scene that gets displayed right after launching the application.
+ * @property rules Menu scene that shows the rules.
+ * @property preGameMenuScene Menu scene that gets displayed after the player clicks on New Game.
+ * @property newGameMenuScene Menu scene where the players can enter their name and configure the game mode,
+ *           as well as AI Style.
+ * @property endGameMenuScene Menu scene where the players see their points and who won the game.
+ */
 class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
 
     /**
