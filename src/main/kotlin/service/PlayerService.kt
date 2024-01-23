@@ -73,6 +73,14 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         }
     }
 
+    /**
+     * Places a tile on the game board using the AI.
+     *
+     * This function is responsible for triggering an AI move, whether it is a smart AI move using Monte Carlo
+     * or a random move. It runs the AI move calculation in a separate thread.
+     * After calculating the move, it sleeps for a specific duration to control the pace of the AI's actions.
+     *
+     */
     fun placeTileAi() {
         val game = rootService.currentGame
         checkNotNull(game) { "No game started yet" }
