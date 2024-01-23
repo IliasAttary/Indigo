@@ -5,9 +5,11 @@ import entity.Player
 import kotlin.test.*
 import service.*
 import kotlin.random.Random
-
 import service.RootService
 
+/**
+ * This class contains test cases for the [NetworkService.startNewJoinedGame] function.
+ */
 class StartNewJoinedGameTest {
 
     private val secret = "game23d"
