@@ -7,7 +7,14 @@ import tools.aqua.bgw.style.BorderRadius
 import tools.aqua.bgw.util.Font
 import tools.aqua.bgw.visual.ImageVisual
 
-
+/**
+ * A scene displaying the rules of the Indigo board game.
+ *
+ * This scene provides information about the rules of the game and
+ * includes a return button to navigate back to the previous menu.
+ *
+ * @property returnButton The button used to return to the previous menu.
+ */
 class RulesScene : MenuScene(500, 500), Refreshable {
 
         val returnButton = Button(
