@@ -1310,6 +1310,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         initializeGameBoard()
         initializeGateColors()
         updateHeldTiles()
+        showTurnButtons()
         updatePlayerGems()
     }
 
@@ -1356,6 +1357,22 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
 
         // Set the currentPlayerHeldTile rotation back to 30
         currentPlayerHeldTileView.rotation = 30.0
+
+        showTurnButtons()
+    }
+
+    /**
+     * Shows or hides the left/right turn buttons depending on whether
+     * the current player is a network player or AI
+     */
+    private fun showTurnButtons() {
+        val game = rootService.currentGame
+        checkNotNull(game)
+
+        val playerInteraction = !game.playerAtTurn.isAI
+                && rootService.networkService.connectionState in listOf(ConnectionState.DISCONNECTED, ConnectionState.PLAYING_MY_TURN)
+        leftTurnButton.isVisible = playerInteraction
+        rightTurnButton.isVisible = playerInteraction
     }
 
     // TODO: ADD UPDATE BOARD

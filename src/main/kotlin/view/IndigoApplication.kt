@@ -80,34 +80,26 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
             this.hideMenuScene()
 
             // Find the correct player values and start a new game
-            var isAI = false
-            var smartAI = false
             val playerList = mutableListOf<Player>()
-            var color = Color.WHITE
             val aiSpeed = newGameMenuScene.aiSpeed
             val sharedGates = newGameMenuScene.sharedGates
             for (i in 0 until newGameMenuScene.playerCount) {
-                if (newGameMenuScene.actualPlayerTypes[i] == "random") {
-                    isAI = true
-                    smartAI = false
-                }
-                if (newGameMenuScene.actualPlayerTypes[i] == "smart") {
-                    isAI = true
-                    smartAI = true
-                }
-                when (newGameMenuScene.actualPlayerColors[i]) {
-                    "white" -> color = Color.WHITE
-                    "red" -> color = Color.RED
-                    "blue" -> color = Color.BLUE
-                    "purple" -> color = Color.PURPLE
+                val isSmartAi =  newGameMenuScene.actualPlayerTypes[i] == "smart"
+                val isAi = isSmartAi || newGameMenuScene.actualPlayerTypes[i] == "random"
+                val color = when (newGameMenuScene.actualPlayerColors[i]) {
+                    "white" -> Color.WHITE
+                    "red" -> Color.RED
+                    "blue" -> Color.BLUE
+                    "purple" -> Color.PURPLE
+                    else -> error("unexpected color")
                 }
 
                 playerList.add(
                     Player(
                         newGameMenuScene.actualPlayerNames[i],
                         color,
-                        isAI,
-                        smartAI,
+                        isAi,
+                        isSmartAi,
                         heldTile = null
                     )
                 )
