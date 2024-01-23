@@ -4,6 +4,9 @@ import kotlin.test.*
 import service.*
 import kotlin.random.Random
 
+/**
+ * This class contains test cases for the [NetworkService.hostGame] function.
+ */
 class HostGameTest {
 
     private val secret = "game23d"
