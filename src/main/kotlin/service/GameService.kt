@@ -172,6 +172,18 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
         board[coordinates] = GatewayTile(gatePlayers, gate)
     }
 
+    /**
+     * Determines the players associated with a specified gate in the game.
+     *
+     * The function considers the number of players and the gate configuration to determine
+     * the players associated with the given gate. If sharedGates is true, multiple players
+     * may be associated with a single gate.
+     *
+     * @param gate The gate number for which players need to be determined.
+     * @param players The list of players in the game.
+     * @param sharedGates A boolean indicating whether gates can be shared among multiple players.
+     * @return A mutable list of players associated with the specified gate.
+     */
     private fun determineGatePlayers(gate: Int, players: List<Player>, sharedGates: Boolean): MutableList<Player> {
 
         val gatePlayers = mutableListOf<Player>()
