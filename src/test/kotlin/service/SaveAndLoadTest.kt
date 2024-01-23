@@ -1,12 +1,8 @@
 package service
 
-import entity.Color
-import entity.Player
+import entity.*
 import java.io.File
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 /**
  * This class contains test cases for the [GameService.save] and [GameService.load] functions.
@@ -44,7 +40,7 @@ class SaveAndLoadTest {
         gameService.startGame(
             players = listOf(
                 Player("P1", Color.RED, heldTile = null, isAI = false, smartAI = false),
-                Player("P2", Color.RED, heldTile = null, isAI = false, smartAI = false)
+                Player("P2", Color.BLUE, heldTile = null, isAI = false, smartAI = false)
             ),
             aiSpeed = 10,
             sharedGates = false
@@ -66,7 +62,7 @@ class SaveAndLoadTest {
         gameService.startGame(
             players = listOf(
                 Player("P1", Color.RED, heldTile = null, isAI = false, smartAI = false),
-                Player("P2", Color.RED, heldTile = null, isAI = false, smartAI = false)
+                Player("P2", Color.BLUE, heldTile = null, isAI = false, smartAI = false)
             ),
             aiSpeed = 10,
             sharedGates = false
@@ -76,6 +72,13 @@ class SaveAndLoadTest {
         gameService.save()
         gameService.load()
 
-        assertEquals(sampleState, rootService.currentGame)
+        val loadedGame = rootService.currentGame!!
+
+        assertEquals(sampleState, loadedGame)
+        assertSame(loadedGame.playerAtTurn, loadedGame.currentPlayers[0])
+        assertSame(
+            (loadedGame.currentBoard[AxialPos(1, -5)] as GatewayTile).ownedBy.first(),
+            loadedGame.currentPlayers[0]
+        )
     }
 }

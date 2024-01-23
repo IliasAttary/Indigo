@@ -1,5 +1,4 @@
 package service
-
 import entity.*
 import tools.aqua.bgw.core.BoardGameApplication
 import kotlin.math.max
@@ -114,7 +113,6 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
 
         onAllRefreshables { refreshAfterChangePlayer() }
     }
-
     /**
      * undo enables the player to go back to the last step
      * @throws IllegalStateException if no game is started or if the list is empty.
@@ -125,21 +123,16 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
 
         require(game.undoStack.isNotEmpty()){ "The undo list is empty" }
 
-        val redo = GameState(game.currentBoard,
-                             game.currentDrawStack,
-                             game.currentPlayers,
-                             game.playerAtTurn,
-                             game.currentGems)
-
+        val redo = rootService.gameService.cloneGameState()
         game.redoStack.add(redo)
 
         val gameState = game.undoStack.removeLast()
         game.currentBoard = gameState.board
         game.currentDrawStack = gameState.drawStack
         game.currentPlayers = gameState.players
+        game.playerAtTurn = gameState.playerAtTurn
         game.currentGems = gameState.gems
 
-        changePlayerBack()
         onAllRefreshables { refreshAfterUndo() }
     }
 
@@ -155,23 +148,17 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
             "The redo list is empty"
         }
 
-        val undo = GameState(game.currentBoard,
-                             game.currentDrawStack,
-                             game.currentPlayers,
-                             game.playerAtTurn,
-                             game.currentGems)
-
+        val undo = rootService.gameService.cloneGameState()
         game.undoStack.add(undo)
-        val gameState =  game.redoStack.removeLast()
 
+        val gameState = game.redoStack.removeLast()
         game.currentBoard = gameState.board
         game.currentDrawStack = gameState.drawStack
         game.currentPlayers = gameState.players
+        game.playerAtTurn = gameState.playerAtTurn
         game.currentGems = gameState.gems
 
-        changePlayer()
         onAllRefreshables { refreshAfterRedo() }
-
     }
 
     /**

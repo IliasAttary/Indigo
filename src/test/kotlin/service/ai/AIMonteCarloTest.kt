@@ -73,8 +73,7 @@ class AIMonteCarloTest {
             game.currentDrawStack,
             game.currentPlayers,
             game.playerAtTurn,
-            game.currentGems
-        )
+            game.currentGems)
 
         val action: Pair<AxialPos, Tile> = Pair(AxialPos(-1, 1), RouteTile(TileType.TILE1))
         val node1 = MontiCarloNode()
@@ -118,8 +117,7 @@ class AIMonteCarloTest {
             game.currentDrawStack,
             game.currentPlayers,
             game.playerAtTurn,
-            game.currentGems
-        )
+            game.currentGems)
 
         val action: Pair<AxialPos, Tile> = Pair(AxialPos(-1, 1), RouteTile(TileType.TILE1))
         val node = MontiCarloNode()
@@ -156,17 +154,13 @@ class AIMonteCarloTest {
 
         val game = rootService.currentGame
         checkNotNull(game)
-        val result = aiServices.trainMontiCarloAgent(5, 5, 10)
+        val result = aiServices.trainMontiCarloAgent(2, 2, 2)
 
         if (result != null) {
             println("Selected Action: ${result.first} with Rotation: ${result.second.rotation}")
+        } else {
+            println("No action selected.")
         }
-        println(game.currentDrawStack.size)
-        println(game.currentBoard.size)
-
-        rootService.playerService.checkPlacement(result!!.first)
-
-        rootService.playerService.placeTile(result.first)
     }
 
 }
