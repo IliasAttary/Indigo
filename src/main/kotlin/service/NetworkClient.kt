@@ -153,9 +153,10 @@ class NetworkClient(
                 "The list for other player names is null"
             }
 
+            val removedIndex = otherPlayerNames.indexOf(notification.sender)
             val removed = otherPlayerNames.remove(notification.sender)
 
-            check(removed) {
+            check(removed && removedIndex != -1) {
                 "The player that left has not been registered in our player list"
             }
 
@@ -164,7 +165,7 @@ class NetworkClient(
             networkService.onAllRefreshables {
                 refreshAfterDisconnect(notification.sender)
 
-                if (roomIsFull) {
+                if (roomIsFull && removedIndex < PLAYER_LIMIT - 1) {
                     // The room is still full after a player left, so let him be shown in the GUI
                     refreshAfterJoinPlayer(otherPlayerNames[PLAYER_LIMIT - 2])
                 }
