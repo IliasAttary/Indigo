@@ -659,7 +659,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         width = 60,
         height = 60,
         visual = ImageVisual("color_white.png"),
-        text = "1_1"
     )
 
     /**
@@ -671,7 +670,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         width = 60,
         height = 60,
         visual = ImageVisual("color_white.png"),
-        text = "1_2"
     )
 
     /**
@@ -683,7 +681,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         width = 60,
         height = 60,
         visual = ImageVisual("color_white.png"),
-        text = "2_1"
     )
 
     /**
@@ -695,7 +692,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         width = 60,
         height = 60,
         visual = ImageVisual("color_white.png"),
-        text = "2_2"
     )
 
     /**
@@ -707,7 +703,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         width = 60,
         height = 60,
         visual = ImageVisual("color_white.png"),
-        text = "3_1"
     )
 
     /**
@@ -719,7 +714,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         width = 60,
         height = 60,
         visual = ImageVisual("color_white.png"),
-        text = "3_2"
     )
 
     /**
@@ -731,7 +725,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         width = 60,
         height = 60,
         visual = ImageVisual("color_white.png"),
-        text = "4_1"
     )
 
     /**
@@ -743,7 +736,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         width = 60,
         height = 60,
         visual = ImageVisual("color_white.png"),
-        text = "4_2"
     )
 
     /**
@@ -755,7 +747,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         width = 60,
         height = 60,
         visual = ImageVisual("color_white.png"),
-        text = "5_1"
     )
 
     /**
@@ -767,7 +758,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         width = 60,
         height = 60,
         visual = ImageVisual("color_white.png"),
-        text = "5_2"
     )
 
     /**
@@ -779,7 +769,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         width = 60,
         height = 60,
         visual = ImageVisual("color_white.png"),
-        text = "6_1"
     )
 
     /**
@@ -791,7 +780,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         width = 60,
         height = 60,
         visual = ImageVisual("color_white.png"),
-        text = "6_2"
     )
 
     /**
@@ -828,96 +816,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
      * List of gems on board
      */
     private val boardGems: MutableList<TokenView> = mutableListOf()
-
-    /**
-     *  Determines the Tile on the specified coordinates is a Treasure tile and returns the corresponding View for it,
-     *  if not returns a single colored HexagonView
-     */
-    private fun getInitialTileView(q: Int, r: Int): HexagonView {
-        val hexagon: HexagonView
-        if (q == 0 && r == 0) {
-            hexagon = HexagonView(
-                size = 68,
-                visual = ImageVisual("middleTreasureTile.png")
-            )
-        } else if (q == 0 && r == -4) {
-            hexagon = HexagonView(
-                size = 68,
-                visual = ImageVisual("treasureTile.png")
-            ).apply { rotation = 240.0 }
-        } else if (q == 0 && r == 4) {
-            hexagon = HexagonView(
-                size = 68,
-                visual = ImageVisual("treasureTile.png")
-            ).apply { rotation = 60.0 }
-        } else if (q == 4 && r == -4) {
-            hexagon = HexagonView(
-                size = 68,
-                visual = ImageVisual("treasureTile.png")
-            ).apply { rotation = 300.0 }
-        } else if (q == 4 && r == 0) {
-            hexagon = HexagonView(
-                size = 68,
-                visual = ImageVisual("treasureTile.png")
-            )
-        } else if (q == -4 && r == 0) {
-            hexagon = HexagonView(
-                size = 68,
-                visual = ImageVisual("treasureTile.png")
-            ).apply { rotation = 180.0 }
-        } else if (q == -4 && r == 4) {
-            hexagon = HexagonView(
-                size = 68,
-                visual = ImageVisual("treasureTile.png")
-            ).apply { rotation = 120.0 }
-        } else {
-            // default one colored view
-            hexagon = HexagonView(
-                size = 68,
-                visual = CompoundVisual(
-                    ColorVisual(Color(235, 230, 188)),
-                    TextVisual(
-                        text = "($q, $r)",
-                        font = Font(15.0, fontStyle = Font.FontStyle.ITALIC, color = Color.BLACK),
-                    )
-                )
-            ).apply {
-                onMouseClicked = {
-                    if (rootService.networkService.connectionState in listOf(
-                            ConnectionState.DISCONNECTED,
-                            ConnectionState.PLAYING_MY_TURN
-                        )
-                    ) {
-                        val game = rootService.currentGame
-                        checkNotNull(game)
-
-                        if (rootService.playerService.checkPlacement(AxialPos(q, r)) && !game.playerAtTurn.isAI) {
-                            rootService.playerService.placeTile(AxialPos(q, r))
-                        }
-                    }
-                }
-
-                onMouseEntered = {
-                    if (rootService.networkService.connectionState in listOf(
-                            ConnectionState.DISCONNECTED,
-                            ConnectionState.PLAYING_MY_TURN
-                        )
-                    ) {
-                        val game = rootService.currentGame
-                        checkNotNull(game)
-
-                        if (rootService.playerService.checkPlacement(AxialPos(q, r)) && !game.playerAtTurn.isAI)
-                            scale = 1.2
-                    }
-                }
-
-                onMouseExited = {
-                    scale = 1.0
-                }
-            }
-        }
-        return hexagon
-    }
 
     /**
      *  Updates the heldTileViews for all players to the currently held Tile.
@@ -1026,44 +924,9 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
     }
 
     /**
-     *  Fills the game board when creating a new game
-     */
-    private fun initializeGameBoard() {
-        val game = rootService.currentGame
-        checkNotNull(game)
-
-        gameBoard.apply {
-            // Radius of axial hexagon grid
-            val size = 4
-            var hexagon: HexagonView
-            var currentBoardTile: Tile?
-            var currentHexagonView: HexagonView?
-            // Initialize empty game board with treasure tiles on it
-            for (q in -size..size) {
-                for (r in -size..size) {
-                    if (q + r <= size && q + r >= -size) {
-                        // Set the hexagon view element with the right attributes
-                        hexagon = getInitialTileView(q, r)
-                        // Overwrite the current View in the grid
-                        this[q, r] = hexagon
-                        // Get the current Board tile and View Element
-                        currentBoardTile = game.currentBoard[AxialPos(q, r)]
-                        currentHexagonView = this[q, r]
-                        // update the tileMap with the Tile and View Element if a tile exists on AxialPos(q,r)
-                        checkNotNull(currentHexagonView)
-                        if (currentBoardTile != null)
-                            tileMap.add(currentBoardTile, currentHexagonView)
-                    }
-                }
-            }
-        }
-
-        updateBoardGems()
-    }
-
-    /**
      *  Sets the correct HexagonView for the specified TileType, if Tile is null sets a one colored HexagonView
      */
+    // TODO: Remove q,r Coordinates from Tiles after finishing tests
     private fun setTileView(tile: Tile?, q: Int, r: Int) {
         var hexagonView = HexagonView(size = 68, visual = ColorVisual(Color(235, 230, 188)))
 
@@ -1077,7 +940,10 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
 
             null -> hexagonView = HexagonView(
                 size = 68,
-                visual = ColorVisual(Color(235, 230, 188))
+                visual = CompoundVisual(
+                    ColorVisual(Color(235, 230, 188)),
+                    TextVisual(text = "$q, $r")
+                )
             ).apply {
                 onMouseClicked = {
                     if (rootService.networkService.connectionState in listOf(
@@ -1085,7 +951,10 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
                             ConnectionState.PLAYING_MY_TURN
                         )
                     ) {
-                        if (rootService.playerService.checkPlacement(AxialPos(q, r))) {
+                        val game = rootService.currentGame
+                        checkNotNull(game)
+
+                        if (rootService.playerService.checkPlacement(AxialPos(q, r)) && !game.playerAtTurn.isAI) {
                             rootService.playerService.placeTile(AxialPos(q, r))
                         }
                     }
@@ -1097,7 +966,10 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
                             ConnectionState.PLAYING_MY_TURN
                         )
                     ) {
-                        if (rootService.playerService.checkPlacement(AxialPos(q, r)))
+                        val game = rootService.currentGame
+                        checkNotNull(game)
+
+                        if (rootService.playerService.checkPlacement(AxialPos(q, r)) && !game.playerAtTurn.isAI)
                             scale = 1.2
                     }
                 }
@@ -1106,6 +978,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
                     scale = 1.0
                 }
             }
+
 
             is GatewayTile -> {}
             // Set the correct Treasure Tile
@@ -1173,8 +1046,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
                 }
             }
         }
-
-
     }
 
     /**
@@ -1381,6 +1252,40 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         }
     }
 
+    /**
+     *  Sets the currentPlayerIndicator over the right player field
+     */
+    private fun setCurrentPlayerIndicator() {
+        val game = rootService.currentGame
+        checkNotNull(game)
+        // list of Y positions
+        val posYList =
+            listOf(
+                firstPlayerColor.posY - 10,
+                secondPlayerColor.posY - 10,
+                thirdPlayerColor.posY - 10,
+                fourthPlayerColor.posY - 10
+            )
+
+        when (game.playerAtTurn) {
+            game.currentPlayers[0] -> {
+                currentPlayerIndicator.posY = posYList[0]
+            }
+
+            game.currentPlayers[1] -> {
+                currentPlayerIndicator.posY = posYList[1]
+            }
+
+            game.currentPlayers[2] -> {
+                currentPlayerIndicator.posY = posYList[2]
+            }
+
+            game.currentPlayers[3] -> {
+                currentPlayerIndicator.posY = posYList[3]
+            }
+        }
+    }
+
     override fun refreshAfterNewGame() {
         val game = rootService.currentGame
         checkNotNull(game)
@@ -1417,7 +1322,8 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             fourthPlayerHeldTileView.isVisible = true
         }
         // Initialize the board, show the heldTiles of all players and set the gem count to 0
-        initializeGameBoard()
+        setCurrentPlayerIndicator()
+        copyGameBoard()
         initializeGateColors()
         updateHeldTiles()
         checkTiles()
@@ -1429,7 +1335,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
     override fun refreshAfterPlaceTile(position: AxialPos) {
         val game = rootService.currentGame
         checkNotNull(game)
-
         // Get the GUI gameBoard and update the Tiles visual there
         val gameBoardTile = gameBoard[position.q, position.r]
         checkNotNull(gameBoardTile)
@@ -1444,32 +1349,11 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
     }
 
     override fun refreshAfterChangePlayer() {
-        val game = rootService.currentGame
-        checkNotNull(game)
-        // list of Y positions
-        val posYList =
-            listOf(
-                firstPlayerColor.posY - 10,
-                secondPlayerColor.posY - 10,
-                thirdPlayerColor.posY - 10,
-                fourthPlayerColor.posY - 10
-            )
-        // find current pos
-        val playerCount = game.currentPlayers.size
-        var currentPlayerPos = 0
-        for (i in 0 until playerCount) {
-            if (posYList[i] == currentPlayerIndicator.posY)
-                currentPlayerPos = i
-        }
-        // Update the indicators position
-        currentPlayerIndicator.posY = posYList[(currentPlayerPos + 1) % playerCount]
-
+        setCurrentPlayerIndicator()
         // Update held tiles
         updateHeldTiles()
-
         // Set the currentPlayerHeldTile rotation back to 30
         currentPlayerHeldTileView.rotation = 30.0
-
         showTurnButtons()
     }
 
@@ -1482,13 +1366,14 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         checkNotNull(game)
 
         val playerInteraction = !game.playerAtTurn.isAI
-        && rootService.networkService.connectionState in listOf(ConnectionState.DISCONNECTED,
-        ConnectionState.PLAYING_MY_TURN)
+                && rootService.networkService.connectionState in listOf(
+            ConnectionState.DISCONNECTED,
+            ConnectionState.PLAYING_MY_TURN
+        )
         leftTurnButton.isVisible = playerInteraction
         rightTurnButton.isVisible = playerInteraction
     }
 
-    // TODO: ADD UPDATE BOARD
     override fun refreshAfterUndo() {
         val game = rootService.currentGame
         checkNotNull(game)
@@ -1497,11 +1382,12 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         redoButton.isDisabled = game.redoStack.isEmpty()
 
         copyGameBoard()
+        setCurrentPlayerIndicator()
         updateBoardGems()
         updatePlayerGems()
+        showTurnButtons()
     }
 
-    // TODO: ADD UPDATE BOARD
     override fun refreshAfterRedo() {
         val game = rootService.currentGame
         checkNotNull(game)
@@ -1510,8 +1396,14 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         redoButton.isDisabled = game.redoStack.isEmpty()
 
         copyGameBoard()
+        setCurrentPlayerIndicator()
         updateBoardGems()
         updatePlayerGems()
+        showTurnButtons()
+    }
+
+    override fun refreshAfterLoadGame() {
+        refreshAfterNewGame()
     }
 
 

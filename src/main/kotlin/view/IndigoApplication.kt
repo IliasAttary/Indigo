@@ -125,6 +125,7 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
                 GameMode.LOCAL -> {
                     rootService.gameService.startGame(playerList, aiSpeed, sharedGates = sharedGates)
                 }
+
                 GameMode.HOST -> {
                     rootService.networkService.startNewHostedGame(
                         players = playerList,
@@ -132,6 +133,7 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
                         aiMoveMilliseconds = aiSpeed,
                     )
                 }
+
                 else -> {
                     error("Cannot start in Join mode")
                 }
@@ -142,6 +144,7 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
         launchMenuScene.newGameButton.onMouseClicked = { this.showMenuScene(preGameMenuScene) }
         launchMenuScene.loadGameButton.onMouseClicked = {
             this.hideMenuScene()
+            rootService.gameService.load()
             this.showGameScene(mainGameScene)
         }
 
