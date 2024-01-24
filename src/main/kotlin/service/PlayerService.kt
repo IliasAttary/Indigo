@@ -106,7 +106,6 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
                 val randomMove = rootService.aiServices.playRandomly()
                 game.playerAtTurn.heldTile!!.rotation = randomMove.second.rotation
                 randomMove.first
-
             }
 
             val timeEnd = System.currentTimeMillis()
@@ -114,15 +113,17 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
             val restMillis = max(0, game.aiMoveMilliseconds - diffMillis)
             Thread.sleep(restMillis)
 
-            synchronized(currentPlaceTileAiThreadIdLock) {
-                if (currentPlaceTileAiThreadId == Thread.currentThread().id) {
-                    currentPlaceTileAiThreadId = null
-                } else {
-                    return@Thread
-                }
-            }
+            val threadId = Thread.currentThread().id
 
             BoardGameApplication.runOnGUIThread {
+                synchronized(currentPlaceTileAiThreadIdLock) {
+                    if (currentPlaceTileAiThreadId == threadId) {
+                        currentPlaceTileAiThreadId = null
+                    } else {
+                        return@runOnGUIThread
+                    }
+                }
+
                 placeTile(aiMove)
             }
         }.apply { isDaemon = true }.also {
