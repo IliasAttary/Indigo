@@ -408,6 +408,11 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
             currentTilePos = coordinates
             var currentGemPos = newGemPosition
 
+            if (!placedTile.gemPositions.containsKey(newGemPosition)) {
+                // gem got already removed due to collision, ignore
+                continue
+            }
+
             while(true){
                 val nextTilePos = currentTilePos + neighborOffsetMap[currentGemPos]!!
                 val nextTile = game.currentBoard[nextTilePos]
@@ -446,9 +451,23 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
                     val endPosition = nextTilePaths[oppositeDirection]!!
 
                     if (nextTile is RouteTile) {
-                        nextTile.gemPositions[endPosition] = gem
+                        if (nextTile.gemPositions.containsKey(oppositeDirection)) {
+                            // collision, remove both gems
+                            game.currentGems.remove(nextTile.gemPositions.remove(oppositeDirection)!!)
+                            game.currentGems.remove(gem)
+                            break
+                        } else {
+                            nextTile.gemPositions[endPosition] = gem
+                        }
                     } else if (nextTile is TreasureTile) {
-                        nextTile.gemPositions!![endPosition] = gem
+                        if (nextTile.gemPositions!!.containsKey(oppositeDirection)) {
+                            // collision, remove both gems
+                            game.currentGems.remove(nextTile.gemPositions.remove(oppositeDirection)!!)
+                            game.currentGems.remove(gem)
+                            break
+                        } else {
+                            nextTile.gemPositions[endPosition] = gem
+                        }
                     } else {
                         throw IllegalStateException ("unexpected")
                     }
