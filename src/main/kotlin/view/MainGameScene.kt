@@ -1400,6 +1400,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
 
         copyGameBoard()
         setCurrentPlayerIndicator()
+        updateHeldTiles()
         updateBoardGems()
         updatePlayerGems()
         showTurnButtons()
@@ -1415,6 +1416,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
 
         copyGameBoard()
         setCurrentPlayerIndicator()
+        updateHeldTiles()
         updateBoardGems()
         updatePlayerGems()
         showTurnButtons()
