@@ -351,6 +351,8 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
 
         if(game.playerAtTurn.isAI){
             rootService.playerService.placeTileAi()
+        } else {
+            rootService.playerService.abortPlaceTileAi()
         }
 
         onAllRefreshables { refreshAfterLoadGame() }

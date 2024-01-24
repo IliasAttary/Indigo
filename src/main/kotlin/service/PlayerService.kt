@@ -13,17 +13,28 @@ import kotlin.math.max
  */
 class PlayerService(private val rootService:RootService) : AbstractRefreshingService() {
 
-    val neighborOffsetMap = mapOf(      0 to AxialPos(q=0,  r=-1),
+    private val neighborOffsetMap = mapOf(      0 to AxialPos(q=0,  r=-1),
                                         1 to AxialPos(q=1,  r=-1),
                                         2 to  AxialPos(q=1,  r=0),
                                         3 to  AxialPos(q=0, r=1),
                                         4 to  AxialPos(q=-1, r=1),
                                         5 to  AxialPos(q=-1,  r=0))
 
-    val treasureTilePaths = mapOf(
+    private val treasureTilePaths = mapOf(
         1 to 5,
         5 to 1,
     )
+
+    /**
+     * The id of the current placeTileAi thread.
+     * This variable is used to know whether it is an old placeTileAi thread.
+     */
+    private var currentPlaceTileAiThreadId: Long? = null
+
+    /**
+     * A lock for [currentPlaceTileAiThreadId] to prevent race conditions.
+     */
+    private val currentPlaceTileAiThreadIdLock = Any()
 
     /**
      * Rotates the tile held by the current player in the game.
@@ -96,29 +107,33 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
             val diffMillis = timeEnd - timeStart
             val restMillis = max(0, game.aiMoveMilliseconds - diffMillis)
             Thread.sleep(restMillis)
+
+            synchronized(currentPlaceTileAiThreadIdLock) {
+                if (currentPlaceTileAiThreadId == Thread.currentThread().id) {
+                    currentPlaceTileAiThreadId = null
+                } else {
+                    return@Thread
+                }
+            }
+
             BoardGameApplication.runOnGUIThread {
                 placeTile(aiMove)
             }
-        }.apply { isDaemon = true }.start()
+        }.apply { isDaemon = true }.also {
+            synchronized(currentPlaceTileAiThreadIdLock) {
+                currentPlaceTileAiThreadId = it.id
+            }
+        }.start()
     }
 
-    /*
-    private fun changePlayerBack(){
-        val game = rootService.currentGame
-        checkNotNull(game){"No game started yet"}
-        val playerAtTurn = game.playerAtTurn
-        val currentPlayers = game.currentPlayers
-        val indexOfCurrentPlayer = currentPlayers.indexOf(playerAtTurn)
-        if(indexOfCurrentPlayer == 0){
-            game.playerAtTurn = game.currentPlayers[currentPlayers.size-1]
+    /**
+     * Aborts old placeTileAi threads, if they exist
+     */
+    fun abortPlaceTileAi() {
+        synchronized(currentPlaceTileAiThreadIdLock) {
+            currentPlaceTileAiThreadId = null
         }
-        else{
-            game.playerAtTurn = game.currentPlayers[indexOfCurrentPlayer - 1]
-        }
-
-        onAllRefreshables { refreshAfterChangePlayer() }
     }
-    */
 
     /**
      * undo enables the player to go back to the last step
@@ -141,7 +156,9 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         game.currentGems = gameState.gems
 
         if(game.playerAtTurn.isAI){
-           placeTileAi()
+            placeTileAi()
+        } else {
+            abortPlaceTileAi()
         }
 
         onAllRefreshables { refreshAfterUndo() }
@@ -171,6 +188,8 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
 
         if(game.playerAtTurn.isAI){
             placeTileAi()
+        } else {
+            abortPlaceTileAi()
         }
 
         onAllRefreshables { refreshAfterRedo() }
