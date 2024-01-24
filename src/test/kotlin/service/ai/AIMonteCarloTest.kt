@@ -155,9 +155,12 @@ class AIMonteCarloTest {
         val game = rootService.currentGame
         checkNotNull(game)
         val result = aiServices.trainMontiCarloAgent(2, 2, 2)
+        val rotationResult = aiServices.playRandomly()
 
         if (result != null) {
-            println("Selected Action: ${result.first} with Rotation: ${result.second.rotation}")
+            println("Smart Action: ${result.first} with Rotation: ${result.second.rotation}")
+            println("Random Action: ${rotationResult.first} with Rotation: ${rotationResult.second.rotation}")
+
         } else {
             println("No action selected.")
         }
