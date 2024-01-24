@@ -84,7 +84,11 @@ class AIServiceTest {
         checkNotNull(game)
     }
 
-
+    /**
+     * Verifies the correctness of valid positions on the game board.
+     * Checks the removal of coordinates after placing a tile.
+     * Expects an IllegalStateException to be thrown.
+     */
     @Test
     fun testValidPositions() {
         gameService.startGame(
@@ -142,7 +146,9 @@ class AIServiceTest {
         assertEquals(axialPosCoordinates, newCoordinates)
     }
 
-
+    /**
+    * Tests the handling of the current game state in the AI service.
+    */
     @Test
     fun testCurrentState() {
         gameService.startGame(
@@ -166,22 +172,12 @@ class AIServiceTest {
         aiServices.setCurrentState(newGameState)
         val game = rootService.currentGame
         checkNotNull(game)
-
-        /*val settedGameSate = GameState(
-            game.currentBoard,
-            game.currentDrawStack,
-            game.currentPlayers,
-            game.currentGems
-        )
-        */
-        //assert setting the Game state
-        //assertEquals(newGameState, settedGameSate)
-
-        //assert getting the Game state
-        val gottenState = aiServices.getCurrentState()
-        //assertEquals(newGameState, gottenState)
     }
 
+    /**
+     * Ensures that all possible rotations of a tile are correctly calculated.
+     * Checks the accuracy of calculated rotations.
+     */
     @Test
     fun testAllTilePossibleRotations() {
         gameService.startGame(
@@ -210,6 +206,9 @@ class AIServiceTest {
     }
 
 
+    /**
+     * Verifies the generation of all possible next game states.
+     */
     @Test
     fun testGetAllPossibleNextStates() {
         gameService.startGame(
