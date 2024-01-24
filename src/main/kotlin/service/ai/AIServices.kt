@@ -258,7 +258,12 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
             val tilePosition = allValidPositions.random()
 
             // Check if the chosen position and rotation result in a valid placement
-            if (rootService.playerService.checkPlacement(tilePosition)) {
+            val oldRotation = tile.rotation
+            tile.rotation = tileRotation.rotation
+            val isValid = rootService.playerService.checkPlacement(tilePosition)
+            tile.rotation = oldRotation
+
+            if (isValid) {
                 return Pair(tilePosition, tileRotation)
             }
         }
