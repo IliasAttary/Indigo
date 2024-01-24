@@ -557,7 +557,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             currenTile.rotation = (currenTile.rotation + 1) % 6
             updateHeldTiles()
             checkTiles()
-            markForbiddenTiles = true
         }
     }
 
@@ -593,7 +592,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             }
             updateHeldTiles()
             checkTiles()
-            markForbiddenTiles = true
         }
     }
 
@@ -785,12 +783,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         visual = ImageVisual("color_white.png"),
         text = "6_2"
     )
-
-
-    /**
-     *  Variable for storing whether the illegal Tiles should be shown or not.
-     */
-    private var markForbiddenTiles = false
 
     /**
      *  Variable for storing whether the first players name or gem count should be shown
@@ -1054,6 +1046,122 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
     }
 
     /**
+     *  Sets the correct HexagonView for the specified TileType, if Tile is null sets a one colored HexagonView
+     */
+    private fun setTileView(tile: Tile?, q: Int, r: Int) {
+        var hexagonView = HexagonView(size = 68, visual = ColorVisual(Color(235, 230, 188)))
+
+        when (tile) {
+            is RouteTile -> {
+                hexagonView = HexagonView(
+                    size = 69,
+                    visual = ImageVisual("${tile.tileType.toString().lowercase()}_${tile.rotation}.png")
+                )
+            }
+
+            null -> hexagonView = HexagonView(
+                size = 68,
+                visual = ColorVisual(Color(235, 230, 188))
+            ).apply {
+                onMouseClicked = {
+                    if (rootService.networkService.connectionState in listOf(
+                            ConnectionState.DISCONNECTED,
+                            ConnectionState.PLAYING_MY_TURN
+                        )
+                    ) {
+                        if (rootService.playerService.checkPlacement(AxialPos(q, r))) {
+                            rootService.playerService.placeTile(AxialPos(q, r))
+                        }
+                    }
+                }
+
+                onMouseEntered = {
+                    if (rootService.networkService.connectionState in listOf(
+                            ConnectionState.DISCONNECTED,
+                            ConnectionState.PLAYING_MY_TURN
+                        )
+                    ) {
+                        if (rootService.playerService.checkPlacement(AxialPos(q, r)))
+                            scale = 1.2
+                    }
+                }
+
+                onMouseExited = {
+                    scale = 1.0
+                }
+            }
+
+            is GatewayTile -> {}
+            // Set the correct Treasure Tile
+            is TreasureTile -> {
+                if (q == 0 && r == 0) {
+                    hexagonView = HexagonView(
+                        size = 68,
+                        visual = ImageVisual("middleTreasureTile.png")
+                    )
+                } else if (q == 0 && r == -4) {
+                    hexagonView = HexagonView(
+                        size = 68,
+                        visual = ImageVisual("treasureTile.png")
+                    ).apply { rotation = 240.0 }
+                } else if (q == 0 && r == 4) {
+                    hexagonView = HexagonView(
+                        size = 68,
+                        visual = ImageVisual("treasureTile.png")
+                    ).apply { rotation = 60.0 }
+                } else if (q == 4 && r == -4) {
+                    hexagonView = HexagonView(
+                        size = 68,
+                        visual = ImageVisual("treasureTile.png")
+                    ).apply { rotation = 300.0 }
+                } else if (q == 4 && r == 0) {
+                    hexagonView = HexagonView(
+                        size = 68,
+                        visual = ImageVisual("treasureTile.png")
+                    )
+                } else if (q == -4 && r == 0) {
+                    hexagonView = HexagonView(
+                        size = 68,
+                        visual = ImageVisual("treasureTile.png")
+                    ).apply { rotation = 180.0 }
+                } else if (q == -4 && r == 4) {
+                    hexagonView = HexagonView(
+                        size = 68,
+                        visual = ImageVisual("treasureTile.png")
+                    ).apply { rotation = 120.0 }
+                }
+            }
+        }
+
+        gameBoard.apply {
+            this[q, r] = hexagonView
+            if (tile != null)
+                tileMap.add(tile, hexagonView)
+        }
+    }
+
+
+    /**
+     *  Copies all tiles of the gameBoard on the service layer to the view layer
+     */
+    private fun copyGameBoard() {
+        val game = rootService.currentGame
+        checkNotNull(game)
+        var currentBoardTile: Tile?
+        val size = 4
+        for (q in -size..size) {
+            for (r in -size..size) {
+                if (q + r <= size && q + r >= -size) {
+                    currentBoardTile = game.currentBoard[AxialPos(q, r)]
+                    setTileView(currentBoardTile, q, r)
+                }
+            }
+        }
+
+
+    }
+
+    /**
      * Updates the gems on the boards
      */
     private fun updateBoardGems() {
@@ -1261,6 +1369,8 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         val game = rootService.currentGame
         checkNotNull(game)
 
+        tileMap.clear()
+
         // Set the player Colors and if playerCount = 3/4 show the third/fourth player colors and heldTileView
         firstPlayerColor.apply {
             visual = ImageVisual("color_${(game.currentPlayers[0].color).toString().lowercase()}.png")
@@ -1294,7 +1404,9 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         initializeGameBoard()
         initializeGateColors()
         updateHeldTiles()
+        checkTiles()
         updatePlayerGems()
+        updateBoardGems()
     }
 
     override fun refreshAfterPlaceTile(position: AxialPos) {
@@ -1350,10 +1462,9 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         undoButton.isDisabled = game.undoStack.isEmpty()
         redoButton.isDisabled = game.redoStack.isEmpty()
 
-        game.currentBoard.forEach { (axialPos, tile) ->
-            
-        }
-
+        copyGameBoard()
+        updateBoardGems()
+        updatePlayerGems()
     }
 
     // TODO: ADD UPDATE BOARD
@@ -1363,6 +1474,10 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
 
         undoButton.isDisabled = game.undoStack.isEmpty()
         redoButton.isDisabled = game.redoStack.isEmpty()
+
+        copyGameBoard()
+        updateBoardGems()
+        updatePlayerGems()
     }
 
 
@@ -1510,15 +1625,21 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             }
         }
 
-        currentPlayerHeldTileView.apply {
+        // Disable undoButton if the undoStack is empty
+        undoButton.apply {
             onMouseClicked = {
-                markForbiddenTiles = !markForbiddenTiles
-                if (markForbiddenTiles)
-                    checkTiles()
-                else
-                    unmarkTiles()
+                rootService.playerService.undo()
             }
         }
+
+        // Disable redoButton if the redoStack is empty
+        redoButton.apply {
+            onMouseClicked = {
+                rootService.playerService.redo()
+            }
+        }
+
+
     }
 }
 
