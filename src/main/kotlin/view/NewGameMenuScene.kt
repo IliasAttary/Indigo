@@ -1116,28 +1116,56 @@ class NewGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
     }
 
     override fun refreshAfterDisconnect(playerName: String) {
-        var playerPos = 0
         // Find the player that disconnected
+        var playerPos = -1
+
         for (i in 0 until playerCount) {
-            if (actualNameFieldsList[i].text.trim() == playerName)
+            if (actualNameFieldsList[i].text == playerName) {
                 playerPos = i
+                break
+            }
+        }
+
+        if (playerPos == -1) {
+            error("player not found")
+        }
+
+        // Rest of players go one position up
+        for (i in playerPos+1 until playerCount) {
+            val newI = i-1
+
+            actualNameFieldsList[newI].text = actualNameFieldsList[i].text
+            actualPlayerTypeButtons[newI].apply {
+                visual = actualPlayerTypeButtons[i].visual
+                name = actualPlayerTypeButtons[i].name
+                isVisible = actualPlayerTypeButtons[i].isVisible
+            }
+            availableTypes[newI] = availableTypes[i]
+            actualPlayerColorButtons[newI].apply {
+                val oldPlayerButtons = actualPlayerColorButtons[i]
+
+                for ((j, button) in actualPlayerTypeButtons.withIndex()) {
+                    button.scale = oldPlayerButtons[j].scale
+                    button.name = oldPlayerButtons[j].name
+                }
+            }
         }
 
         // Reset the name in the field and list
-        actualNameFieldsList[playerPos].text = ""
-        actualPlayerNames[playerPos] = ""
-
-        // Reset the type to player
-        actualPlayerTypeButtons[playerPos].apply {
-            visual = ImageVisual("player_icon.png")
-            this.name = "player"
+        playerLabels[playerCount-1].isVisible = false
+        actualNameFieldsList[playerCount-1].apply {
+            isVisible = false
+            text = ""
         }
-        availableTypes[playerPos] = 0
-        actualPlayerTypes[playerPos] = "player"
+
+        availableTypes[playerCount-1] = 0
+        actualPlayerTypeButtons[playerCount-1].apply {
+            isVisible = false
+        }
 
         // Reset the color and resize the color buttons
-        actualPlayerColors[playerPos] = ""
-        actualPlayerColorButtons[playerPos].forEach { button ->
+        actualPlayerColorButtons[playerCount-1].forEach { button ->
+            button.isVisible = false
             button.scale = 1.0
         }
 
