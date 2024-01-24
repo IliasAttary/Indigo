@@ -348,6 +348,11 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
         val game = json.decodeFromString<Game>(file.readText())
         fixPlayerReferences(game)
         rootService.currentGame = game
+
+        if(game.playerAtTurn.isAI){
+            rootService.playerService.placeTileAi()
+        }
+
         onAllRefreshables { refreshAfterLoadGame() }
     }
 

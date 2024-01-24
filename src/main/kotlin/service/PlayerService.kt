@@ -140,6 +140,10 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         game.playerAtTurn = gameState.playerAtTurn
         game.currentGems = gameState.gems
 
+        if(game.playerAtTurn.isAI){
+           placeTileAi()
+        }
+
         onAllRefreshables { refreshAfterUndo() }
     }
 
@@ -164,6 +168,10 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         game.currentPlayers = gameState.players
         game.playerAtTurn = gameState.playerAtTurn
         game.currentGems = gameState.gems
+
+        if(game.playerAtTurn.isAI){
+            placeTileAi()
+        }
 
         onAllRefreshables { refreshAfterRedo() }
     }
