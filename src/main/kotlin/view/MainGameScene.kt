@@ -894,7 +894,13 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
                     // Mark all tiles where the currently held tile can not be placed
                     if (!rootService.playerService.checkPlacement(AxialPos(q, r))) {
                         gameBoard[q, r]?.apply {
-                            opacity = 0.5
+                            when (visual) {
+                                // TODO: remove CompoundVisual statement, only needed while tile have coordinates
+                                is CompoundVisual -> opacity = 0.5
+                                is ColorVisual -> opacity = 0.5
+                                is ImageVisual -> {}
+                                is TextVisual -> {}
+                            }
                         }
                     } else
                     // Unmark all other tiles
@@ -1361,6 +1367,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         setCurrentPlayerIndicator()
         // Update held tiles
         updateHeldTiles()
+        checkTiles()
         // Set the currentPlayerHeldTile rotation back to 30
         currentPlayerHeldTileView.rotation = 30.0
         showTurnButtons()
