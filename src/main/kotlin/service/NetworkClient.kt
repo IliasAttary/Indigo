@@ -7,6 +7,7 @@ import tools.aqua.bgw.net.client.BoardGameClient
 import tools.aqua.bgw.net.client.NetworkLogging
 import tools.aqua.bgw.net.common.annotations.GameActionReceiver
 import tools.aqua.bgw.net.common.notification.PlayerJoinedNotification
+import tools.aqua.bgw.net.common.notification.PlayerLeftNotification
 import tools.aqua.bgw.net.common.response.*
 
 /**
@@ -66,7 +67,8 @@ class NetworkClient(
      * status is [JoinGameResponseStatus.SUCCESS]. As recovery from network problems is not
      * implemented, the method disconnects from the server and throws an [IllegalStateException] otherwise.
      *
-     * @throws IllegalStateException if status != success or currently not waiting for a join game response.
+     * @throws IllegalStateException if status != success, currently not waiting for a join game response,
+     *   or the lobby is already full.
      */
     override fun onJoinGameResponse(response: JoinGameResponse) {
         BoardGameApplication.runOnGUIThread {
@@ -76,14 +78,18 @@ class NetworkClient(
 
             when (response.status) {
                 JoinGameResponseStatus.SUCCESS -> {
-                    val opponents = response.opponents.take(PLAYER_LIMIT - 1).toMutableList()
+                    val opponents = response.opponents.toMutableList()
+
+                    check(opponents.size <= PLAYER_LIMIT - 1) {
+                        "The lobby is already full"
+                    }
 
                     sessionID = response.sessionID
                     otherPlayerNames = opponents
                     networkService.connectionState = ConnectionState.WAITING_FOR_INIT
 
                     networkService.onAllRefreshables {
-                        refreshAfterJoiningGame(opponents)
+                        refreshAfterJoiningGame(opponents.take(PLAYER_LIMIT - 1))
                     }
                 }
                 else -> disconnectAndError(response.status)
@@ -112,15 +118,56 @@ class NetworkClient(
                 "The list for other player names is null"
             }
 
-            if (otherPlayerNames.size >= PLAYER_LIMIT - 1) {
-                // Ignore joined player as the room is already full
+            val roomIsFull = otherPlayerNames.size >= PLAYER_LIMIT - 1
+            otherPlayerNames.add(notification.sender)
+
+            if (roomIsFull) {
+                // Ignore joined player in the GUI as the room was already full
                 return@runOnGUIThread
             }
 
-            otherPlayerNames.add(notification.sender)
-
             networkService.onAllRefreshables {
                 refreshAfterJoinPlayer(notification.sender)
+            }
+        }
+    }
+
+    /**
+     * Handle a [PlayerLeftNotification] sent by the server.
+     *
+     * @param notification the player left notification
+     *
+     * @throws IllegalStateException if the player name list is null, or the player that left could not be found
+     */
+    override fun onPlayerLeft(notification: PlayerLeftNotification) {
+        BoardGameApplication.runOnGUIThread {
+            if (networkService.connectionState != ConnectionState.WAITING_FOR_GUESTS
+                && networkService.connectionState != ConnectionState.WAITING_FOR_INIT) {
+                // If we are not in the lobby, e.g. in-game, all hope is lost, so ignore it
+                return@runOnGUIThread
+            }
+
+            val otherPlayerNames = otherPlayerNames
+
+            checkNotNull(otherPlayerNames) {
+                "The list for other player names is null"
+            }
+
+            val removed = otherPlayerNames.remove(notification.sender)
+
+            check(removed) {
+                "The player that left has not been registered in our player list"
+            }
+
+            val roomIsFull = otherPlayerNames.size >= PLAYER_LIMIT - 1
+
+            networkService.onAllRefreshables {
+                refreshAfterDisconnect(notification.sender)
+
+                if (roomIsFull) {
+                    // The room is still full after a player left, so let him be shown in the GUI
+                    refreshAfterJoinPlayer(otherPlayerNames[PLAYER_LIMIT - 2])
+                }
             }
         }
     }
