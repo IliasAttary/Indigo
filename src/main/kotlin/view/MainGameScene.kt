@@ -939,7 +939,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         when (tile) {
             is RouteTile -> {
                 hexagonView = HexagonView(
-                    size = 69,
+                    size = 68,
                     visual = ImageVisual("${tile.tileType.toString().lowercase()}_${tile.rotation}.png")
                 )
             }
