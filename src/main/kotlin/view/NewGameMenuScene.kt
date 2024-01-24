@@ -1115,6 +1115,38 @@ class NewGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
         checkInputs()
     }
 
+    override fun refreshAfterDisconnect(playerName: String) {
+        var playerPos = 0
+        // Find the player that disconnected
+        for (i in 0 until playerCount) {
+            if (actualNameFieldsList[i].text.trim() == playerName)
+                playerPos = i
+        }
+
+        // Reset the name in the field and list
+        actualNameFieldsList[playerPos].text = ""
+        actualPlayerNames[playerPos] = ""
+
+        // Reset the type to player
+        actualPlayerTypeButtons[playerPos].apply {
+            visual = ImageVisual("player_icon.png")
+            this.name = "player"
+        }
+        availableTypes[playerPos] = 0
+        actualPlayerTypes[playerPos] = "player"
+
+        // Reset the color and resize the color buttons
+        actualPlayerColors[playerPos] = ""
+        actualPlayerColorButtons[playerPos].forEach { button ->
+            button.scale = 1.0
+        }
+
+        // Decrease the playerCount and determine the actual values again
+        playerCount--
+        determineActualValues()
+        checkInputs()
+    }
+
     init {
         addComponents(
             backgroundBox,

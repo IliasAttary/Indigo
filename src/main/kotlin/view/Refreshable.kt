@@ -80,6 +80,12 @@ interface Refreshable {
     fun refreshAfterJoiningGame(playerNames: List<String>) {}
 
     /**
+     *  Called when a player leaves a game.
+     *  Updates the UI for the Host.
+     */
+    fun refreshAfterDisconnect(playerName: String) {}
+
+    /**
      * Called when a player rotates his held tile.
      * This method should update the UI with the new rotation of the tile.
      */
