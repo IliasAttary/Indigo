@@ -905,7 +905,7 @@ class NewGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
         }
 
         // Disable the start round button if the inputs are faulty
-        startRoundButton.isDisabled = falseInput
+        startRoundButton.isDisabled = falseInput || playerCount < 2
     }
 
     /**
@@ -968,6 +968,7 @@ class NewGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
             isVisible = false
         }
     }
+
     /**
      *  Disables some text fields and buttons if you are the host
      */

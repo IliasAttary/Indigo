@@ -1335,14 +1335,23 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
     override fun refreshAfterPlaceTile(position: AxialPos) {
         val game = rootService.currentGame
         checkNotNull(game)
+        val isNetworkGame = rootService.networkService.connectionState != ConnectionState.DISCONNECTED
+
         // Get the GUI gameBoard and update the Tiles visual there
         val gameBoardTile = gameBoard[position.q, position.r]
         checkNotNull(gameBoardTile)
         val placedTile = game.currentBoard[position] as? RouteTile
         checkNotNull(placedTile)
-        gameBoardTile.visual = ImageVisual("${placedTile.tileType.toString().lowercase()}_${placedTile.rotation}.png")
+        gameBoardTile.visual =
+            ImageVisual("${placedTile.tileType.toString().lowercase()}_${placedTile.rotation}.png")
+
         // Add the newly placed tile to the tileMap with its corresponding View Element
         tileMap.add(placedTile, gameBoardTile)
+
+        // Enable undo and redo button if
+        undoButton.isDisabled = game.undoStack.isEmpty() || isNetworkGame
+        redoButton.isDisabled = game.redoStack.isEmpty() || isNetworkGame
+
         updateBoardGems()
         updatePlayerGems()
         unmarkTiles()
@@ -1375,11 +1384,12 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
     }
 
     override fun refreshAfterUndo() {
+        val isNetworkGame = rootService.networkService.connectionState != ConnectionState.DISCONNECTED
         val game = rootService.currentGame
         checkNotNull(game)
 
-        undoButton.isDisabled = game.undoStack.isEmpty()
-        redoButton.isDisabled = game.redoStack.isEmpty()
+        undoButton.isDisabled = game.undoStack.isEmpty() || isNetworkGame
+        redoButton.isDisabled = game.redoStack.isEmpty() || isNetworkGame
 
         copyGameBoard()
         setCurrentPlayerIndicator()
@@ -1389,11 +1399,12 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
     }
 
     override fun refreshAfterRedo() {
+        val isNetworkGame = rootService.networkService.connectionState != ConnectionState.DISCONNECTED
         val game = rootService.currentGame
         checkNotNull(game)
 
-        undoButton.isDisabled = game.undoStack.isEmpty()
-        redoButton.isDisabled = game.redoStack.isEmpty()
+        undoButton.isDisabled = game.undoStack.isEmpty() || isNetworkGame
+        redoButton.isDisabled = game.redoStack.isEmpty() || isNetworkGame
 
         copyGameBoard()
         setCurrentPlayerIndicator()
@@ -1471,11 +1482,9 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             }
             undoButton.apply {
                 isVisible = !isNetworkGame
-                isDisabled = isNetworkGame
             }
             redoButton.apply {
                 isVisible = !isNetworkGame
-                isDisabled = isNetworkGame
             }
         }
 
