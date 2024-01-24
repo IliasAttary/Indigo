@@ -98,14 +98,12 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
 
         Thread {
             val timeStart = System.currentTimeMillis()
-            val aiMove = if (game.playerAtTurn.smartAI) {
+            val (aiMove, tileRotation) = if (game.playerAtTurn.smartAI) {
                 val trainMonti = rootService.aiServices.trainMontiCarloAgent(5, 5, 10)!!
-                game.playerAtTurn.heldTile!!.rotation = trainMonti.second.rotation
-                trainMonti.first
+                Pair(trainMonti.first, trainMonti.second.rotation)
             } else {
                 val randomMove = rootService.aiServices.playRandomly()
-                game.playerAtTurn.heldTile!!.rotation = randomMove.second.rotation
-                randomMove.first
+                Pair(randomMove.first, randomMove.second.rotation)
             }
 
             val timeEnd = System.currentTimeMillis()
@@ -124,6 +122,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
                     }
                 }
 
+                game.playerAtTurn.heldTile!!.rotation = tileRotation
                 placeTile(aiMove)
             }
         }.apply { isDaemon = true }.also {
