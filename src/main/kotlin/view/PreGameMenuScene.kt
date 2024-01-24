@@ -161,6 +161,8 @@ class PreGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
                     visual = ImageVisual("smart_ai_icon.png")
                 }
             }
+
+            checkDisableStart()
         }
     }.apply {
         isDisabled = true

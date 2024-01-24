@@ -18,6 +18,3 @@ data class GameState(
     val playerAtTurn: Player,
     val gems: MutableList<Gem>
 )
-{
-
-}
