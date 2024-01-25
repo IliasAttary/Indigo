@@ -895,7 +895,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
                     if (!rootService.playerService.checkPlacement(AxialPos(q, r))) {
                         gameBoard[q, r]?.apply {
                             when (visual) {
-                                // TODO: remove CompoundVisual statement, only needed while tile have coordinates
                                 is CompoundVisual -> opacity = 0.5
                                 is ColorVisual -> opacity = 0.5
                                 is ImageVisual -> {}
@@ -932,7 +931,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
     /**
      *  Sets the correct HexagonView for the specified TileType, if Tile is null sets a one colored HexagonView
      */
-    // TODO: Remove q,r Coordinates from Tiles after finishing tests
     private fun setTileView(tile: Tile?, q: Int, r: Int) {
         var hexagonView = HexagonView(size = 68, visual = ColorVisual(Color(235, 230, 188)))
 

@@ -3,6 +3,7 @@ import entity.*
 import tools.aqua.bgw.core.BoardGameApplication
 import kotlin.math.max
 
+
 /**
  * Service layer class which provides all the actions that the players can do.
  *
