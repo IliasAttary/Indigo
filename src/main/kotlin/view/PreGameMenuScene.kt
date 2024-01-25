@@ -173,10 +173,10 @@ class PreGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
      *  Drop down Menu to select the AI speed
      */
     private val joinAiSpeedSelector = ComboBox(
-        width = 260,
+        width = 300 / 1.3,
         height = 40,
-        posX = (1920 - 300) / 2,
-        posY = 750,
+        posX = (1920 - 300) / 2 + (300 - 300 / 1.3) / 2,
+        posY = 760,
         items = listOf("1000 ms", "3000 ms", "5000 ms", "7000 ms", "10000 ms"),
         prompt = "  Select AI Speed:",
         font = Font(size = 20, fontWeight = Font.FontWeight.SEMI_BOLD)
