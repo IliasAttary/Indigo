@@ -75,10 +75,18 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
             if (preGameMenuScene.gameMode == GameMode.HOST) {
                 val gameID = preGameMenuScene.gameIDField.text.trim().ifEmpty { null }
                 val playerName = preGameMenuScene.playerNameField.text.trim()
+                newGameMenuScene.gameIDLabel.apply {
+                    text = "Game ID: $gameID"
+                    isVisible = true
+                }
                 rootService.networkService.hostGame("game23d", playerName, gameID)
             } else if (preGameMenuScene.gameMode == GameMode.JOIN) {
                 val gameID = preGameMenuScene.gameIDField.text.trim()
                 val playerName = preGameMenuScene.playerNameField.text.trim()
+                newGameMenuScene.gameIDLabel.apply {
+                    text = "Game ID: $gameID"
+                    isVisible = true
+                }
                 rootService.networkService.joinGame("game23d", playerName, gameID)
             }
 
@@ -100,7 +108,7 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
             val aiSpeed = newGameMenuScene.aiSpeed
             val sharedGates = newGameMenuScene.sharedGates
             for (i in 0 until newGameMenuScene.playerCount) {
-                val isSmartAi =  newGameMenuScene.actualPlayerTypes[i] == "smart"
+                val isSmartAi = newGameMenuScene.actualPlayerTypes[i] == "smart"
                 val isAi = isSmartAi || newGameMenuScene.actualPlayerTypes[i] == "random"
                 val color = when (newGameMenuScene.actualPlayerColors[i]) {
                     "white" -> Color.WHITE
