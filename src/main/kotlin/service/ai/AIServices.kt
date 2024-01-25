@@ -320,22 +320,17 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
      * @throws IllegalStateException if the next state cannot be determined unexpectedly.
      */
     fun selectNextState(currentNode: MontiCarloNode): MontiCarloNode {
-
         // checks the current game
-
         val game = rootService.currentGame
         checkNotNull(game) { "No game started yet." }
 
         // Select the child node with the highest UCB value
-
         val nextState = currentNode.children.maxByOrNull {
             calculateUpperConfidenceBound(it)
-        } ?: throw IllegalStateException("the current child has no  children § ")
+        }
 
-        // this ensures moving to the new state
-        //setCurrentState(nextState.currentGameState!!)
+        return nextState ?: currentNode
 
-        return nextState
     }
 
 
