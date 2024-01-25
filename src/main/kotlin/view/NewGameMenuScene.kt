@@ -1018,9 +1018,17 @@ class NewGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
     ).apply {
         visual.borderRadius = BorderRadius(15)
         visual.backgroundRadius = BackgroundRadius(15)
-        onMouseClicked = {
+        onMouseClicked = onMouseClicked@{
+            if (playerCount <= 1) {
+                return@onMouseClicked
+            }
+
+            val oldPlayerPos = absolutePlayerFieldPos.subList(0, playerCount).sorted()
             // randomize the player order by shuffling the input field positions
-            randomizedPlayerFieldPos = absolutePlayerFieldPos.subList(0, playerCount).shuffled()
+            randomizedPlayerFieldPos = oldPlayerPos
+            while (randomizedPlayerFieldPos == oldPlayerPos) {
+                randomizedPlayerFieldPos = absolutePlayerFieldPos.subList(0, playerCount).shuffled()
+            }
 
             determineActualValues()
 
