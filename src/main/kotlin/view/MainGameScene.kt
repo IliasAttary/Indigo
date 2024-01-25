@@ -1382,10 +1382,9 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         checkNotNull(game)
 
         val playerInteraction = !game.playerAtTurn.isAI
-                && rootService.networkService.connectionState in listOf(
-            ConnectionState.DISCONNECTED,
-            ConnectionState.PLAYING_MY_TURN
-        )
+                && (rootService.networkService.connectionState == ConnectionState.DISCONNECTED
+                || game.playerAtTurn.name == rootService.networkService.playerName)
+        println(rootService.networkService.connectionState)
         leftTurnButton.isVisible = playerInteraction
         rightTurnButton.isVisible = playerInteraction
     }
