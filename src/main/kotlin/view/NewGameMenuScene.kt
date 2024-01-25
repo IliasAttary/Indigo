@@ -705,6 +705,20 @@ class NewGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
     }
 
     /**
+     *  Shows the Game ID in a Network game
+     */
+    val gameIDLabel = Label(
+        posX = setupPlayersLabel.posX,
+        posY = 0,
+        width = 700,
+        height = setupPlayersLabel.height,
+        font = setupPlayersLabel.font,
+        text = "Game ID: "
+    ).apply {
+        isVisible = false
+    }
+
+    /**
      *  List containing the first-fourth players type buttons.
      */
     private val playerTypeButtons =
@@ -1139,8 +1153,8 @@ class NewGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
         }
 
         // Rest of players go one position up
-        for (i in playerPos+1 until playerCount) {
-            val newI = i-1
+        for (i in playerPos + 1 until playerCount) {
+            val newI = i - 1
 
             actualNameFieldsList[newI].text = actualNameFieldsList[i].text
             actualPlayerTypeButtons[newI].apply {
@@ -1160,19 +1174,19 @@ class NewGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
         }
 
         // Reset the name in the field and list
-        playerLabels[playerCount-1].isVisible = false
-        actualNameFieldsList[playerCount-1].apply {
+        playerLabels[playerCount - 1].isVisible = false
+        actualNameFieldsList[playerCount - 1].apply {
             isVisible = false
             text = ""
         }
 
-        availableTypes[playerCount-1] = 0
-        actualPlayerTypeButtons[playerCount-1].apply {
+        availableTypes[playerCount - 1] = 0
+        actualPlayerTypeButtons[playerCount - 1].apply {
             isVisible = false
         }
 
         // Reset the color and resize the color buttons
-        actualPlayerColorButtons[playerCount-1].forEach { button ->
+        actualPlayerColorButtons[playerCount - 1].forEach { button ->
             button.isVisible = false
             button.scale = 1.0
         }
@@ -1225,7 +1239,8 @@ class NewGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
             addFourthPlayerButton,
             removeFourthPlayerButton,
             gameModeSelector,
-            aiSpeedSelector
+            aiSpeedSelector,
+            gameIDLabel
         )
 
         background = ImageVisual("background.png")
@@ -1241,10 +1256,12 @@ class NewGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
                 it.isVisible = true
                 it.isDisabled = false
             }
-            actualPlayerColorButtons.take(2).forEach { it.forEach { button ->
-                button.isVisible = true
-                button.isDisabled = false
-            } }
+            actualPlayerColorButtons.take(2).forEach {
+                it.forEach { button ->
+                    button.isVisible = true
+                    button.isDisabled = false
+                }
+            }
             addThirdPlayerButton.apply {
                 isVisible = true
                 isDisabled = false

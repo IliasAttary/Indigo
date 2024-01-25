@@ -895,7 +895,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
                     if (!rootService.playerService.checkPlacement(AxialPos(q, r))) {
                         gameBoard[q, r]?.apply {
                             when (visual) {
-                                is CompoundVisual -> opacity = 0.5
+                                is CompoundVisual -> {}
                                 is ColorVisual -> opacity = 0.5
                                 is ImageVisual -> {}
                                 is TextVisual -> {}
@@ -944,10 +944,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
 
             null -> hexagonView = HexagonView(
                 size = 68,
-                visual = CompoundVisual(
-                    ColorVisual(Color(235, 230, 188)),
-                    TextVisual(text = "$q, $r")
-                )
+                visual = ColorVisual(Color(235, 230, 188)),
             ).apply {
                 onMouseClicked = {
                     if (rootService.networkService.connectionState in listOf(
