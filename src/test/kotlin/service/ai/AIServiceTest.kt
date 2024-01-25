@@ -48,6 +48,7 @@ class AIServiceTest {
         checkNotNull(game)
 
         var move = aiServices.playRandomly()
+        game.playerAtTurn.heldTile!!.rotation = move.second.rotation
 
         assertTrue { rootService.playerService.checkPlacement(move.first) }
 
@@ -59,6 +60,7 @@ class AIServiceTest {
             rootService.playerService.placeTile(AxialPos(-1, 4))
         }
         move = aiServices.playRandomly()
+        game.playerAtTurn.heldTile!!.rotation = move.second.rotation
 
         assertTrue { rootService.playerService.checkPlacement(move.first) }
     }
