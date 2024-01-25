@@ -1232,6 +1232,24 @@ class NewGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
         opacity = 0.4
 
         onSceneShown = {
+            playerLabels.take(2).forEach { it.isVisible = true }
+            actualPlayerTypeButtons.take(2).forEach {
+                it.isVisible = true
+                it.isDisabled = false
+            }
+            actualNameFieldsList.take(2).forEach {
+                it.isVisible = true
+                it.isDisabled = false
+            }
+            actualPlayerColorButtons.take(2).forEach { it.forEach { button ->
+                button.isVisible = true
+                button.isDisabled = false
+            } }
+            addThirdPlayerButton.apply {
+                isVisible = true
+                isDisabled = false
+            }
+
             if (gameMode == GameMode.JOIN) {
                 playerCount = 0
                 disableAll()
