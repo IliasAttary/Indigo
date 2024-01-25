@@ -24,6 +24,10 @@ class NetworkService(private val rootService: RootService) : AbstractRefreshingS
     /** Network client. Nullable for offline games. */
     private var client: NetworkClient? = null
 
+    /** The session id of the current game */
+    val sessionID: String?
+        get() = client?.sessionID
+
     /** Our player name in the network game */
     val playerName: String?
         get() = client?.playerName
