@@ -100,7 +100,7 @@ class PlayerService(private val rootService:RootService) : AbstractRefreshingSer
         Thread {
             val timeStart = System.currentTimeMillis()
             val (aiMove, tileRotation) = if (game.playerAtTurn.smartAI) {
-                val trainMonti = rootService.aiServices.trainMontiCarloAgent(5, 5, 10)!!
+                val trainMonti = rootService.aiServices.trainMontiCarloAgent(30, 10)
                 Pair(trainMonti.first, trainMonti.second.rotation)
             } else {
                 val randomMove = rootService.aiServices.playRandomly()

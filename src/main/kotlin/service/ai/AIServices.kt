@@ -121,7 +121,7 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
      * @return The current state of the game encapsulated in a `GameState` object.
      */
 
-    fun getCurrentState(): GameState {
+    private fun getCurrentState(): GameState {
 
         // Checks if a game is running
         val game = rootService.currentGame
@@ -187,8 +187,6 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
         }
 
         val oldGameState = getCurrentState()
-
-        rootService.playerService.drawTile()
 
         val allPossibleRotations = getAllTilePossibleRotations(tile)
 
@@ -367,8 +365,7 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
      *
      * @param currentNode The MonteCarloNode to expand.
      */
-    private fun montiCarloExpansion(currentNode: MontiCarloNode, butchSize: Int) {
-
+    private fun montiCarloExpansion(currentNode: MontiCarloNode) {
 
         // get all possible  moves and their next states
         val allFutureStates: MutableList<Pair<Pair<AxialPos, Tile>, GameState>> = getAllPossibleNextStates()
@@ -377,9 +374,8 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
         allFutureStates.shuffle()
 
         // Select a random subset of the specified size
-        val randomSubset = allFutureStates.subList(0, butchSize)
-        for ((action, nextState) in randomSubset) {
-
+        //val randomSubset = allFutureStates.subList(0, butchSize)
+        for ((action, nextState) in allFutureStates) {
             generateChildNodes(currentNode, nextState, action)
         }
 
@@ -395,12 +391,10 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
      * steps with a given batch size.
      *
      * @param currentNode The starting point for Monte Carlo Simulation.
-     * @param batchSize The batch size representing the number of moves to consider in each step.
      */
     private fun montiCarloSimulation(
         currentNode: MontiCarloNode,
-        numberOfFutureSteps: Int,
-        batchSize: Int
+        numberOfFutureSteps: Int
     ): MontiCarloNode {
 
         var startNode = currentNode
@@ -408,20 +402,16 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
         while (true) {
 
             if ((startNode.currentDepth == numberOfFutureSteps)
-                || findAllValidPositions().size == 0 || startNode.currentGameState!!.drawStack.isEmpty()
+                || findAllValidPositions().size == 0
             ) {
                 return startNode
             }
-
             if (startNode.children.isEmpty()) {
-                montiCarloExpansion(startNode, batchSize)
-
+                montiCarloExpansion(startNode)
             } else {
                 startNode = selectNextState(startNode)
-
             }
         }
-
 
     }
 
@@ -484,11 +474,10 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
      *
      * @param simulationNumber The number of Monte Carlo simulations to perform.
      * @param futureStepsNumber The number of steps to simulate into the future during each simulation.
-     * @param theBatchSize The batch size representing the number of moves to consider in each simulation step.
      * @return A Pair representing the selected action (position and rotated tile) for the trained agent.
      * @throws IllegalStateException if no game is currently in progress.
      */
-    fun trainMontiCarloAgent(simulationNumber: Int, futureStepsNumber: Int, theBatchSize: Int): Pair<AxialPos, Tile> {
+    fun trainMontiCarloAgent(simulationNumber: Int, futureStepsNumber: Int): Pair<AxialPos, Tile> {
 
         // Checks if a game is running
         val game = rootService.currentGame
@@ -497,197 +486,32 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
         // Checks if the player has a tile to place
         val tile = game.playerAtTurn.heldTile
         requireNotNull(tile) { "The current player has no tile" }
-
         while (true) {
+
             val initialStateNode = MontiCarloNode()
             initialStateNode.currentGameState = getCurrentState()
-
-            for (i in 0..simulationNumber) {
-
-                val leafNode = montiCarloSimulation(initialStateNode, futureStepsNumber, theBatchSize)
+            for (i in 0 until simulationNumber) {
+                val leafNode = montiCarloSimulation(initialStateNode, futureStepsNumber)
 
                 backPropagation(leafNode)
 
             }
 
             val nextStateAction = selectNextState(initialStateNode).action
-            game.currentBoard.remove(nextStateAction!!.first)
+
+            //game.currentBoard.remove(nextStateAction!!.first)
 
             // Check if the chosen position and rotation result in a valid placement
-            val oldRotation = tile.rotation
-            val tilePosition = nextStateAction.first
+            val tilePosition = nextStateAction!!.first
             val tileRotation = nextStateAction.second
 
             tile.rotation = tileRotation.rotation
-
             val isValid = rootService.playerService.checkPlacement(tilePosition)
-            tile.rotation = oldRotation
 
             if (isValid) {
                 return Pair(tilePosition, tileRotation)
             }
         }
-    }
-
-    // *********************************************** min max *********************************************
-
-    /**
-     * Expands the children nodes of the given MinMaxNode using the Minimax algorithm.
-     *
-     * This function expands the children nodes of the provided MinMaxNode using the Minimax algorithm,
-     * generating all possible next states and creating child nodes for each state. The player types
-     * (Maximizer or Minimizer) are assigned to each child node based on the current player type of the
-     * parent node. The expanded child nodes are added to the parent node's children list, and the parent-child
-     * relationships are established.
-     *
-     * @param currentNode The MinMaxNode to expand its children using the Minimax algorithm.
-     */
-    private fun minMaxExpansion(currentNode: MinMaxNode) {
-
-        currentNode.currentGameState = getCurrentState()
-        currentNode.playerType = "Maximizer"
-
-        // get all possible  moves and their next states
-        val allFutureStates: MutableList<Pair<Pair<AxialPos, Tile>, GameState>> = getAllPossibleNextStates()
-        for ((action, nextState) in allFutureStates) {
-
-            // generate a Child Node
-            val currentChildNode = MinMaxNode()
-            // set it current state to new state
-            currentChildNode.currentGameState = nextState
-            // save the taken action
-            currentChildNode.action = action
-
-            // add the current child to children of the parent node
-            currentNode.children.add(currentChildNode)
-            // set the parent of the child to the current parent
-            currentChildNode.parent = currentNode
-            // set  also the type of the new node
-            if (currentNode.parent != null) {
-                if (currentNode.parent!!.playerType == "Maximizer") {
-                    currentNode.playerType = "Minimizer"
-                } else {
-                    currentNode.playerType = "Maximizer"
-                }
-            }
-
-        }
-
-    }
-
-    /**
-     * Simulates the Minimax algorithm starting from the given MinMaxNode.
-     *
-     * This function performs a simulation of the Minimax algorithm starting from the provided MinMaxNode.
-     * It recursively expands the children nodes, assigning scores to leaf nodes based on a reward function.
-     * Leaf nodes with scores exceeding the specified threshold are added to the list of leaf nodes.
-     *
-     * @param currentNode The MinMaxNode to start the Minimax simulation.
-     * @param threshold The threshold for assigning scores to leaf nodes.
-     * @return A MutableList containing the leaf nodes of the Minimax simulation.
-     */
-    private fun minMaxSimulation(currentNode: MinMaxNode, threshold: Int): MutableList<MinMaxNode> {
-        val leafNode = mutableListOf<MinMaxNode>()
-
-        if (currentNode.children.size == 0) { // leaf node
-            currentNode.score = assignRewardMinMax(threshold)
-            currentNode.parent?.let { leafNode.add(it) }
-        }
-
-        var start = currentNode
-        for (child in start.children) {
-            start = child
-            minMaxExpansion(start)
-            minMaxSimulation(start, threshold)
-        }
-        return leafNode
-    }
-
-
-    /**
-     * Performs backpropagation in the Minimax tree based on the scores of leaf nodes.
-     *
-     * This function backpropagates the scores of leaf nodes through the Minimax tree. It iterates
-     * through the provided list of MinMaxNodes, updating the scores of each node in the path to the root.
-     * The backpropagation process considers whether the node is a Maximizing or Minimizing node,
-     * and selects the child with the corresponding extreme score (maximum or minimum).
-     *
-     * @param nodeList A MutableList containing the leaf nodes of the Minimax tree.
-     */
-
-    private fun minMaxBackpropagation(nodeList: MutableList<MinMaxNode>) {
-
-        var currentNode: MinMaxNode
-        for (node in nodeList) {
-            currentNode = node
-            while (currentNode.parent!!.parent != null) {
-
-                if (currentNode.playerType == "Maximizer") {
-                    val selectedChild: MinMaxNode = node.children.minBy { child -> child.score }
-                    currentNode.score = selectedChild.score
-                    currentNode = currentNode.parent!!
-
-                } else {
-                    val selectedChild: MinMaxNode = node.children.maxBy { child -> child.score }
-                    currentNode.score = selectedChild.score
-                    currentNode = currentNode.parent!!
-                }
-            }
-        }
-    }
-
-
-    /**
-     * Assigns a reward value based on the current player's points compared to a specified threshold.
-     *
-     * This function checks if a game is currently in progress and compares the points of the player
-     * at the current turn with a specified threshold. If the player's points are less than the threshold,
-     * a negative reward value (-1.0) is assigned; otherwise, a positive reward value (1.0) is assigned.
-     *
-     * @param gemsThreshold The threshold value for comparing with the player's points.
-     * @return A Double representing the assigned reward value based on the comparison.
-     * @throws IllegalStateException if no game is currently in progress.
-     */
-    private fun assignRewardMinMax(gemsThreshold: Int): Double {
-        // Checks if a game is running
-        val game = rootService.currentGame
-        checkNotNull(game) { "No game started yet." }
-        return if (game.playerAtTurn.points.toDouble() < gemsThreshold) {
-            // assign negative value
-            -1.0
-        } else {
-            1.0
-        }
-
-    }
-
-
-    /**
-     * Trains a Minimax-based agent for playing the game.
-     *
-     * This function trains a Minimax-based agent by performing Minimax simulation and backpropagation.
-     * It initializes the MinMax tree with the current game state and the player type as "Maximizer".
-     * The Minimax algorithm is then simulated, and the results are back-propagated through the tree.
-     * Finally, the best action is chosen based on the highest score among the child nodes.
-     *
-     * @return A Pair representing the chosen action (position and rotated tile) for the trained agent.
-     */
-    fun trainMinMax(): Pair<AxialPos, Tile>? {
-
-        val threshold = 2
-        // here the train min max
-        val currentState = MinMaxNode()
-        currentState.currentGameState = getCurrentState()
-        currentState.playerType = "Maximizer"
-        //  simulation
-        val resultList = minMaxSimulation(currentState, threshold)
-        // backpropagation
-        minMaxBackpropagation(resultList)
-        // choose the best action
-        val chosenNextState: MinMaxNode = currentState.children.maxBy { child -> child.score }
-
-        return chosenNextState.action
-
     }
 
 }
