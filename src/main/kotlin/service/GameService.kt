@@ -329,6 +329,10 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
         val players = game.currentPlayers
         rootService.currentGame = null
 
+        if (rootService.networkService.connectionState != ConnectionState.DISCONNECTED) {
+            rootService.networkService.disconnect()
+        }
+
         onAllRefreshables{refreshAfterEndGame(players)}
     }
 

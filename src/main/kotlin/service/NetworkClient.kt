@@ -184,6 +184,10 @@ class NetworkClient(
      */
     override fun onGameActionResponse(response: GameActionResponse) {
         BoardGameApplication.runOnGUIThread {
+            if (networkService.connectionState == ConnectionState.DISCONNECTED) {
+                return@runOnGUIThread
+            }
+
             check(
                 networkService.connectionState == ConnectionState.PLAYING_MY_TURN
                         || networkService.connectionState == ConnectionState.WAITING_FOR_OPPONENTS_TURN
