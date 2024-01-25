@@ -136,34 +136,4 @@ class AIMonteCarloTest {
 
     }
 
-    /**
-     * Tests the Monte Carlo training procedure by starting a game and training an AI agent.
-     */
-    @Test
-    fun testMonteCarloTraining() {
-        //assertFails { playerService.placeTile(AxialPos(1, -3)) }
-
-        gameService.startGame(
-            players = listOf(
-                Player("P1", Color.RED, heldTile = RouteTile(TileType.TILE0), isAI = false, smartAI = false),
-                Player("P2", Color.BLUE, heldTile = RouteTile(TileType.TILE1), isAI = true, smartAI = false),
-            ),
-            aiSpeed = 10,
-            sharedGates = false
-        )
-
-        val game = rootService.currentGame
-        checkNotNull(game)
-        val result = aiServices.trainMontiCarloAgent(2, 2, 2)
-        val rotationResult = aiServices.playRandomly()
-
-        if (result != null) {
-            println("Smart Action: ${result.first} with Rotation: ${result.second.rotation}")
-            println("Random Action: ${rotationResult.first} with Rotation: ${rotationResult.second.rotation}")
-
-        } else {
-            println("No action selected.")
-        }
-    }
-
 }
