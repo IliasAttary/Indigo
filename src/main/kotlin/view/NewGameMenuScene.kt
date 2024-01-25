@@ -714,7 +714,7 @@ class NewGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
      *  List containing the actual first-fourth player types in case the order was shuffled.
      */
     private var actualPlayerTypeButtons =
-        mutableListOf(firstPlayerTypeButton, secondPlayerTypeButton, thirdPlayerTypeButton, fourthPlayerRedColor)
+        mutableListOf(firstPlayerTypeButton, secondPlayerTypeButton, thirdPlayerTypeButton, fourthPlayerTypeButton)
 
     /**
      * All the player labels in a list, from first to last
