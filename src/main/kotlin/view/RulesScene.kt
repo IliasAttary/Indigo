@@ -15,24 +15,25 @@ import tools.aqua.bgw.visual.ImageVisual
  *
  * @property returnButton The button used to return to the previous menu.
  */
-class RulesScene : MenuScene(500, 500), Refreshable {
+class RulesScene : MenuScene(1000, 704), Refreshable {
 
         val returnButton = Button(
             width = 300,
             height = 150,
-            posX = 450,
-            posY = 380,
+            posX = 730,
+            posY = 560,
             text = "Return",
             font = Font(size = 40),
             visual = ImageVisual("button_background.png")
         ).apply {
             visual.borderRadius = BorderRadius(15)
             visual.backgroundRadius = BackgroundRadius(15)
-            scale = 0.45
+            scale = 0.6
         }
 
         init {
-            opacity = 0.7
+            background = ImageVisual("Rules.png")
+            opacity = 0.8
             addComponents(
                 returnButton
             )
