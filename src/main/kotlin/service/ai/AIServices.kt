@@ -493,36 +493,48 @@ class AIServices(private val rootService: RootService) : AbstractRefreshingServi
      * @return A Pair representing the selected action (position and rotated tile) for the trained agent.
      * @throws IllegalStateException if no game is currently in progress.
      */
-    fun trainMontiCarloAgent(simulationNumber: Int, futureStepsNumber: Int, theBatchSize: Int): Pair<AxialPos, Tile>? {
+    fun trainMontiCarloAgent(simulationNumber: Int, futureStepsNumber: Int, theBatchSize: Int): Pair<AxialPos, Tile> {
 
         // Checks if a game is running
         val game = rootService.currentGame
         checkNotNull(game) { "No game started yet." }
 
-        val initialStateNode = MontiCarloNode()
+        // Checks if the player has a tile to place
+        val tile = game.playerAtTurn.heldTile
+        requireNotNull(tile) { "The current player has no tile" }
 
-        initialStateNode.currentGameState = getCurrentState()
+        while (true) {
+            val initialStateNode = MontiCarloNode()
+            initialStateNode.currentGameState = getCurrentState()
 
+            for (i in 0..simulationNumber) {
 
-        for (i in 0..simulationNumber) {
+                val leafNode = montiCarloSimulation(initialStateNode, futureStepsNumber, theBatchSize)
 
-            val leafNode = montiCarloSimulation(initialStateNode, futureStepsNumber, theBatchSize)
+                backPropagation(leafNode)
 
-            backPropagation(leafNode)
+            }
 
+            val nextStateAction = selectNextState(initialStateNode).action
+            game.currentBoard.remove(nextStateAction!!.first)
+
+            // Check if the chosen position and rotation result in a valid placement
+            val oldRotation = tile.rotation
+            val tilePosition = nextStateAction.first
+            val tileRotation = nextStateAction.second
+
+            tile.rotation = tileRotation.rotation
+
+            val isValid = rootService.playerService.checkPlacement(tilePosition)
+            tile.rotation = oldRotation
+
+            if (isValid) {
+                return Pair(tilePosition, tileRotation)
+            }
         }
-
-        game.currentBoard.remove(selectNextState(initialStateNode).action!!.first)
-        return if (rootService.playerService.checkPlacement(selectNextState(initialStateNode).action!!.first)) {
-            selectNextState(initialStateNode).action
-        }else{
-            trainMontiCarloAgent(simulationNumber, futureStepsNumber, theBatchSize)
-        }
-
     }
 
-
-    // *********************************************************min max ***************************************************
+    // *********************************************** min max *********************************************
 
     /**
      * Expands the children nodes of the given MinMaxNode using the Minimax algorithm.
