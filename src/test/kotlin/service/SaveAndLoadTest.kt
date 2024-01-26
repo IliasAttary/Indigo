@@ -81,4 +81,35 @@ class SaveAndLoadTest {
             loadedGame.currentPlayers[0]
         )
     }
+
+
+    /**
+     * Tests whether the AI player plays its move after loading the game
+     */
+    @Test
+    fun aiPlayerAfterLoad(){
+        gameService.startGame(
+            players = listOf(
+                Player("P1", Color.RED, heldTile = null, isAI = false, smartAI = false),
+                Player("P2", Color.BLUE, heldTile = null, isAI = true, smartAI = false)
+            ),
+            aiSpeed = 3000,
+            sharedGates = false
+        )
+
+        playerService.placeTile(AxialPos(1,1))
+        Thread.sleep(1500)
+
+        gameService.save()
+        gameService.load()
+
+        val game = rootService.currentGame
+        checkNotNull(game)
+
+        assert(game.playerAtTurn.isAI)
+
+        //let the AI make the move
+        Thread.sleep(7000)
+        assert(!game.playerAtTurn.isAI)
+    }
 }
