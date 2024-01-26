@@ -8,6 +8,7 @@ import tools.aqua.bgw.style.BorderRadius
 import tools.aqua.bgw.util.Font
 import tools.aqua.bgw.visual.ImageVisual
 import tools.aqua.bgw.components.uicomponents.Label
+import tools.aqua.bgw.core.Alignment
 import java.awt.Color
 
 
@@ -65,10 +66,34 @@ class EndGameScene : MenuScene(1920, 1080), Refreshable {
         visual.backgroundRadius = BackgroundRadius(15)
     }
 
-    private val p1Score = Label(width = 1080/2, height = 150, posX = 1080/2, posY = 200)
-    private val p2Score = Label(width = 1080/2, height = 150, posX = 1080/2, posY = 200 + 150 * 1)
-    private val p3Score = Label(width = 1080/2, height = 150, posX = 1080/2, posY = 200 + 150 * 2)
-    private val p4Score = Label(width = 1080/2, height = 150, posX = 1080/2, posY = 200 + 150 * 3)
+    private val p1Score = Label(
+        width = (backgroundBox.posX + backgroundBox.width) - startButton.posX - 100,
+        height = 150,
+        posX = startButton.posX + 50,
+        posY = 200,
+        alignment = Alignment.CENTER_LEFT
+    )
+    private val p2Score = Label(
+        width = (backgroundBox.posX + backgroundBox.width) - startButton.posX - 100,
+        height = 150,
+        posX = startButton.posX + 50,
+        posY = 200 + 150 * 1,
+        alignment = Alignment.CENTER_LEFT
+    )
+    private val p3Score = Label(
+        width = (backgroundBox.posX + backgroundBox.width) - startButton.posX - 100,
+        height = 150,
+        posX = startButton.posX + 50,
+        posY = 200 + 150 * 2,
+        alignment = Alignment.CENTER_LEFT
+    )
+    private val p4Score = Label(
+        width = (backgroundBox.posX + backgroundBox.width) - startButton.posX - 100,
+        height = 150,
+        posX = startButton.posX + 50,
+        posY = 200 + 150 * 3,
+        alignment = Alignment.CENTER_LEFT
+    )
     private val scores = listOf(p1Score, p2Score, p3Score, p4Score)
 
     init {

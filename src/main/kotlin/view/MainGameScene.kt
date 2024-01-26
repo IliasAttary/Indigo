@@ -130,16 +130,17 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
      *  Shows the name of the first player
      */
     private val firstPlayerNameLabel = Label(
-        posX = firstPlayerColor.posX + 50,
+        posX = firstPlayerColor.posX + 90,
         posY = firstPlayerColor.posY,
-        width = 300,
+        width = 390,
         height = 60,
         font = Font(
             size = 30.0,
             fontStyle = Font.FontStyle.ITALIC,
             color = Color.WHITE,
             fontWeight = Font.FontWeight.BOLD
-        )
+        ),
+        alignment = Alignment.CENTER_LEFT
     ).apply {
         isVisible = false
     }
@@ -181,16 +182,17 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
      *  Shows the name of the second player
      */
     private val secondPlayerNameLabel = Label(
-        posX = secondPlayerColor.posX + 50,
+        posX = secondPlayerColor.posX + 90,
         posY = secondPlayerColor.posY,
-        width = 300,
+        width = 390,
         height = 60,
         font = Font(
             size = 30.0,
             fontStyle = Font.FontStyle.ITALIC,
             color = Color.WHITE,
             fontWeight = Font.FontWeight.BOLD
-        )
+        ),
+        alignment = Alignment.CENTER_LEFT
     ).apply {
         isVisible = false
     }
@@ -221,16 +223,17 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
      *  Shows the name of the third player
      */
     private val thirdPlayerNameLabel = Label(
-        posX = thirdPlayerColor.posX + 50,
+        posX = thirdPlayerColor.posX + 90,
         posY = thirdPlayerColor.posY,
-        width = 300,
+        width = 390,
         height = 60,
         font = Font(
             size = 30.0,
             fontStyle = Font.FontStyle.ITALIC,
             color = Color.WHITE,
             fontWeight = Font.FontWeight.BOLD
-        )
+        ),
+        alignment = Alignment.CENTER_LEFT
     ).apply {
         isVisible = false
     }
@@ -262,16 +265,17 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
      *  Shows the name of the fourth player
      */
     private val fourthPlayerNameLabel = Label(
-        posX = fourthPlayerColor.posX + 50,
+        posX = fourthPlayerColor.posX + 90,
         posY = fourthPlayerColor.posY,
-        width = 300,
+        width = 390,
         height = 60,
         font = Font(
             size = 30.0,
             fontStyle = Font.FontStyle.ITALIC,
             color = Color.WHITE,
             fontWeight = Font.FontWeight.BOLD
-        )
+        ),
+        alignment = Alignment.CENTER_LEFT
     ).apply {
         isVisible = false
     }
