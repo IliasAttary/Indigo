@@ -158,4 +158,29 @@ class StartGameTest {
 
 
     }
+
+    /**
+     * Test startGame for AI as first player
+     */
+    @Test
+    fun testStartGameFirstPlayerAI(){
+        val mc = RootService()
+
+        mc.gameService.startGame(
+            players = listOf(
+                Player("P1", Color.RED, heldTile = RouteTile(TileType.TILE0), isAI = true, smartAI = false),
+                Player("P2", Color.BLUE, heldTile = RouteTile(TileType.TILE1), isAI = false, smartAI = false),
+                Player("P3", Color.WHITE, heldTile = RouteTile(TileType.TILE2), isAI = false, smartAI = false),
+                Player("P4", Color.PURPLE, heldTile = RouteTile(TileType.TILE3), isAI = false, smartAI = false),
+            ),
+            aiSpeed = 1000,
+            sharedGates = false
+        )
+        Thread.sleep(3000)
+
+        //Check if the AI player makes the first move
+        val game = mc.currentGame
+        checkNotNull(game)
+        assertEquals(32,game.currentBoard.size)
+    }
 }
