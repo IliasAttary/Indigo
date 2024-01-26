@@ -1276,6 +1276,58 @@ class NewGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
             }
         }
 
+        // Clears all the fields and resets the player counter
+        onSceneHid = {
+            playerCount = 2
+
+            for (i in 0..3) {
+                // Reset the types, names, colors and field inputs
+                availableTypes[i] = 0
+                actualPlayerTypes[i] = ""
+                actualPlayerNames[i] = ""
+                actualPlayerColors[i] = ""
+                actualNameFieldsList[i].text = ""
+                // Reset the Type Buttons to player and hide third/fourth player button
+                actualPlayerTypeButtons[i].apply {
+                    name = "player"
+                    visual = ImageVisual("player_icon.png")
+                    if (i > 1) {
+                        isVisible = false
+                        isDisabled = true
+                    }
+                }
+                // Hide third/fourth player
+                if (i > 1) {
+                    actualNameFieldsList[i].isVisible = false
+                    actualNameFieldsList[i].isDisabled = true
+                }
+
+                // Reset the Color Button scale and hide the third/fourth player buttons
+                actualPlayerColorButtons[i].forEach { button ->
+                    button.scale = 1.0
+                    if (i > 1) {
+                        button.isVisible = false
+                        button.isDisabled = true
+                    }
+                }
+            }
+            addThirdPlayerButton.isVisible = true
+            addThirdPlayerButton.isDisabled = false
+            addFourthPlayerButton.isVisible = false
+            addFourthPlayerButton.isDisabled = true
+            removeThirdPlayerButton.isVisible = false
+            removeThirdPlayerButton.isDisabled = true
+            removeFourthPlayerButton.isVisible = false
+            removeFourthPlayerButton.isDisabled = true
+            
+            thirdPlayerLabel.isVisible = false
+            fourthPlayerLabel.isVisible = false
+
+            gameModeSelector.isVisible = false
+            gameModeSelector.isDisabled = true
+            gameModeSelector.selectedItem = ""
+        }
+
         // Check player names while writing them
         firstPlayerNameField.onKeyTyped = {
             determineActualValues()

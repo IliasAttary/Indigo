@@ -101,8 +101,6 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
             this.showMenuScene(preGameMenuScene)
         }
         newGameMenuScene.startRoundButton.onMouseClicked = {
-            this.hideMenuScene()
-
             // Find the correct player values and start a new game
             val playerList = mutableListOf<Player>()
             val aiSpeed = newGameMenuScene.aiSpeed
@@ -146,7 +144,7 @@ class IndigoApplication : BoardGameApplication("Indigo"), Refreshable {
                     error("Cannot start in Join mode")
                 }
             }
-
+            this.hideMenuScene()
             this.showGameScene(mainGameScene)
         }
         launchMenuScene.newGameButton.onMouseClicked = { this.showMenuScene(preGameMenuScene) }
