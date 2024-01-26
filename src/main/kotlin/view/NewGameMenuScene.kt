@@ -708,9 +708,9 @@ class NewGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
      *  Shows the Game ID in a Network game
      */
     val gameIDLabel = Label(
-        posX = setupPlayersLabel.posX,
-        posY = 0,
-        width = 700,
+        posX = 300,
+        posY = 10,
+        width = 1320,
         height = setupPlayersLabel.height,
         font = setupPlayersLabel.font,
         text = "Game ID: "
@@ -1273,6 +1273,8 @@ class NewGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
             } else if (gameMode == GameMode.HOST) {
                 playerCount = 1
                 disableHost()
+            } else {
+                gameIDLabel.isVisible = false
             }
         }
 
