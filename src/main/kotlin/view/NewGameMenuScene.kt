@@ -1249,22 +1249,38 @@ class NewGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
         onSceneShown = {
             playerLabels.take(2).forEach { it.isVisible = true }
             actualPlayerTypeButtons.take(2).forEach {
-                it.isVisible = true
                 it.isDisabled = false
+                it.isVisible = true
             }
             actualNameFieldsList.take(2).forEach {
-                it.isVisible = true
                 it.isDisabled = false
+                it.isVisible = true
             }
             actualPlayerColorButtons.take(2).forEach {
                 it.forEach { button ->
-                    button.isVisible = true
                     button.isDisabled = false
+                    button.isVisible = true
                 }
             }
             addThirdPlayerButton.apply {
-                isVisible = true
                 isDisabled = false
+                isVisible = true
+            }
+            startRoundButton.apply {
+                isDisabled = true
+                isVisible = true
+            }
+            aiSpeedSelector.apply {
+                isDisabled = false
+                isVisible = true
+            }
+            gameModeSelector.apply {
+                isDisabled = true
+                isVisible = false
+            }
+            randomizePlayerOrderButton.apply {
+                isDisabled = false
+                isVisible = true
             }
 
             if (gameMode == GameMode.JOIN) {
@@ -1327,7 +1343,8 @@ class NewGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
 
             gameModeSelector.isVisible = false
             gameModeSelector.isDisabled = true
-            gameModeSelector.selectedItem = ""
+            gameModeSelector.selectedItem = null
+            aiSpeedSelector.selectedItem = null
         }
 
         // Check player names while writing them
