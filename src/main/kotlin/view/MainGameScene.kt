@@ -15,10 +15,7 @@ import tools.aqua.bgw.style.BorderRadius
 import tools.aqua.bgw.util.BidirectionalMap
 import tools.aqua.bgw.util.Coordinate
 import tools.aqua.bgw.util.Font
-import tools.aqua.bgw.visual.ColorVisual
-import tools.aqua.bgw.visual.CompoundVisual
-import tools.aqua.bgw.visual.ImageVisual
-import tools.aqua.bgw.visual.TextVisual
+import tools.aqua.bgw.visual.*
 import java.awt.Color
 
 /**
@@ -1290,7 +1287,37 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
         val game = rootService.currentGame
         checkNotNull(game)
 
+        // Reset from last game
         tileMap.clear()
+        for (playerLabel in listOf(firstPlayerNameLabel, secondPlayerNameLabel, thirdPlayerNameLabel, fourthPlayerNameLabel)) {
+            playerLabel.text = ""
+            playerLabel.isVisible = false
+        }
+        showFirstPlayerName = false
+        showSecondPlayerName = false
+        showThirdPlayerName = false
+        showFourthPlayerName = false
+        for (playerColor in listOf(thirdPlayerColor, fourthPlayerColor)) {
+            playerColor.visual = Visual.EMPTY
+        }
+        for (playerGems in playerGemLabels.take(2)) {
+            for (gemLabel in playerGems) {
+                gemLabel.text = "0"
+                gemLabel.isVisible = true
+            }
+        }
+        for (playerGems in playerGemLabels.drop(2)) {
+            for (gemLabel in playerGems) {
+                gemLabel.text = "0"
+                gemLabel.isVisible = false
+            }
+        }
+        for (playerHeldTile in playerHeldTileList.take(2)) {
+            playerHeldTile.isVisible = true
+        }
+        for (playerHeldTile in playerHeldTileList.drop(2)) {
+            playerHeldTile.isVisible = false
+        }
 
         // Set the player Colors and if playerCount = 3/4 show the third/fourth player colors and heldTileView
         firstPlayerColor.apply {
