@@ -188,88 +188,57 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
      * @return A mutable list of players associated with the specified gate.
      */
     private fun determineGatePlayers(gate: Int, players: List<Player>, sharedGates: Boolean): MutableList<Player> {
-
         val gatePlayers = mutableListOf<Player>()
-
         when(players.size){
-            2 -> {
-
-                if(gate % 2 == 1){
-                   gatePlayers.add(players[0])
-                }
-                else{
-                    gatePlayers.add(players[1])
-                }
-            }
-
-            3 -> {
-                when(gate){
-
+            2 -> { gatePlayers.add(if (gate % 2 == 1) players[0] else players[1])}
+            3 -> { when(gate){
                     1 -> gatePlayers.add(players[0])
-
                     2 -> {
                         if(sharedGates){
                             gatePlayers.add(players[0])
                             gatePlayers.add(players[1])
                         }
-                        else{
-                            gatePlayers.add(players[1])
-                        }
+                        else{ gatePlayers.add(players[1]) }
                     }
-
                     3 -> gatePlayers.add(players[2])
-
                     4 -> {
                         if(sharedGates){
                             gatePlayers.add(players[2])
                             gatePlayers.add(players[0])
                         }
-                        else{
-                            gatePlayers.add(players[0])
-                        }
+                        else{ gatePlayers.add(players[0]) }
                     }
-
                     5 -> gatePlayers.add(players[1])
-
                     6 -> {
                         if(sharedGates){
                             gatePlayers.add(players[1])
                             gatePlayers.add(players[2])
                         }
-                        else{
-                            gatePlayers.add(players[2])
-                        }
+                        else{ gatePlayers.add(players[2]) }
                     }
                 }
             }
-
-            4 -> {
-                when(gate){
+            4 -> { when(gate){
                     1 -> {
                         gatePlayers.add(players[0])
                         gatePlayers.add(players[1])
                     }
-
                     2 -> {
                         gatePlayers.add(players[1])
                         gatePlayers.add(players[2])
                     }
-
                     3 -> {
                         gatePlayers.add(players[0])
                         gatePlayers.add(players[3])
                     }
-
                     4 -> {
                         gatePlayers.add(players[3])
                         gatePlayers.add(players[1])
                     }
-
                     5 -> {
                         gatePlayers.add(players[2])
                         gatePlayers.add(players[0])
                     }
-
                     6 -> {
                         gatePlayers.add(players[2])
                         gatePlayers.add(players[3])
@@ -277,7 +246,6 @@ class GameService(private val rootService:RootService):AbstractRefreshingService
                 }
             }
         }
-
         return gatePlayers
     }
 

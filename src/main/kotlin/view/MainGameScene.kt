@@ -1165,9 +1165,7 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
     private fun initializeGateColors() {
         val game = rootService.currentGame
         checkNotNull(game)
-
         val playerCount = game.currentPlayers.size
-
         if (playerCount == 2) {
             // Set the first gate colors
             gateOneOne.visual = ImageVisual("color_${game.currentPlayers[0].color.toString().lowercase()}.png")
@@ -1207,7 +1205,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             // Set the sixth gate colors
             gateSixOne.visual = ImageVisual("color_${game.currentPlayers[1].color.toString().lowercase()}.png")
             gateSixTwo.visual = ImageVisual("color_${game.currentPlayers[2].color.toString().lowercase()}.png")
-
         }
         if (playerCount == 3 && !game.sharedGates) {
             // Set the first gate colors
@@ -1228,7 +1225,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             // Set the sixth gate colors
             gateSixOne.visual = ImageVisual("color_${game.currentPlayers[2].color.toString().lowercase()}.png")
             gateSixTwo.visual = ImageVisual("color_${game.currentPlayers[2].color.toString().lowercase()}.png")
-
         }
         if (playerCount == 4) {
             // Set the first gate colors
@@ -1249,7 +1245,6 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
             // Set the sixth gate colors
             gateSixOne.visual = ImageVisual("color_${game.currentPlayers[2].color.toString().lowercase()}.png")
             gateSixTwo.visual = ImageVisual("color_${game.currentPlayers[3].color.toString().lowercase()}.png")
-
         }
     }
 
