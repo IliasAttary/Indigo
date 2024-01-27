@@ -972,12 +972,16 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
                         checkNotNull(game)
 
                         if (rootService.playerService.checkPlacement(AxialPos(q, r)) && !game.playerAtTurn.isAI)
-                            scale = 1.2
+                            visual = currentPlayerHeldTileView.visual
                     }
                 }
 
                 onMouseExited = {
-                    scale = 1.0
+                    val game = rootService.currentGame
+                    checkNotNull(game)
+
+                    if (rootService.playerService.checkPlacement(AxialPos(q, r)) && !game.playerAtTurn.isAI)
+                        visual = ColorVisual(Color(235, 230, 188))
                 }
             }
 
@@ -1289,7 +1293,12 @@ class MainGameScene(private val rootService: RootService) : BoardGameScene(2160,
 
         // Reset from last game
         tileMap.clear()
-        for (playerLabel in listOf(firstPlayerNameLabel, secondPlayerNameLabel, thirdPlayerNameLabel, fourthPlayerNameLabel)) {
+        for (playerLabel in listOf(
+            firstPlayerNameLabel,
+            secondPlayerNameLabel,
+            thirdPlayerNameLabel,
+            fourthPlayerNameLabel
+        )) {
             playerLabel.text = ""
             playerLabel.isVisible = false
         }
