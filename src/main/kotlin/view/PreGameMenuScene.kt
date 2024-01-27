@@ -1,7 +1,5 @@
 package view
 
-import entity.Game
-import service.NetworkService
 import service.RootService
 import tools.aqua.bgw.components.uicomponents.Button
 import tools.aqua.bgw.components.uicomponents.ComboBox
@@ -150,11 +148,13 @@ class PreGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
                     rootService.networkService.useSmartAI = false
                     visual = ImageVisual("player_icon.png")
                 }
+
                 1 -> {
                     rootService.networkService.useAI = true
                     rootService.networkService.useSmartAI = false
                     visual = ImageVisual("random_ai_icon.png")
                 }
+
                 2 -> {
                     rootService.networkService.useAI = true
                     rootService.networkService.useSmartAI = true
@@ -312,6 +312,44 @@ class PreGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
         gameIDField.onKeyTyped = {
             checkDisableStart()
         }
+
+        // Reset all values and fields when the scene is hidden
+        onSceneHid = {
+            playerNameField.apply {
+                text = ""
+                isVisible = false
+                isDisabled = true
+            }
+            
+            enterNameLabel.isVisible = false
+            enterGameIDLabel.isVisible = false
+
+            gameIDField.apply {
+                text = ""
+                isVisible = false
+                isDisabled = true
+            }
+
+            gameModeSelector.apply {
+                selectedItem = ""
+            }
+
+            joinPlayerType = 0
+            joinPlayerTypeButton.apply {
+                isVisible = false
+                isDisabled = true
+                visual = ImageVisual("player_icon.png")
+            }
+
+            joinAiSpeedSelector.apply {
+                isVisible = false
+                isDisabled = true
+                selectedItem = ""
+            }
+
+            gameMode = GameMode.LOCAL
+        }
+
     }
 
     /**
@@ -321,7 +359,7 @@ class PreGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
         startButton.isDisabled = playerNameField.text.isBlank()
                 || (gameMode == GameMode.HOST && gameIDField.text.isBlank())
                 || (gameMode == GameMode.JOIN &&
-                    (gameIDField.text.isBlank() || (joinPlayerType != 0 && joinAiSpeedSelector.selectedItem == null)))
+                (gameIDField.text.isBlank() || (joinPlayerType != 0 && joinAiSpeedSelector.selectedItem == null)))
     }
 
 }
