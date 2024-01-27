@@ -320,7 +320,7 @@ class PreGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
                 isVisible = false
                 isDisabled = true
             }
-            
+
             enterNameLabel.isVisible = false
             enterGameIDLabel.isVisible = false
 
@@ -331,7 +331,7 @@ class PreGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
             }
 
             gameModeSelector.apply {
-                selectedItem = ""
+                selectedItem = "Local Game"
             }
 
             joinPlayerType = 0
@@ -344,7 +344,7 @@ class PreGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
             joinAiSpeedSelector.apply {
                 isVisible = false
                 isDisabled = true
-                selectedItem = ""
+                selectedItem = "1000 ms"
             }
 
             gameMode = GameMode.LOCAL
