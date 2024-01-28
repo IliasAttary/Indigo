@@ -50,6 +50,7 @@ tasks.distZip {
     destinationDirectory.set(layout.projectDirectory.dir("public"))
 }
 
+
 tasks.test {
     useJUnitPlatform()
     reports.html.outputLocation.set(layout.projectDirectory.dir("public/test"))
