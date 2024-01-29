@@ -313,6 +313,12 @@ class PreGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
             checkDisableStart()
         }
 
+        onSceneShown = {
+            // Reset AI in sceneShown as we still need those values after sceneHid
+            rootService.networkService.useAI = false
+            rootService.networkService.useSmartAI = false
+        }
+
         // Reset all values and fields when the scene is hidden
         onSceneHid = {
             playerNameField.apply {
@@ -331,7 +337,7 @@ class PreGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
             }
 
             gameModeSelector.apply {
-                selectedItem = "Local Game"
+                selectedItem = null
             }
 
             joinPlayerType = 0
@@ -344,7 +350,7 @@ class PreGameMenuScene(private val rootService: RootService) : MenuScene(1920, 1
             joinAiSpeedSelector.apply {
                 isVisible = false
                 isDisabled = true
-                selectedItem = "1000 ms"
+                selectedItem = null
             }
 
             gameMode = GameMode.LOCAL
